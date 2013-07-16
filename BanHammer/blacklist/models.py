@@ -12,6 +12,10 @@ class Offender(models.Model):
     cidr = models.IntegerField()
     hostname = models.CharField(max_length=255, null=True)
     asn = models.IntegerField(null=True)
+    # Is it only a suggestion or a host that was actually blocked?
+    suggestion = models.BooleanField()
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
 
     def _cidrToNetmask(self):
         bits = 0
@@ -122,3 +126,53 @@ class ComplaintForm(forms.Form):
             del cleaned_data["end_date"]
 
         return cleaned_data
+
+# Populated with events from ArcSight ESM
+# The field names are taken from ArcSight ESM
+# The attack score is the initial one (time = 0)
+class Event(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    initial_score = models.IntegerField(max_length=7)
+    # IP address of the attacker
+    attackerAddress = models.CharField(max_length=39)
+    # Name of the ArcSight rule that matched
+    rulename = models.CharField(max_length=255)
+    # Severity of the alert (from 1 to 10, low to high)
+    severity = models.IntegerField(max_length=2)
+    # Event ID
+    eventID = models.IntegerField()
+    # Username tried by the attacker
+    attackerUserName = models.CharField(max_length=255, null=True)
+    # Requested URL
+    requestUrl = models.CharField(max_length=255, null=True)
+    # Host serving the requested URL?
+    requestUrlHost = models.CharField(max_length=255, null=True)
+    # Country of the source IP?
+    sourceGeoCountryName = models.CharField(max_length=255, null=True)
+    # ?
+    requestContext = models.CharField(max_length=255, null=True)
+    # targeted hostname?
+    targetHostName = models.CharField(max_length=255, null=True)
+    # ?
+    targetAddress = models.CharField(max_length=39, null=True)
+    # ?
+    attackerGeoLocationInfo = models.CharField(max_length=255, null=True)
+    # Source IP Address
+    sourceAddress = models.CharField(max_length=39, null=True)
+    # ?
+    login = models.CharField(max_length=255, null=True)
+    # ?
+    referrer = models.CharField(max_length=255, null=True)
+    # ?
+    sourceUserName = models.CharField(max_length=255, null=True)
+    # ?
+    fileName = models.CharField(max_length=255, null=True)
+    # ?
+    getDestHostName = models.CharField(max_length=255, null=True)
+
+class AttackScore(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    # The updated date is used to decrease the score as time passes
+    updated_date = models.DateTimeField(auto_now=True)
+    score = models.IntegerField(max_length=7)
+    offender = models.ForeignKey(Offender)
