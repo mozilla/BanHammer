@@ -17,3 +17,5 @@ build
 tmp/*
 *~
 *.mo
+.project
+.pydevproject
