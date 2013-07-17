@@ -29,13 +29,46 @@ class Offender(models.Model):
         )
     netmask = property(_cidrToNetmask)
 
+    @classmethod
+    def find_create_from_ip(cls, ip):
+        offender = Offender.objects.filter(address=ip)
+        if offender.count() == 0:
+            # IPv6
+            if ':' in options['attackerAddress']:
+                # eui-64 for autoconfiguration
+                if 'ff:fe' in cidr or 'FF:FE' in options['attackerAddress']:
+                    cidr = 64
+                else:
+                    cidr = 128
+            # IPv4
+            else:
+                cidr = 32
+            
+            # TODO: hostname, asn if internet access
+            offender = Offender(address=event.attackerAddress,
+                cidr=cidr,
+                suggestion=True,
+            )
+            offender.save()
+        else:
+            offender = offender[0]
+        return offender
+
 class Blacklist(models.Model):
+    TYPES = (('zlb_redirect', 'zlb_redirect'),
+        ('zlb_block', 'zlb_block'),
+        ('bgp_block', 'bgp_block'),
+        ('unknown', 'unknown')
+    )
+    
     offender = models.ForeignKey(Offender)
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     comment = models.CharField(max_length=1024)
     reporter = models.EmailField()
     bug_number = models.IntegerField(max_length=7, null=True)
+    suggestion = models.BooleanField()
+    type = models.CharField(max_length=12, choices=TYPES)
 
 class DisplayForm(forms.Form):
 
@@ -132,7 +165,6 @@ class ComplaintForm(forms.Form):
 # The attack score is the initial one (time = 0)
 class Event(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
-    initial_score = models.IntegerField(max_length=7)
     # IP address of the attacker
     attackerAddress = models.CharField(max_length=39)
     # Name of the ArcSight rule that matched
@@ -140,7 +172,7 @@ class Event(models.Model):
     # Severity of the alert (from 1 to 10, low to high)
     severity = models.IntegerField(max_length=2)
     # Event ID
-    eventID = models.IntegerField()
+    eventId = models.IntegerField()
     # Username tried by the attacker
     attackerUserName = models.CharField(max_length=255, null=True)
     # Requested URL
