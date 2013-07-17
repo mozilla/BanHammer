@@ -33,8 +33,8 @@ class ComplaintForm(forms.Form):
         max_length=43
     )
 
-    start_date = forms.DateTimeField()
-    end_date = forms.DateTimeField()
+    start_date = forms.DateTimeField(required=True)
+    end_date = forms.DateTimeField(required=True)
 
     comment = forms.CharField(
         widget=forms.TextInput( attrs={'size':'50'} ),

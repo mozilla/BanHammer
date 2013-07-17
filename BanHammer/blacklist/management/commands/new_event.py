@@ -1,7 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
-import datetime
-from BanHammer.blacklist.models import Event, Offender, AttackScore, Blacklist
+
+from BanHammer.blacklist.models import  Event, Offender,\
+                                        AttackScore, Blacklist,\
+                                        AttackScoreHistory
+from BanHammer.blacklist.management import notifications
 
 DEBUG = True
 
@@ -117,68 +120,31 @@ class Command(BaseCommand):
             del options[i]
             
         event = self._save_event(options)
-        score = self._save_score(event)
-        # TODO: _create_blacklist (if score > threshold, TODO: auto)
-        # TODO: send notifications
-            
+        offender = Offender.find_create_from_ip(event.attackerAddress)
+        score_indicators = AttackScoreHistory.score_indicators(event, offender)
+        score_details = AttackScore.compute_score(score_indicators)
+        attackscore = self._save_attackscore(offender, score_details['total'])
+        self._save_attackscore_history(offender, event, score_details, score_indicators)
+        # Create a blacklist suggestion if score > threshold
+        blacklist = attackscore.compute_blacklist_suggestion()
+        if blacklist != None:
+            blacklist.save()
+            # TODO: send notifications
+
     def _save_event(self, options):
         event = Event(**options)
         event.save()
         return event
-        
-    def _save_score(self, event):
-        offender = Offender.find_create_from_ip(event.attackerAddress)
-        
-        # previous events number
-        one_day = datetime.datetime.today() - datetime.timedelta(1)
-        event_types = Event.objects.filter(created_date__gte=one_day,
-            attackerAddress=event.attackerAddress)
-        event_types = uniquify(event_types.values('rulename'))
-        event_types = len(event_types)-1
-        
-        # number of times bgp blocked
-        times_bgp_blocked = Blacklist.objects.filter(
-            offender=offender,
-            type='bgp_block'
-        ).count()
-        
-        # number of times zlb blocked
-        times_zlb_blocked = Blacklist.objects.filter(
-            offender=offender,
-            type='zlb_block'
-        ).count()
-        
-        # number of times redirected
-        times_zlb_redirected = Blacklist.objects.filter(
-            offender=offender.id,
-            type='zlb_redirect'
-        ).count()
-        
-        # last attack score of the offender
-        last_attack_score = AttackScore.objects.filter(
-            offender=offender)
-        if len(last_attack_score) > 0:
-            last_attack_score = last_attack_score[0]
-        else:
-            last_attack_score = 0
-        
-        if DEBUG:
-            self.stdout.write('severity %i\n' % event.severity)
-            self.stdout.write('different event types %i\n' % event_types)
-            self.stdout.write('times bgp blocked %i\n' % times_bgp_blocked)
-            self.stdout.write('times zlb blocked %i\n' % times_zlb_blocked)
-            self.stdout.write('times zlb redirected %i\n' % times_zlb_redirected)
-            self.stdout.write('last attack score %i\n' % last_attack_score)
-        
-        # TODO: compute attack score
-        #AttackScore.compute()
-        #    AttackScore.find_or_create_from_offender()
-                
-        # TODO: add attack score
-        
-def uniquify(items):
-    checked = []
-    for i in items:
-        if i['rulename'] not in checked:
-            checked.append(i['rulename'])
-    return checked
+    
+    def _save_attackscore(self, offender, score):
+        attackscore = AttackScore(score=score, offender=offender)
+        attackscore.save()
+        return attackscore
+    
+    def _save_attackscore_history(self, offender, event, score_details, score_indicators):
+        kwargs = score_indicators
+        kwargs['offender'] = offender
+        kwargs['event'] = event
+        for i in score_details:
+            kwargs[i+'_score'] = score_details[i]
+        AttackScoreHistory(**kwargs).save()

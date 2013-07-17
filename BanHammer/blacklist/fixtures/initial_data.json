@@ -1,0 +1,58 @@
+[
+  {
+    "model": "blacklist.config",
+    "pk": 1,
+    "fields": {
+      "key": "score_factor_severity",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 2,
+    "fields": {
+      "key": "score_factor_event_types",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 3,
+    "fields": {
+      "key": "score_factor_times_bgp_blocked",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 4,
+    "fields": {
+      "key": "score_factor_times_zlb_blocked",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 5,
+    "fields": {
+      "key": "score_factor_times_zlb_redirected",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 6,
+    "fields": {
+      "key": "score_factor_last_attackscore",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 7,
+    "fields": {
+      "key": "blacklist_unknown_threshold",
+      "value": "5"
+    }
+  }
+]

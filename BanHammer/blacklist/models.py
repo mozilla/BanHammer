@@ -4,6 +4,19 @@ from django.db import models
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 
+import datetime
+
+def uniquify(items):
+    checked = []
+    for i in items:
+        if i['rulename'] not in checked:
+            checked.append(i['rulename'])
+    return checked
+
+class Config(models.Model):
+    key = models.CharField(max_length=255)
+    value = models.CharField(max_length=255)
+
 class Offender(models.Model):
     address = models.CharField(max_length=39)
     cidr = models.IntegerField()
@@ -31,9 +44,9 @@ class Offender(models.Model):
         offender = Offender.objects.filter(address=ip)
         if offender.count() == 0:
             # IPv6
-            if ':' in options['attackerAddress']:
+            if ':' in ip:
                 # eui-64 for autoconfiguration
-                if 'ff:fe' in cidr or 'FF:FE' in options['attackerAddress']:
+                if 'ff:fe' in cidr or 'FF:FE' in ip:
                     cidr = 64
                 else:
                     cidr = 128
@@ -42,7 +55,7 @@ class Offender(models.Model):
                 cidr = 32
             
             # TODO: hostname, asn if internet access
-            offender = Offender(address=event.attackerAddress,
+            offender = Offender(address=ip,
                 cidr=cidr,
                 suggestion=True,
             )
@@ -59,8 +72,8 @@ class Blacklist(models.Model):
     )
     
     offender = models.ForeignKey(Offender)
-    start_date = models.DateTimeField()
-    end_date = models.DateTimeField()
+    start_date = models.DateTimeField(null=True)
+    end_date = models.DateTimeField(null=True)
     comment = models.CharField(max_length=1024)
     reporter = models.EmailField()
     bug_number = models.IntegerField(max_length=7, null=True)
@@ -115,3 +128,89 @@ class AttackScore(models.Model):
     updated_date = models.DateTimeField(auto_now=True)
     score = models.IntegerField(max_length=7)
     offender = models.ForeignKey(Offender)
+
+    @classmethod
+    def compute_score(cls, score_indicators):
+        score_details = {}
+
+        for indicator in score_indicators:
+            score_details[indicator] = score_indicators[indicator] * \
+                int(Config.objects.get(key=('score_factor_'+indicator)).value)
+
+        score_details['total'] = 0
+        for i in score_details.values():
+            score_details['total'] += i
+
+        return score_details
+
+    def compute_blacklist_suggestion(self):
+        # TODO: suggest the good type
+        # TODO: suggest the good duration
+        unknown_threshold = int(Config.objects.get(key='blacklist_unknown_threshold').value)
+        if self.score > unknown_threshold:
+            return Blacklist(
+                offender=self.offender,
+                comment=('Suggestion by RTBH-ng (score: %i)' % self.score),
+                reporter='RTBH-ng bot',
+                suggestion=True,
+                type='unkown'
+            )
+
+# To describe the attack score for each event
+class AttackScoreHistory(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    # The updated date is used to decrease the score as time passes
+    offender = models.ForeignKey(Offender)
+    event = models.ForeignKey(Event)
+    total_score = models.IntegerField(max_length=7)
+    severity = models.IntegerField(max_length=2)
+    severity_score = models.IntegerField(max_length=7)
+    event_types = models.IntegerField(max_length=3)
+    event_types_score = models.IntegerField(max_length=7)
+    times_bgp_blocked = models.IntegerField(max_length=5)
+    times_bgp_blocked_score = models.IntegerField(max_length=7)
+    times_zlb_blocked = models.IntegerField(max_length=5)
+    times_zlb_blocked_score = models.IntegerField(max_length=7)
+    times_zlb_redirected = models.IntegerField(max_length=5)
+    times_zlb_redirected_score = models.IntegerField(max_length=7)
+    last_attackscore = models.IntegerField(max_length=7)
+    last_attackscore_score = models.IntegerField(max_length=7)
+
+    @classmethod
+    def score_indicators(cls, event, offender):
+        indicators = {'severity': event.severity}
+        
+        # previous events number
+        one_day = datetime.datetime.today() - datetime.timedelta(1)
+        indicators['event_types'] = Event.objects.filter(created_date__gte=one_day,
+            attackerAddress=event.attackerAddress)
+        indicators['event_types'] = uniquify(indicators['event_types'].values('rulename'))
+        indicators['event_types'] = len(indicators['event_types'])-1
+        
+        # number of times bgp blocked
+        indicators['times_bgp_blocked'] = Blacklist.objects.filter(
+            offender=offender,
+            type='bgp_block'
+        ).count()
+        
+        # number of times zlb blocked
+        indicators['times_zlb_blocked'] = Blacklist.objects.filter(
+            offender=offender,
+            type='zlb_block'
+        ).count()
+        
+        # number of times redirected
+        indicators['times_zlb_redirected'] = Blacklist.objects.filter(
+            offender=offender.id,
+            type='zlb_redirect'
+        ).count()
+        
+        # last attack score of the offender
+        indicators['last_attackscore'] = AttackScore.objects.filter(
+            offender=offender)
+        if len(indicators['last_attackscore']) > 0:
+            indicators['last_attackscore'] = indicators['last_attackscore'][0].score
+        else:
+            indicators['last_attackscore'] = 0
+        
+        return indicators
