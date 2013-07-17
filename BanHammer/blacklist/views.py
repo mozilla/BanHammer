@@ -7,7 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from .models import Offender, Blacklist, ComplaintForm, DisplayForm
+from .models import Offender, Blacklist
+from .forms import ComplaintForm, DisplayForm
 
 
 # default view for displaying all blacklists
