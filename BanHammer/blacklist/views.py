@@ -34,9 +34,9 @@ def index(request):
     order = request.session.get('order', 'asc')
 
     if show_expired:
-        blacklists = Blacklist.objects.all()
+        blacklists = Blacklist.objects.filter(suggestion=False)
     else:
-        blacklists = Blacklist.objects.filter(end_date__gt=datetime.now())
+        blacklists = Blacklist.objects.filter(end_date__gt=datetime.now(),suggestion=False)
 
     if order_by == 'address':
         blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.offender.address)
