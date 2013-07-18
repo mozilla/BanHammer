@@ -86,3 +86,14 @@ ENGAGE_ROBOTS = True
 #SESSION_COOKIE_SECURE = False
 
 HTTP_SERVER = "http://localhost:8000"
+
+THIRD_PARTY_RULES_FOLDER = '/usr/local/third_party_ips'
+
+ET_COMPROMISED_IPS_URL = 'https://rules.emergingthreatspro.com/blockrules/compromised-ips.txt'
+ET_COMPROMISED_IPS_REV = 'https://rules.emergingthreatspro.com/blockrules/COMPrev'
+ET_COMPROMISED_IPS_CONTENT_FILE = 'et_compromised_ips'
+ET_COMPROMISED_IPS_REV_FILE = 'et_compromised_ips.rev' 
+
+DSHIELD_BLOCK_URL = 'https://isc.sans.edu/block.txt'
+DSHIELD_BLOCK_CONTENT_FILE = 'dshield_block'
+DSHIELD_BLOCK_REV_FILE = 'dshield_block.rev'

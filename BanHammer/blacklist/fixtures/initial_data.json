@@ -51,15 +51,15 @@
     "model": "blacklist.config",
     "pk": 7,
     "fields": {
-      "key": "blacklist_unknown_threshold",
-      "value": "5"
+      "key": "score_factor_et_compromised_ips",
+      "value": "1"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 8,
     "fields": {
-      "key": "notifications_email_enable",
+      "key": "score_factor_dshield_block",
       "value": "1"
     }
   },
@@ -67,13 +67,29 @@
     "model": "blacklist.config",
     "pk": 9,
     "fields": {
+      "key": "blacklist_unknown_threshold",
+      "value": "5"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 10,
+    "fields": {
+      "key": "notifications_email_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 11,
+    "fields": {
       "key": "notifications_email_address_from",
       "value": "banhammer@localhost"
     }
   },
   {
     "model": "blacklist.config",
-    "pk": 10,
+    "pk": 12,
     "fields": {
       "key": "notifications_email_address_to",
       "value": "averez@localhost"

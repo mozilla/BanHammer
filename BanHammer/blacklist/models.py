@@ -5,6 +5,9 @@ from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 
 import datetime
+import netaddr
+
+from BanHammer import settings
 
 def uniquify(items):
     checked = []
@@ -175,6 +178,10 @@ class AttackScoreHistory(models.Model):
     times_zlb_redirected_score = models.IntegerField(max_length=7)
     last_attackscore = models.IntegerField(max_length=7)
     last_attackscore_score = models.IntegerField(max_length=7)
+    et_compromised_ips = models.IntegerField(max_length=1)
+    et_compromised_ips_score = models.IntegerField(max_length=7)
+    dshield_block = models.IntegerField(max_length=1)
+    dshield_block_score = models.IntegerField(max_length=7)
 
     @classmethod
     def score_indicators(cls, event, offender):
@@ -213,4 +220,23 @@ class AttackScoreHistory(models.Model):
         else:
             indicators['last_attackscore'] = 0
         
+        # ip in emerging threat compromised ips list?
+        f = file('%s/%s' % (settings.THIRD_PARTY_RULES_FOLDER, settings.ET_COMPROMISED_IPS_CONTENT_FILE), 'r')
+        indicators['et_compromised_ips'] = 0
+        for l in f.readlines():
+            if netaddr.IPAddress(event.attackerAddress) in netaddr.IPNetwork(l[:-1]):
+                indicators['et_compromised_ips'] = 1
+                break
+        f.close()
+
+        # ip in dhsield block network list?
+        f = file('%s/%s' % (settings.THIRD_PARTY_RULES_FOLDER, settings.DSHIELD_BLOCK_CONTENT_FILE), 'r')
+        indicators['dshield_block'] = 0
+        for l in f.readlines():
+            if netaddr.IPAddress(event.attackerAddress) in netaddr.IPNetwork(l[:-1]):
+                indicators['dshield_block'] = 1
+                break
+                
+        f.close()
+
         return indicators

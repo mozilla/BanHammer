@@ -120,6 +120,7 @@ class Command(BaseCommand):
             del options[i]
             
         event = self._save_event(options)
+        # TODO: filter out whitelist
         offender = Offender.find_create_from_ip(event.attackerAddress)
         score_indicators = AttackScoreHistory.score_indicators(event, offender)
         score_factors = self._get_score_factors()
