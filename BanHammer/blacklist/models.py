@@ -240,3 +240,19 @@ class AttackScoreHistory(models.Model):
         f.close()
 
         return indicators
+
+class WhitelistIP(models.Model):
+    address = models.CharField(max_length=39)
+    cidr = models.IntegerField()
+    reporter = models.EmailField()
+    comment = models.CharField(max_length=1024)
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def is_ip_in(cls, ip):
+        whitelist = WhitelistIP.objects.all()
+        for n in whitelist:
+            if netaddr.IPAddress(ip) in netaddr.IPNetwork("%s/%i" % (n.address, n.cidr)):
+                return True
+        return False
