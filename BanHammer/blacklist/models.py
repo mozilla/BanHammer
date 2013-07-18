@@ -130,12 +130,12 @@ class AttackScore(models.Model):
     offender = models.ForeignKey(Offender)
 
     @classmethod
-    def compute_score(cls, score_indicators):
+    def compute_score(cls, score_indicators, score_factors):
         score_details = {}
 
         for indicator in score_indicators:
             score_details[indicator] = score_indicators[indicator] * \
-                int(Config.objects.get(key=('score_factor_'+indicator)).value)
+                score_factors[indicator]
 
         score_details['total'] = 0
         for i in score_details.values():

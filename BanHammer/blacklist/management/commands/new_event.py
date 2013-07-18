@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
-from BanHammer.blacklist.models import  Event, Offender,\
+from BanHammer.blacklist.models import  Config, Event, Offender,\
                                         AttackScore, Blacklist,\
                                         AttackScoreHistory
 from BanHammer.blacklist.management import notifications
@@ -122,13 +122,24 @@ class Command(BaseCommand):
         event = self._save_event(options)
         offender = Offender.find_create_from_ip(event.attackerAddress)
         score_indicators = AttackScoreHistory.score_indicators(event, offender)
-        score_details = AttackScore.compute_score(score_indicators)
+        score_factors = self._get_score_factors()
+        score_details = AttackScore.compute_score(score_indicators, score_factors)
         attackscore = self._save_attackscore(offender, score_details['total'])
-        self._save_attackscore_history(offender, event, score_details, score_indicators)
+        attackscore_history_kwargs = self._get_attackscore_history_kwargs(offender,
+            event, score_details, score_indicators)
+        self._save_attackscore_history(attackscore_history_kwargs)
         # Create a blacklist suggestion if score > threshold
         blacklist = attackscore.compute_blacklist_suggestion()
         if blacklist != None:
+            # TODO: automatic switch
             blacklist.save()
+            if notifications.email_enabled():
+                notifications.send_email_new_event(
+                    offender,
+                    event,
+                    score_factors,
+                    attackscore_history_kwargs,
+                )
             # TODO: send notifications
 
     def _save_event(self, options):
@@ -141,10 +152,19 @@ class Command(BaseCommand):
         attackscore.save()
         return attackscore
     
-    def _save_attackscore_history(self, offender, event, score_details, score_indicators):
+    def _get_score_factors(self):
+        score_factors = {}
+        for i in Config.objects.filter(key__regex=r'^score_factor_'):
+            score_factors[i.key[13:]] = int(i.value)
+        return score_factors
+    
+    def _get_attackscore_history_kwargs(self, offender, event, score_details, score_indicators):
         kwargs = score_indicators
         kwargs['offender'] = offender
         kwargs['event'] = event
         for i in score_details:
             kwargs[i+'_score'] = score_details[i]
+        return kwargs
+            
+    def _save_attackscore_history(self, kwargs):
         AttackScoreHistory(**kwargs).save()

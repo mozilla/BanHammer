@@ -54,5 +54,29 @@
       "key": "blacklist_unknown_threshold",
       "value": "5"
     }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 8,
+    "fields": {
+      "key": "notifications_email_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 9,
+    "fields": {
+      "key": "notifications_email_address_from",
+      "value": "banhammer@localhost"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 10,
+    "fields": {
+      "key": "notifications_email_address_to",
+      "value": "averez@localhost"
+    }
   }
 ]
