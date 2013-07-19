@@ -92,7 +92,7 @@
     "pk": 12,
     "fields": {
       "key": "notifications_email_address_to",
-      "value": "averez@localhost"
+      "value": "root@localhost"
     }
   }
 ]

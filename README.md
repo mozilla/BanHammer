@@ -1,23 +1,17 @@
-playdoh
-=======
+BanHammer-ng is a system to push rules to border routers (using BGP) and Zeus Load Balancers to block IPs/network using a web interface.
 
-Mozilla's Playdoh is a web application template based on [Django][django].
+Installation
+============
 
-Patches are welcome! Feel free to fork and contribute to this project on
-[github][gh-playdoh].
+1. Rename `BanHammer/settings/local.py.orig` to vBanHammer/settings/local.py` and modify it to your needs
+2. Rename `BanHammer/blacklist/fixtures/initial_data.json.orig` to `BanHammer/blacklist/fixtures/initial_data`
+3. Follow [playdoh installation instructions](http://playdoh.readthedocs.org/en/latest/getting-started/installation.html)
 
-Full [documentation][docs] is available as well.
+Scoring and notification script (optional)
+==========================================
 
+If you have a SIEM, maybe ArcSight, you can have BanHammer suggest you via email which IP you should block.
+What you need to do is to run commands like `./manage.py new_event --attackerAddress=\'${attackerAddress}\' --eventId=${eventId} --severity=7 --rulename=\'Marketplace CSP Violation\'`
+to feed BanHammer with your data.
 
-[django]: http://www.djangoproject.com/
-[gh-playdoh]: https://github.com/mozilla/playdoh
-[docs]: http://playdoh.rtfd.org/
-
-
-License
--------
-This software is licensed under the [New BSD License][BSD]. For more
-information, read the file ``LICENSE``.
-
-[BSD]: http://creativecommons.org/licenses/BSD/
-
+The settings for the score and notifications are in the blacklist_config table.

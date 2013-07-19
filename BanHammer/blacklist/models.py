@@ -95,11 +95,11 @@ class Event(models.Model):
     # Severity of the alert (from 1 to 10, low to high)
     severity = models.IntegerField(max_length=2)
     # Event ID
-    eventId = models.IntegerField()
+    eventId = models.BigIntegerField(max_length=20)
     # Username tried by the attacker
     attackerUserName = models.CharField(max_length=255, null=True)
     # Requested URL
-    requestUrl = models.CharField(max_length=255, null=True)
+    requestUrl = models.TextField(null=True)
     # Host serving the requested URL?
     requestUrlHost = models.CharField(max_length=255, null=True)
     # Country of the source IP?
@@ -233,9 +233,13 @@ class AttackScoreHistory(models.Model):
         f = file('%s/%s' % (settings.THIRD_PARTY_RULES_FOLDER, settings.DSHIELD_BLOCK_CONTENT_FILE), 'r')
         indicators['dshield_block'] = 0
         for l in f.readlines():
-            if netaddr.IPAddress(event.attackerAddress) in netaddr.IPNetwork(l[:-1]):
-                indicators['dshield_block'] = 1
-                break
+            try:
+                if netaddr.IPAddress(event.attackerAddress) in netaddr.IPNetwork(l[:-1]):
+                    indicators['dshield_block'] = 1
+                    break
+            except netaddr.core.AddrFormatError:
+                # comparing IPv4 and IPv6 networks
+                pass
                 
         f.close()
 
@@ -253,6 +257,10 @@ class WhitelistIP(models.Model):
     def is_ip_in(cls, ip):
         whitelist = WhitelistIP.objects.all()
         for n in whitelist:
-            if netaddr.IPAddress(ip) in netaddr.IPNetwork("%s/%i" % (n.address, n.cidr)):
-                return True
+            try:
+                if netaddr.IPAddress(ip) in netaddr.IPNetwork("%s/%i" % (n.address, n.cidr)):
+                    return True
+            except netaddr.core.AddrFormatError:
+                # comparing IPv4 and IPv6 networks
+                pass
         return False

@@ -110,6 +110,10 @@ class Command(BaseCommand):
             raise Exception('--severity argument required')
         if options['eventId'] == None:
             raise Exception('--eventId argument required')
+        # Escaping trick
+        for key in options:
+            if type(options[key]) == str:
+                options[key] = options[key][1:-1]
         if DEBUG:
             self.stdout.write('args %s' % str(args))
             self.stdout.write('\n')
