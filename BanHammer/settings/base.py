@@ -18,6 +18,7 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
     #'%s.base' % PROJECT_MODULE,
     # Example code. Can (and should) be removed for actual projects.
     '%s.blacklist' % PROJECT_MODULE,
+    'django_nose',
 ]
 
 LOCALE_PATHS = (
@@ -84,3 +85,5 @@ LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
 MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
 MIDDLEWARE_CLASSES.remove('funfactory.middleware.LocaleURLMiddleware')
 TEMPLATE_PATH=os.path.join(os.path.dirname(__file__), '../base/templates/')
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'

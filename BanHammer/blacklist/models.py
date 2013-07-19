@@ -49,7 +49,7 @@ class Offender(models.Model):
             # IPv6
             if ':' in ip:
                 # eui-64 for autoconfiguration
-                if 'ff:fe' in cidr or 'FF:FE' in ip:
+                if 'ff:fe' in ip or 'FF:FE' in ip:
                     cidr = 64
                 else:
                     cidr = 128

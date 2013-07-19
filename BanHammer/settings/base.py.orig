@@ -78,3 +78,5 @@ DOMAIN_METHODS['messages'] = [
 # ]
 
 LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
+
+TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
