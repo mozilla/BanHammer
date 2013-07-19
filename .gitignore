@@ -19,3 +19,5 @@ tmp/*
 *.mo
 .project
 .pydevproject
+BanHammer/blacklist/fixtures/initial_data.json
+BanHammer/blacklist/fixtures/mozilla_data.json
