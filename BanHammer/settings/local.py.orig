@@ -97,3 +97,5 @@ ET_COMPROMISED_IPS_REV_FILE = 'et_compromised_ips.rev'
 DSHIELD_BLOCK_URL = 'https://isc.sans.edu/block.txt'
 DSHIELD_BLOCK_CONTENT_FILE = 'dshield_block'
 DSHIELD_BLOCK_REV_FILE = 'dshield_block.rev'
+
+MANAGEMENT_FOLDER = "/somedir/BanHammer/BanHammer/blacklist/management"

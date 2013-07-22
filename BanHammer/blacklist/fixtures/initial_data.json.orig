@@ -94,5 +94,13 @@
       "key": "notifications_email_address_to",
       "value": "root@localhost"
     }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 13,
+    "fields": {
+      "key": "notifications_irc_enable",
+      "value": "1"
+    }
   }
 ]

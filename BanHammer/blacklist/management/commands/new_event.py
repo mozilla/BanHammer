@@ -110,10 +110,6 @@ class Command(BaseCommand):
             raise Exception('--severity argument required')
         if options['eventId'] == None:
             raise Exception('--eventId argument required')
-        # Escaping trick
-        for key in options:
-            if type(options[key]) == str:
-                options[key] = options[key][1:-1]
         if DEBUG:
             self.stdout.write('args %s' % str(args))
             self.stdout.write('\n')
@@ -145,7 +141,13 @@ class Command(BaseCommand):
                         score_factors,
                         attackscore_history_kwargs,
                     )
-            # TODO: send notifications
+                if notifications.irc_enabled():
+                    notifications.send_irc_new_event(
+                        offender,
+                        event,
+                        score_factors,
+                        attackscore_history_kwargs,
+                    )
 
     def _save_event(self, options):
         event = Event(**options)
