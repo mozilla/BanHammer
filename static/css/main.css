@@ -8,5 +8,8 @@ td { padding: 0.2em; padding-right: 1em; padding-left: 1em; white-space: nowrap;
 .inactive { text-align: center; border: 0px; padding: 2em; }
 img { padding: 0.1em; }
 
-
-
+div#nav-header < nav < ul {
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}

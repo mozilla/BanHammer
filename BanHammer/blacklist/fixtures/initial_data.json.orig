@@ -100,7 +100,7 @@
     "pk": 13,
     "fields": {
       "key": "notifications_irc_enable",
-      "value": "1"
+      "value": "0"
     }
   }
 ]

@@ -103,7 +103,8 @@ def post(request):
 
     return render_to_response(
         'blacklist/post.html',
-        {'form': form},
+        {'form': form,
+         'body_init': True},
         context_instance = RequestContext(request)
     )
 

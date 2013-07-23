@@ -19,6 +19,7 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
     # Example code. Can (and should) be removed for actual projects.
     '%s.blacklist' % PROJECT_MODULE,
     'django_nose',
+    'debug_toolbar',
 ]
 
 LOCALE_PATHS = (
@@ -30,6 +31,7 @@ LOCALE_PATHS = (
 JINGO_EXCLUDE_APPS = [
     'admin',
     'registration',
+    'debug_toolbar',
 ]
 
 # BrowserID configuration
@@ -83,6 +85,9 @@ LOGGING = dict(loggers=dict(playdoh = {'level': logging.DEBUG}))
 
 
 MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES)
+MIDDLEWARE_CLASSES = list(MIDDLEWARE_CLASSES) + [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+]
 MIDDLEWARE_CLASSES.remove('funfactory.middleware.LocaleURLMiddleware')
 TEMPLATE_PATH=os.path.join(os.path.dirname(__file__), '../base/templates/')
 

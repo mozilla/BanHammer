@@ -1,0 +1,20 @@
+<!DOCTYPE HTML>
+<html>
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% if body_init %}
+	<body onLoad="initPage()">
+{% else %}
+	<body>
+{% endif %}
+
+	{% block nav_header %}
+	{% include "nav_header.html" %}
+	{% endblock %}
+
+	{% block content %}
+	{% endblock %}
+</body>
+</html>
