@@ -2,66 +2,63 @@
 
 
 {% block content %}
-	<div class="banner">Mozilla Network RTBH</div>
+	<div class="row">
+	    <div class="offset5 span2 center bold alert alert-info">
+	    	All times are in UTC
+	    </div>
+    </div>
+	<div class="row">
+		<div class="span2">
+			<a class="btn btn-primary" href="/blacklist/post/">
+				<i class="icon-white icon-plus-sign"></i>
+				Add new blacklist
+			</a>
+		</div>
+		<div class="span3 pull-right">
+			{% if data.show_expired == False %}
+				<a class="btn" href="/blacklist/show_expired">Show Expired Blacklists</a>
+			{% else %}
+				<a class="btn" href="/blacklist">Hide Expired Blacklists</a>
+			{% endif %}
+		</div>
+	</div>
 	<br />
-	<table class="list">
-	<tr>
-	<th align="left" colspan="4">
-	<form action="/blacklist/post/" method='link'>
-	<input type='submit' value='Add new blacklist'>
-	</form>
-	</th>
-	<th align="right" colspan="4">
-	<form action='/blacklist/' method='post'>
-	{{ csrf() }}
-	{% if data.show_expired == 1 %}
-	<input type='submit' value='Hide Expired Blacklists' />
-	<input type='hidden' name='view_mode' value='hide_expired' />
-	{% else %}
-	<input type='submit' value='Show Expired Blacklists' />
-	<input type='hidden' name='view_mode' value='show_expired' />
-	{% endif %}
-	</form>
-	</th>
-	</tr>
-	<tr>
-	<th></th><th></th><th colspan="2"><div class="comment">All times are in UTC</div></th><th></th>
-	</tr>
+	<table class="table">
 	<tr class="header">
-	<th align="left">
-	    Address
-	    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-	    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-	</th>
-	<th align="left">
-	    CIDR
-	    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-	    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-	</th>
-	<th align="center">
-	    Created
-	    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-	    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-	</th>
-	<th align="center">
-	    Expires
-	    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-	    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-	</th>
-	<th align="center">
-	    Reporter
-	    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-	    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-	</th>
-	<th align="center">
-	    <img src="{{ static('images/link.png') }}">
-	</th>
-	<th align="center">
-	    <img src="{{ static('images/comment.gif') }}">
-	</th>
-	<th align="center">
-	    <img src="{{ static('images/delete.gif') }}">
-	</th>
+		<th>
+		    Address
+		    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th>
+		<th>
+		    CIDR
+		    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th>
+		<th>
+		    Created
+		    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th>
+		<th class="center">
+		    Expires
+		    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th>
+		<th class="center">
+		    Reporter
+		    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th>
+		<th class="center">
+		    <img src="{{ static('images/link.png') }}">
+		</th>
+		<th class="center">
+		    <img src="{{ static('images/comment.gif') }}">
+		</th>
+		<th class="center">
+		    <img src="{{ static('images/delete.gif') }}">
+		</th>
 	</tr>
 	{% for b in blacklists %}
 	    <tr>
@@ -90,5 +87,5 @@
 	</td></tr>
 	{% endif %}
 	
-</table>
+	</table>
 {% endblock %}

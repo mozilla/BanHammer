@@ -20,6 +20,7 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
     '%s.blacklist' % PROJECT_MODULE,
     'django_nose',
     'debug_toolbar',
+    'bootstrap',
 ]
 
 LOCALE_PATHS = (
@@ -32,6 +33,12 @@ JINGO_EXCLUDE_APPS = [
     'admin',
     'registration',
     'debug_toolbar',
+]
+
+TEMPLATE_LOADERS = [
+    'jingo.Loader',
+    'django.template.loaders.filesystem.Loader',
+    'django.template.loaders.app_directories.Loader',
 ]
 
 # BrowserID configuration

@@ -1,20 +1,46 @@
-<!DOCTYPE HTML>
-<html>
-{% block header %}
-{% include "header.html" %}
+{% extends "bootstrap/layouts/base.html" %}
+
+{% block title %}Mozilla BanHammer-ng{% endblock %}
+
+{% block css_bootstrap %}
+    <link href="/static/css/bootstrap{{ debugmin() }}.css" rel="stylesheet">
+{% endblock %}
+{% block css_bootstrap_responsive %}
+    <link href="/static/css/bootstrap-responsive{{ debugmin() }}.css" rel="stylesheet">
+{% endblock %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% if body_init %}
-	<body onLoad="initPage()">
-{% else %}
-	<body>
+	{% block bodytag_extra %}onLoad="initPage()"{% endblock %}
 {% endif %}
 
-	{% block nav_header %}
-	{% include "nav_header.html" %}
-	{% endblock %}
-
-	{% block content %}
-	{% endblock %}
-</body>
-</html>
+{% block navbar_wrapper %}
+    <div class="navbar">
+	    <div class="navbar-inner">
+		    <a class="brand" href="#">Mozilla BanHammer-ng</a>
+		    <ul class="nav">
+			    <li>
+			    	<a href="/offenders">Offenders</a>
+			    </li>
+			    <li>
+			    	<a href="/blacklist">Blacklists</a
+			    </li>
+			    <li>
+			    	<a href="#">ZLBs</a>
+			    </li>
+				<li>
+					<a href="#">IP Whitelist</a>
+				</li>
+				<li>
+					<a href="#">Mozilla Domain Whitelist</a>
+				</li>
+				<li>
+					<a href="#">Settings</a>
+				</li>
+		    </ul>
+	    </div>
+    </div>
+{% endblock %}

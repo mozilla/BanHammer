@@ -15,6 +15,7 @@ patch()
 urlpatterns = patterns('',
     url(r'^$', views_blacklist.index, name='blacklist_index'),
     url(r'^blacklist/$', views_blacklist.index, name='blacklist_index'),
+    url(r'^blacklist/show_expired$', views_blacklist.index, {'show_expired': True}, name='blacklist_index'),
     url(r'^blacklist/post/$',views_blacklist.post, name='blacklist_post'),
     url(r'^blacklist/delete/$', views_blacklist.delete, name='blacklist_delete'),
     url(r'^offenders$', views_offender.list, name='offender_index'),

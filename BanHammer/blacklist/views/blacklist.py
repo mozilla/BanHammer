@@ -13,23 +13,15 @@ from ..forms import ComplaintForm, ExpiredForm
 
 # default view for displaying all blacklists
 @anonymous_csrf
-def index(request):
+def index(request, show_expired=False):
 
     if request.method == 'POST':
         form = ExpiredForm(request.POST)
-        if form.is_valid():
-           if form.cleaned_data['view_mode'] == 'show_expired':
-                request.session['show_expired'] = 1
-           elif form.cleaned_data['view_mode'] == 'hide_expired':
-                request.session['show_expired'] = 0
-
     else:
         request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
         request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
         form = ExpiredForm()
 
-
-    show_expired = request.session.get('show_expired', 0)
     order_by = request.session.get('order_by', 'end_date')
     order = request.session.get('order', 'asc')
 
@@ -51,7 +43,6 @@ def index(request):
 
     if order == 'desc':
         blacklists.reverse()
-
 
     data = {
         'show_expired': show_expired,
