@@ -8,19 +8,14 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender, Blacklist
-from ..forms import ComplaintForm, ExpiredForm
+from ..forms import ComplaintForm
 
 
 # default view for displaying all blacklists
 @anonymous_csrf
 def index(request, show_expired=False):
-
-    if request.method == 'POST':
-        form = ExpiredForm(request.POST)
-    else:
-        request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
-        request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
-        form = ExpiredForm()
+    request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
+    request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
 
     order_by = request.session.get('order_by', 'end_date')
     order = request.session.get('order', 'asc')
@@ -50,7 +45,7 @@ def index(request, show_expired=False):
 
     return render_to_response(
         'blacklist/index.html',
-        {'blacklists': blacklists, 'form': form, 'data': data },
+        {'blacklists': blacklists, 'data': data },
         context_instance = RequestContext(request)
     )
 

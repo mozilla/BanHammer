@@ -5,21 +5,12 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender
-from ..forms import SuggestedOffendersSwitch
 
 @anonymous_csrf
-def list(request):
-    if request.method == 'POST':
-        form = SuggestedOffendersSwitch(request.POST)
-        if form.is_valid():
-           if form.cleaned_data['view_mode'] == 'show_suggested':
-                request.session['show_suggested'] = 1
-           elif form.cleaned_data['view_mode'] == 'hide_suggested':
-                request.session['show_suggested'] = 0
-    else:
-        form = SuggestedOffendersSwitch()
-    
-    show_suggested = request.session.get('show_suggested', 0)
+def list(request, show_suggested=False):
+    request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
+    request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
+
     order_by = request.session.get('order_by', 'last_event_date')
     order = request.session.get('order', 'asc')
 
@@ -33,9 +24,9 @@ def list(request):
     elif order_by == 'cidr':
         offenders = sorted(list(blacklists), key=lambda offender: offender.cidr)
     elif order_by == 'created_date':
-        offenders = sorted(list(blacklists), key=lambda offender: offender.cidr)
+        offenders = sorted(list(blacklists), key=lambda offender: offender.created_date)
     elif order_by == 'last_event':
-        offenders = sorted(list(blacklists), key=lambda offender: offender.cidr)
+        offenders = sorted(list(blacklists), key=lambda offender: offender.last_event)
 
     if order == 'desc':
         offenders.reverse()
@@ -46,7 +37,7 @@ def list(request):
 
     return render_to_response(
         'offender/index.html',
-        {'offenders': offenders, 'form': form, 'data': data },
+        {'offenders': offenders, 'data': data },
         context_instance = RequestContext(request)
     )
 

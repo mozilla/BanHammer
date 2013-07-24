@@ -5,3 +5,34 @@
 .bold {
 	font-weight: bold;
 }
+
+fieldset {
+	padding-top: 5px;
+	margin-top: 5px;
+	background-color: #F0F0F0;
+}
+
+div.create_edit_comment {
+	font-style: italic;
+	color: #666666;
+	padding: 5px;
+}
+
+.form_label {
+	text-align: right;
+	padding: 5px;
+}
+
+ul.errorlist {
+	list-style-type: none;
+	display: inline;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+ul.errorlist li {
+	display: inline;
+	color: red;
+	margin-left: 0px;
+	padding-left: 10px;
+}
