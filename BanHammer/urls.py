@@ -1,8 +1,9 @@
 from django.conf import settings
-from django.conf.urls.defaults import patterns, include
+from django.conf.urls.defaults import patterns, include, url
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
-from .blacklist import urls
+from BanHammer.blacklist.views import blacklist as views_blacklist
+from BanHammer.blacklist.views import offender as views_offender
 
 from funfactory.monkeypatches import patch
 patch()
@@ -12,7 +13,15 @@ patch()
 # admin.autodiscover()
 
 urlpatterns = patterns('',
-    (r'^blacklist/', include(urls)),
+    url(r'^$', views_blacklist.index, name='blacklist_index'),
+    url(r'^blacklist/$', views_blacklist.index, name='blacklist_index'),
+    url(r'^blacklist/post/$',views_blacklist.post, name='blacklist_post'),
+    url(r'^blacklist/delete/$', views_blacklist.delete, name='blacklist_delete'),
+    url(r'^offenders$', views_offender.list, name='offender_index'),
+    url(r'^offender/(\d+)$', views_offender.show, name='offender_show'),
+    url(r'^offender/(\d+)/edit$',views_offender.edit, name='offender_edit'),
+    url(r'^offender/new$',views_offender.create, name='offender_new'),
+    url(r'^offender/delete$', views_offender.delete, name='offender_delete'),
     # Example:
     #(r'', include(urls)),
     

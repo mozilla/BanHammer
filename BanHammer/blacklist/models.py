@@ -40,7 +40,18 @@ class Offender(models.Model):
             (bits & 0xff00) >> 8,
             (bits & 0xff)
         )
+
     netmask = property(_cidrToNetmask)
+
+    def _last_event_date(self):
+        events = Event.objects.filter(attackerAddress=offender)
+        if events.count() != 0:
+            event = events.last
+            return event.created_date
+        else:
+            return ''
+
+    last_event_date = property(_last_event_date)
 
     @classmethod
     def find_create_from_ip(cls, ip):

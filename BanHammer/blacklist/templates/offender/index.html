@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<div class="banner">Offenders</div>
+	<br />
+	<table class="list">
+		<tr>
+			<th align="left" colspan="4">
+				<form action="/offenders/create/" method='link'>
+					<input type='submit' value='Add new blacklist'>
+				</form>
+			</th>
+			<th align="right" colspan="4">
+				<form action='/blacklist/' method='post'>
+					{{ csrf() }}
+					{% if data.show_expired == 1 %}
+						<input type='submit' value='Hide Expired Blacklists' />
+						<input type='hidden' name='view_mode' value='hide_expired' />
+					{% else %}
+						<input type='submit' value='Show Expired Blacklists' />
+						<input type='hidden' name='view_mode' value='show_expired' />
+					{% endif %}
+				</form>
+			</th>
+		</tr>
+		<tr>
+			<th></th>
+			<th></th>
+			<th colspan="2">
+				<div class="comment">All times are in UTC</div>
+			</th>
+			<th></th>
+		</tr>
+		<tr class="header">
+			<th align="left">
+			    Address
+			    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th align="left">
+			    CIDR
+			    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th align="center">
+			    Created
+			    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th align="center">
+			    Expires
+			    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th align="center">
+			    Reporter
+			    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th align="center">
+			    <img src="{{ static('images/link.png') }}">
+			</th>
+			<th align="center">
+			    <img src="{{ static('images/comment.gif') }}">
+			</th>
+			<th align="center">
+			    <img src="{{ static('images/delete.gif') }}">
+			</th>
+		</tr>
+		{% for b in blacklists %}
+		    <tr>
+			    <td align="left">{{ b.offender.address }}</td>
+			    <td align="left">/{{ b.offender.cidr }}</td>
+			    <td align="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
+			    <td align="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
+			    <td align="center">{{ b.reporter }}</td>
+			    <td align="center">{% if b.bug_number %}
+			    	<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{b.bug_number}}">
+			    		<img src="{{ static('images/link.png') }}">
+			    	</a>
+			    {% endif %}</td>
+			    <td align="center"><img title='{{b.comment}}' src="{{ static('images/comment.gif') }}"></td>
+			    <td align="center">
+			    	<a href="/blacklist/delete/?id={{b.id}}">
+			    		<img src="{{ static('images/delete.gif') }}">
+			    	</a>
+			    </td>
+		    </tr>
+		{% endfor %}
+		
+		{% if not blacklists %}
+			<tr><td colspan="7" class="empty">
+				<div class="banner">No offenders.</div>
+			</td></tr>
+		{% endif %}
+		
+	</table>
+{% endblock %}

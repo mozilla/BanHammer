@@ -2,9 +2,15 @@
 
 
 {% block content %}
+	{% block site_css %}
+	  {% compress css %}
+	    <link href="{{ static('css/post.css') }}" rel="stylesheet">
+	  {% endcompress %}
+	{% endblock %}
+	
 	{% block site_js %}
 	  {% compress js %}
-	    <script src="{{ static('js/blacklist.js') }}"></script>
+	    <script src="{{ static('js/post.js') }}"></script>
 	  {% endcompress %}
 	{% endblock %}
 	<div class="banner">Apply a new network-wide blacklist</div>
@@ -20,17 +26,17 @@
 	<form action="/blacklist/post/" method="post" name="blacklist">
 	{{ csrf() }}
 	<fieldset>
-	<table class="fieldset"><tr>
+	<table><tr>
 	<td class="form_label">Address</td>
 	<td class="form_field">{{ form.target }}{{ form.target.errors }}</td>
 	</tr></table>
-	<div class="create_edit_comment">
+	<div class="comment">
 	Enter a blacklist target, with optional CIDR value<br/>
 	Example: 63.245.208.1, 63.245.209.0/24, 2620:101:8000::/48
 	</div>
 	</fieldset>
 	<fieldset>
-	<table class="fieldset"><tr>
+	<table><tr>
 	<td class="form_label">Blacklist for</td>
 	<td class="form_field">{{ form.duration }}</td>
 	</tr><tr>
@@ -40,13 +46,13 @@
 	<td class="form_label">End Time</td>
 	<td class="form_field">{{ form.end_date }}{{ form.end_date.errors }}</td>
 	</tr></table>
-	<div class="create_edit_comment">
+	<div class="comment">
 	All times are in UTC<br/>
 	Your local timezone is currently: <span name="timezone" id="id_timezone">Unknown</span>
 	</div>
 	</fieldset>
 	<fieldset>
-	<table class="fieldset"><tr>
+	<table><tr>
 	<td class="form_label">Comment</td>
 	<td class="form_field">{{ form.comment }}{{ form.comment.errors }}</td>
 	</tr><tr>

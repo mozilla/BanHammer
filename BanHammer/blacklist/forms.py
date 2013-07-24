@@ -2,7 +2,7 @@ from django import forms
 
 import netaddr
 
-class DisplayForm(forms.Form):
+class ExpiredForm(forms.Form):
 
     modes = [
         ('show_expired', 'Show Expired'),
@@ -14,6 +14,17 @@ class DisplayForm(forms.Form):
         initial='show_expired'
     )
 
+class SuggestedOffendersSwitch(forms.Form):
+
+    modes = [
+        ('show_suggested', 'Show also offenders that have not been blacklisted yet'),
+        ('hide_suggested', 'Hide offenders that have not been blacklisted yet'),
+    ]
+
+    view_mode = forms.CharField(
+        widget=forms.HiddenInput(),
+        initial='show_suggested'
+    )
 
 class ComplaintForm(forms.Form):
 

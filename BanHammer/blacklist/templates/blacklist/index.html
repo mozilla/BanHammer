@@ -1,13 +1,10 @@
 {% extends "base.html" %}
 
-{% block site_css %}
-	<link href="{{ static('css/main.css') }}" rel="stylesheet">
-{% endblock %}
 
 {% block content %}
 	<div class="banner">Mozilla Network RTBH</div>
 	<br />
-	<table>
+	<table class="list">
 	<tr>
 	<th align="left" colspan="4">
 	<form action="/blacklist/post/" method='link'>
@@ -88,7 +85,7 @@
 	{% endfor %}
 	
 	{% if not blacklists %}
-	<tr><td colspan="7" class="inactive">
+	<tr><td colspan="7" class="empty">
 	<div class="banner">No active blacklists.</div>
 	</td></tr>
 	{% endif %}

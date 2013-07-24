@@ -7,8 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from .models import Offender, Blacklist
-from .forms import ComplaintForm, DisplayForm
+from ..models import Offender, Blacklist
+from ..forms import ComplaintForm, ExpiredForm
 
 
 # default view for displaying all blacklists
@@ -16,7 +16,7 @@ from .forms import ComplaintForm, DisplayForm
 def index(request):
 
     if request.method == 'POST':
-        form = DisplayForm(request.POST)
+        form = ExpiredForm(request.POST)
         if form.is_valid():
            if form.cleaned_data['view_mode'] == 'show_expired':
                 request.session['show_expired'] = 1
@@ -26,7 +26,7 @@ def index(request):
     else:
         request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
         request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
-        form = DisplayForm()
+        form = ExpiredForm()
 
 
     show_expired = request.session.get('show_expired', 0)

@@ -25,7 +25,7 @@ def irc_new_event_data(offender, event, score_factors, attackscore_history_kwarg
     message += " offender "+offender.address
     message += " with score %i." % attackscore_history_kwargs['total_score']
     message += " Last event %s." % event.rulename
-    message += " More info: %s/blacklist/offender/%s\n\n" % (
+    message += " More info: %s/offender/%s\n\n" % (
         settings.HTTP_SERVER,
         offender.id
     )
@@ -41,7 +41,7 @@ def email_new_event_data(offender, event, score_factors, attackscore_history_kwa
         attackscore_history_kwargs['total_score'],
     )
     data['message'] = "Events from ArcSight have exceeded the threshold in banhammer-ng.\n\n"
-    data['message'] += "More info: %s/blacklist/offender/%s\n\n" % (
+    data['message'] += "More info: %s/offender/%s\n\n" % (
         settings.HTTP_SERVER,
         offender.id
     )
