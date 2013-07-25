@@ -1,12 +1,12 @@
 .center {
-	text-align: center;
+	text-align: center !important;
 }
 
 .bold {
 	font-weight: bold;
 }
 
-fieldset {
+fieldset.gray {
 	padding-top: 5px;
 	margin-top: 5px;
 	background-color: #F0F0F0;
@@ -35,4 +35,9 @@ ul.errorlist li {
 	color: red;
 	margin-left: 0px;
 	padding-left: 10px;
+}
+
+fieldset#settings_score > div.control-group > label.control-label {
+	width: 400px;
+	text-align: left;
 }

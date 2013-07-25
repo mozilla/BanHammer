@@ -16,7 +16,7 @@
 	<form class="form-horizontal" action="/blacklist/post/" method="post" name="blacklist">
 	{{ csrf() }}
 	<div class="span6">
-		<fieldset>
+		<fieldset class="gray">
 			<div class="control-group">
 				<label class="control-label" for="id_target">Address</label>
 				<div class="controls">
@@ -29,7 +29,7 @@
 				</div>
 			</div>
 		</fieldset>
-		<fieldset>
+		<fieldset class="gray">
 			<div class="control-group">
 				<label class="control-label" for="id_duration">Blacklist for</label>
 				<div class="controls">
@@ -55,7 +55,7 @@
 				Your local timezone is currently: <span name="timezone" id="id_timezone">Unknown</span>
 			</div>
 		</fieldset>
-		<fieldset>
+		<fieldset class="gray">
 			<div class="control-group">
 				<label class="control-label" for="id_comment">Comment</label>
 				<div class="controls">

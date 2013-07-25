@@ -1,8 +1,28 @@
 from django import forms
+from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 
 import netaddr
 
-class ComplaintForm(forms.Form):
+class BasicForm(forms.Form):
+    @classmethod
+    def validator_email(self):
+        return RegexValidator(
+            r'.*@.*',
+            'has to be an email address.',
+            'Invalid email'
+        )
+    
+    @classmethod
+    def validator_integer(self):
+        return RegexValidator(
+            r'[0-9]+',
+            'has to be an integer.',
+            'Invalid integer'
+        )
+       
+
+class ComplaintForm(BasicForm):
 
     # Create a list of default blacklist durations
     durations = [
@@ -79,3 +99,83 @@ class ComplaintForm(forms.Form):
             del cleaned_data["end_date"]
 
         return cleaned_data
+
+class SettingsForm(BasicForm):
+    checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
+
+    # Notifications
+    notifications_email_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+    )
+    notifications_email_address_from = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_email()],
+    )
+    notifications_email_address_to = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_email()],
+    )
+    notifications_irc_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+
+    # Score
+    blacklist_unknown_threshold = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_severity = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_event_types = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_times_bgp_blocked = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_times_zlb_blocked = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_times_zlb_redirected = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_last_attackscore = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_et_compromised_ips = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+    score_factor_dshield_block = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BasicForm.validator_integer()],
+    )
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        for i in self.checkbox_fields:
+            if cleaned_data[i] == 'on':
+                cleaned_data[i] = '1'
+            else:
+                cleaned_data[i] = '0'
+        
+        return cleaned_data
+

@@ -43,15 +43,19 @@ class Offender(models.Model):
 
     netmask = property(_cidrToNetmask)
 
-    def _last_event_date(self):
-        events = Event.objects.filter(attackerAddress=offender)
+    def get_last_event_date(self):
+        events = Event.objects.filter(attackerAddress=self.address)
         if events.count() != 0:
-            event = events.last
+            event = events.reverse()[0]
             return event.created_date
         else:
             return ''
-
-    last_event_date = property(_last_event_date)
+    
+    def get_attack_score(self):
+        attackscore = AttackScore.objects.filter(offender=self)
+        if attackscore.count() != 0:
+            attackscore.reverse()
+            return attackscore[0].score
 
     @classmethod
     def find_create_from_ip(cls, ip):
@@ -93,6 +97,9 @@ class Blacklist(models.Model):
     bug_number = models.IntegerField(max_length=7, null=True)
     suggestion = models.BooleanField()
     type = models.CharField(max_length=12, choices=TYPES)
+    
+    def expired(self):
+        return self.end_date <= datetime.datetime.now()
 
 # Populated with events from ArcSight ESM
 # The field names are taken from ArcSight ESM

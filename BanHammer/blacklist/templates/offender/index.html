@@ -13,70 +13,63 @@
 			{% if data.show_suggested == False %}
 				<a class="btn" href="/offenders/show_suggested">Show also offenders that have never been blocked yet</a>
 			{% else %}
-				<a class="btn" href="/offenders">Hide offenders that have never been blocked yet</a>
+				<a class="btn btn-info" href="/offenders">Hide offenders that have never been blocked yet</a>
 			{% endif %}
 		</div>
 	</div>
 	<br />
 	<table class="table">
 		<tr>
-			<th align="left">
+			<th class="left">
 			    Address
 			    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 			    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 			</th>
-			<th align="left">
+			<th class="left">
 			    CIDR
 			    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 			    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 			</th>
-			<th align="center">
+			<th class="center">
+			    Attack Score
+			    <a href='?order_by=attackscore&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=attackscore&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th class="center">
+			    Last Event
+			    <a href='?order_by=last_event_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=last_event_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>			
+			<th class="center">
 			    Created
-			    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			    <a href='?order_by=created_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=created_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 			</th>
-			<th align="center">
-			    Expires
-			    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th align="center">
-			    Reporter
-			    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th align="center">
-			    <img src="{{ static('images/link.png') }}">
-			</th>
-			<th align="center">
-			    <img src="{{ static('images/comment.gif') }}">
-			</th>
-			<th align="center">
+			<th class="center">
 			    <img src="{{ static('images/delete.gif') }}">
 			</th>
 		</tr>
-		{% for b in blacklists %}
+		{% for b in offenders %}
+			{% if b.suggestion %}
+		    <tr class="info">
+		    {% else %}
 		    <tr>
-			    <td align="left">{{ b.offender.address }}</td>
-			    <td align="left">/{{ b.offender.cidr }}</td>
-			    <td align="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
-			    <td align="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
-			    <td align="center">{{ b.reporter }}</td>
-			    <td align="center">{% if b.bug_number %}
-			    	<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{b.bug_number}}">
-			    		<img src="{{ static('images/link.png') }}">
-			    	</a>
-			    {% endif %}</td>
-			    <td align="center"><img title='{{b.comment}}' src="{{ static('images/comment.gif') }}"></td>
-			    <td align="center">
-			    	<a href="/blacklist/delete/?id={{b.id}}">
+			{% endif %}
+			    <td class="left">{{ b.address }}</td>
+			    <td class="left">/{{ b.cidr }}</td>
+			    <td class="center">{{ b.get_attack_score() }}</td>
+			    <td class="center">{{ b.get_last_event_date() }}</td>
+			    <td class="center">{{ b.created_date }}</td>
+			    <td class="center">
+			    	<a href="/offender/{{b.id}}/delete"
+			    	onclick="return confirm('Deleting this offender you\'ll also delete all its blacklists, events and scores')">
 			    		<img src="{{ static('images/delete.gif') }}">
 			    	</a>
 			    </td>
 		    </tr>
 		{% endfor %}
 		
-		{% if not blacklists %}
+		{% if not offenders %}
 			<tr><td colspan="7" class="empty">
 				<div class="banner">No offenders.</div>
 			</td></tr>

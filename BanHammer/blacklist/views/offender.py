@@ -22,11 +22,13 @@ def list(request, show_suggested=False):
     if order_by == 'address':
         offenders = sorted(list(offenders), key=lambda offender: offender.address)
     elif order_by == 'cidr':
-        offenders = sorted(list(blacklists), key=lambda offender: offender.cidr)
+        offenders = sorted(list(offenders), key=lambda offender: offender.cidr)
     elif order_by == 'created_date':
-        offenders = sorted(list(blacklists), key=lambda offender: offender.created_date)
-    elif order_by == 'last_event':
-        offenders = sorted(list(blacklists), key=lambda offender: offender.last_event)
+        offenders = sorted(list(offenders), key=lambda offender: offender.created_date)
+    elif order_by == 'last_event_date':
+        offenders = sorted(list(offenders), key=lambda offender: offender.get_last_event_date())
+    elif order_by == 'attackscore':
+        offenders = sorted(list(offenders), key=lambda offender: offender.get_attack_score())
 
     if order == 'desc':
         offenders.reverse()
@@ -46,13 +48,12 @@ def show(request):
     pass
 
 @anonymous_csrf
-def create(request):
-    pass
-
-@anonymous_csrf
 def edit(request):
     pass
 
 @anonymous_csrf
-def delete(request):
-    pass
+def delete(request, id):
+    offender = Offender.objects.get(id=id)
+    offender.delete()
+    
+    return HttpResponseRedirect('/offenders')

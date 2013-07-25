@@ -4,6 +4,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 from BanHammer.blacklist.views import blacklist as views_blacklist
 from BanHammer.blacklist.views import offender as views_offender
+from BanHammer.blacklist.views import setting as views_setting
 
 from funfactory.monkeypatches import patch
 patch()
@@ -28,8 +29,8 @@ urlpatterns = patterns('',
         name='offender_index'),
     url(r'^offender/(\d+)$', views_offender.show, name='offender_show'),
     url(r'^offender/(\d+)/edit$',views_offender.edit, name='offender_edit'),
-    url(r'^offender/new$',views_offender.create, name='offender_new'),
-    url(r'^offender/delete$', views_offender.delete, name='offender_delete'),
+    url(r'^offender/(\d+)/delete$', views_offender.delete, name='offender_delete'),
+    url(r'^settings$', views_setting.list, name='settings_index'),
     # Example:
     #(r'', include(urls)),
     

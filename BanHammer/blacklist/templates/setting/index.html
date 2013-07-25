@@ -1,0 +1,158 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<h1>Settings</h1>
+	<div class="row">
+	    <div class="offset5 span2 center bold alert alert-info">
+	    	All times are in UTC
+	    </div>
+    </div>
+	<form class="form-horizontal" action="/settings" method="post" name="settings">
+	{{ csrf() }}
+	<div class="container">
+		<fieldset>
+			<legend>Notifications</legend>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_enable">
+					Enable email notifications
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_enable }}
+					{{ form.notifications_email_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_address_from">
+					Expeditor address for email notifications
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_address_from }}
+					{{ form.notifications_email_address_from.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_address_to">
+					Expeditor address for email notifications
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_address_to }}
+					{{ form.notifications_email_address_to.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_enable">
+					Enable IRC notifications
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_enable }}
+					{{ form.notifications_irc_enable.errors }}
+				</div>
+			</div>
+		</fieldset>
+		<fieldset id="settings_score">
+			<legend>Attack Score</legend>
+			<div class="alert alert-info">
+				<strong>score = element1 * element_factor1 + element2 * element_factor2 + ...</strong><br />
+				Below you can configure the factor for each element
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_blacklist_unknown_threshold">
+					Threshold for notifications of offenders
+				</label>
+				<div class="controls">
+					{{ form.blacklist_unknown_threshold }}
+					{{ form.blacklist_unknown_threshold.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_severity">
+					Factor for <strong>severity</strong> field in events
+				</label>
+				<div class="controls">
+					{{ form.score_factor_severity }}
+					{{ form.score_factor_severity.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_event_types">
+					Factor for <strong>different types of past events</strong>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_event_types }}
+					{{ form.score_factor_event_types.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_times_bgp_blocked">
+					Factor for number of times the offender has been already <strong>blocked network-wide (BGP blackholing)</strong>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_times_bgp_blocked }}
+					{{ form.score_factor_times_bgp_blocked.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_times_zlb_blocked">
+					Factor for number of times the offender has been already <strong>blocked on ZLBs</strong>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_times_zlb_blocked }}
+					{{ form.score_factor_times_zlb_blocked.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_times_zlb_redirected">
+					Factor for number of times the offender has been already <strong>redirected on ZLBs</strong>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_times_zlb_redirected }}
+					{{ form.score_factor_times_zlb_redirected.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_last_attackscore">
+					Factor for the <strong>last attack score</strong>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_last_attackscore }}
+					{{ form.score_factor_last_attackscore.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_et_compromised_ips">
+					Factor for
+					<a href="http://rules.emergingthreats.net/blockrules/compromised-ips.txt">
+						<strong>matching the IP on Emerging Threat</strong> compromised IPs list
+					</a>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_et_compromised_ips }}
+					{{ form.score_factor_et_compromised_ips.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_score_factor_dshield_block">
+					Factor for
+					<a href="https://isc.sans.edu/block.txt">
+						<strong>matching the IP on DShield.org</strong> list
+					</a>
+				</label>
+				<div class="controls">
+					{{ form.score_factor_dshield_block }}
+					{{ form.score_factor_dshield_block.errors }}
+				</div>
+			</div>
+		</fieldset>
+		<br>
+		<div class="row">
+			<div class="span2">
+				<button type="submit" class="btn">Save</button>
+			</div>
+			<div class="span1">
+				<button type="reset" class="btn">Cancel</button>
+			</div>
+		</div>
+	</div>
+	</form>
+{% endblock %}

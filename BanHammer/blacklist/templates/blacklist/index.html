@@ -19,7 +19,7 @@
 			{% if data.show_expired == False %}
 				<a class="btn" href="/blacklist/show_expired">Show Expired Blacklists</a>
 			{% else %}
-				<a class="btn" href="/blacklist">Hide Expired Blacklists</a>
+				<a class="btn btn-info" href="/blacklist">Hide Expired Blacklists</a>
 			{% endif %}
 		</div>
 	</div>
@@ -62,19 +62,23 @@
 		</th>
 	</tr>
 	{% for b in blacklists %}
-	    <tr>
-	    <td align="left">{{ b.offender.address }}</td>
-	    <td align="left">/{{ b.offender.cidr }}</td>
-	    <td align="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
-	    <td align="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
-	    <td align="center">{{ b.reporter }}</td>
-	    <td align="center">{% if b.bug_number %}
+		{% if b.expired() %}
+		<tr class='info'>
+		{% else %}
+		<tr>
+		{% endif %}
+	    <td class="left">{{ b.offender.address }}</td>
+	    <td class="left">/{{ b.offender.cidr }}</td>
+	    <td class="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
+	    <td class="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
+	    <td class="center">{{ b.reporter }}</td>
+	    <td class="center">{% if b.bug_number %}
 	    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{b.bug_number}}">
 	    <img src="{{ static('images/link.png') }}">
 	    </a>
 	    {% endif %}</td>
-	    <td align="center"><img title='{{b.comment}}' src="{{ static('images/comment.gif') }}"></td>
-	    <td align="center">
+	    <td class="center"><img title='{{b.comment}}' src="{{ static('images/comment.gif') }}"></td>
+	    <td class="center">
 	    <a href="/blacklist/delete/?id={{b.id}}">
 	    <img src="{{ static('images/delete.gif') }}">
 	    </a>
