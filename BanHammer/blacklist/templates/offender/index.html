@@ -37,17 +37,13 @@
 			</th>
 			<th class="center">
 			    Last Event
-			    <a href='?order_by=last_event_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=last_event_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 			</th>			
 			<th class="center">
 			    Created
 			    <a href='?order_by=created_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 			    <a href='?order_by=created_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 			</th>
-			<th class="center">
-			    <img src="{{ static('images/delete.gif') }}">
-			</th>
+			<th></th>
 		</tr>
 		{% for b in offenders %}
 			{% if b.suggestion %}
@@ -57,8 +53,8 @@
 			{% endif %}
 			    <td class="left">{{ b.address }}</td>
 			    <td class="left">/{{ b.cidr }}</td>
-			    <td class="center">{{ b.get_attack_score() }}</td>
-			    <td class="center">{{ b.get_last_event_date() }}</td>
+			    <td class="center">{{ b.attack_score() }}</td>
+			    <td class="center">{{ b.last_event_date() }}</td>
 			    <td class="center">{{ b.created_date }}</td>
 			    <td class="center">
 			    	<a href="/offender/{{b.id}}/delete"

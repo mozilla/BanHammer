@@ -5,6 +5,7 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from BanHammer.blacklist.views import blacklist as views_blacklist
 from BanHammer.blacklist.views import offender as views_offender
 from BanHammer.blacklist.views import setting as views_setting
+from BanHammer.blacklist.views import whitelistip as views_whitelistip
 
 from funfactory.monkeypatches import patch
 patch()
@@ -22,15 +23,19 @@ urlpatterns = patterns('',
         name='blacklist_index'),
     url(r'^blacklist/post/$',views_blacklist.post, name='blacklist_post'),
     url(r'^blacklist/delete/$', views_blacklist.delete, name='blacklist_delete'),
-    url(r'^offenders$', views_offender.list, name='offender_index'),
+    url(r'^offenders$', views_offender.index, name='offender_index'),
     url(r'^offenders/show_suggested$',
-        views_offender.list,
+        views_offender.index,
         {'show_suggested': True},
         name='offender_index'),
     url(r'^offender/(\d+)$', views_offender.show, name='offender_show'),
-    url(r'^offender/(\d+)/edit$',views_offender.edit, name='offender_edit'),
     url(r'^offender/(\d+)/delete$', views_offender.delete, name='offender_delete'),
     url(r'^settings$', views_setting.list, name='settings_index'),
+    url(r'^whitelistip$', views_whitelistip.index, name='whitelistip_index'),
+    url(r'^whitelistip/new$', views_whitelistip.new, name='whitelistip_new'),
+    url(r'^whitelistip/(\d+)/edit$', views_whitelistip.edit, name='whitelistip_edit'),
+    url(r'^whitelistip/(\d+)/delete$', views_whitelistip.delete, name='whitelistip_delete'),
+
     # Example:
     #(r'', include(urls)),
     

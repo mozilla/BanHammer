@@ -4,7 +4,7 @@ from django.core.validators import RegexValidator
 
 import netaddr
 
-class BasicForm(forms.Form):
+class BaseForm(forms.Form):
     @classmethod
     def validator_email(self):
         return RegexValidator(
@@ -22,7 +22,7 @@ class BasicForm(forms.Form):
         )
        
 
-class ComplaintForm(BasicForm):
+class ComplaintForm(BaseForm):
 
     # Create a list of default blacklist durations
     durations = [
@@ -100,7 +100,7 @@ class ComplaintForm(BasicForm):
 
         return cleaned_data
 
-class SettingsForm(BasicForm):
+class SettingsForm(BaseForm):
     checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
 
     # Notifications
@@ -110,12 +110,12 @@ class SettingsForm(BasicForm):
     notifications_email_address_from = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_email()],
+        validators=[BaseForm.validator_email()],
     )
     notifications_email_address_to = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_email()],
+        validators=[BaseForm.validator_email()],
     )
     notifications_irc_enable = forms.CharField(
         widget=forms.CheckboxInput(),
@@ -126,47 +126,47 @@ class SettingsForm(BasicForm):
     blacklist_unknown_threshold = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_severity = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_event_types = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_times_bgp_blocked = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_times_zlb_blocked = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_times_zlb_redirected = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_last_attackscore = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_et_compromised_ips = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
     score_factor_dshield_block = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-        validators=[BasicForm.validator_integer()],
+        validators=[BaseForm.validator_integer()],
     )
 
     def clean(self):
@@ -179,3 +179,46 @@ class SettingsForm(BasicForm):
         
         return cleaned_data
 
+class WhitelistIPForm(BaseForm):
+    address = forms.CharField(
+        widget=forms.TextInput( attrs={'size':'43'} ),
+        max_length=43
+    )
+
+    comment = forms.CharField(
+        widget=forms.TextInput( attrs={'size':'50'} ),
+        max_length=1024
+    )
+
+    # clean_target takes the target field (a v4 or v6 IP address, with
+    # optional CIDR) and creates validated 'address' and 'cidr'
+    # values
+    def clean_address(self):
+        target = self.cleaned_data['address']
+        fields = target.split('/')
+
+        try:
+            address = netaddr.ip.IPAddress(fields[0])
+        except netaddr.core.AddrFormatError:
+            raise forms.ValidationError("Invalid IP address")
+
+        try:
+            cidr = int(fields[1])
+        except ValueError:
+            raise forms.ValidationError("Invalid CIDR value")
+        except IndexError:
+            if address.version == 4:
+                cidr = 32
+            else:
+                cidr = 128
+
+        if address.version == 4:
+            if cidr > 32 or cidr < 16:
+                raise forms.ValidationError("Invalid CIDR value")
+        elif address.version == 6:
+            if cidr > 128 or cidr < 32:
+                raise forms.ValidationError("Invalid CIDR value")
+
+        self.cleaned_data['address'] = fields[0]
+        self.cleaned_data['cidr'] = cidr
+        return target

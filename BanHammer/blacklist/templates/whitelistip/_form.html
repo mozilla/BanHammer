@@ -1,0 +1,33 @@
+<div class="span6">
+	<fieldset class="gray">
+		<div class="control-group">
+			<label class="control-label" for="id_address">Address</label>
+			<div class="controls">
+				{{ form.address }}
+				{{ form.address.errors }}
+			</div>
+			<div class="create_edit_comment">
+				Enter an IP or a network, with optional CIDR value<br/>
+				Example: 63.245.208.1, 63.245.209.0/24, 2620:101:8000::/48
+			</div>
+		</div>
+	</fieldset>
+	<fieldset class="gray">
+		<div class="control-group">
+			<label class="control-label" for="id_comment">Comment</label>
+			<div class="controls">
+				{{ form.comment }}
+				{{ form.comment.errors }}
+			</div>
+		</div>
+	</fieldset>
+	<br>
+	<div class="row">
+		<div class="span2">
+			<button type="submit" class="btn">Save</button>
+		</div>
+		<div class="span1">
+			<button type="reset" class="btn">Cancel</button>
+		</div>
+	</div>
+</div>

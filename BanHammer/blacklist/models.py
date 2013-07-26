@@ -43,7 +43,7 @@ class Offender(models.Model):
 
     netmask = property(_cidrToNetmask)
 
-    def get_last_event_date(self):
+    def last_event_date(self):
         events = Event.objects.filter(attackerAddress=self.address)
         if events.count() != 0:
             event = events.reverse()[0]
@@ -51,7 +51,7 @@ class Offender(models.Model):
         else:
             return ''
     
-    def get_attack_score(self):
+    def attack_score(self):
         attackscore = AttackScore.objects.filter(offender=self)
         if attackscore.count() != 0:
             attackscore.reverse()

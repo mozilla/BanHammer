@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<h1>IP Whitelist</h1>
+	<div class="row">
+	    <div class="offset5 span2 center bold alert alert-info">
+	    	All times are in UTC
+	    </div>
+    </div>
+	<div class="row">
+		<div class="span3">
+			<a class="btn btn-primary" href="/whitelistip/new">
+				<i class="icon-white icon-plus-sign"></i>
+				Add new whitelisted IPs
+			</a>
+		</div>
+	</div>
+	<br />
+	<table class="table">
+		<tr>
+			<th class="left">
+			    Address
+			    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th class="left">
+			    CIDR
+			    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th class="center">
+			    Reporter
+			    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th class="center">
+			    Created date
+			    <a href='?order_by=created_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=created_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>	
+			<th class="center">
+			    Updated date
+			    <a href='?order_by=updated_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+			    <a href='?order_by=updated_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+			</th>
+			<th class="center">
+				<a href="#" onclick="$('.table > tbody > tr.hide').toggle(false)">
+			    	<i class="icon-minus"></i>
+			    </a>
+			    <a href="#" onclick="$('.table > tbody > tr.hide').toggle(true)">
+			    	<i class="icon-plus"></i>
+			    </a>
+			</th>
+			<th></th>
+			<th></th>
+		</tr>
+		{% for b in whitelistip %}
+		    <tr>
+			    <td class="left">{{ b.address }}</td>
+			    <td class="left">/{{ b.cidr }}</td>
+			    <td class="center">{{ b.reporter }}</td>
+			    <td class="center">{{ b.created_date }}</td>
+			    <td class="center">{{ b.updated_date }}</td>
+			    <td class="center">
+			    	<a href="#" onclick="$('#hide_{{ b.id }}').toggle()">
+			    		<img src="{{ static('images/comment.gif') }}">
+			    	</a>
+			    </td>
+			    <td class="center">
+			    	<a href="/whitelistip/{{b.id}}/edit">
+			    		<i class="icon-pencil"></i>
+			    	</a>
+			    </td>
+			    <td class="center">
+			    	<a href="/whitelistip/{{b.id}}/delete">
+			    		<i class="icon-remove"></i>
+			    	</a>
+			    </td>
+		    </tr>
+		    <tr class="hide warning" id="hide_{{ b.id }}">
+		    	<td colspan=5>{{b.comment}}</td>
+		    </tr>
+		{% endfor %}
+		
+		{% if not whitelistip %}
+			<tr><td colspan="7" class="empty">
+				<div class="banner">No whitelisted IPs.</div>
+			</td></tr>
+		{% endif %}
+		
+	</table>
+{% endblock %}

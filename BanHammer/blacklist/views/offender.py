@@ -6,12 +6,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender
 
-@anonymous_csrf
-def list(request, show_suggested=False):
-    request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'end_date'))
+import logging
+
+def index(request, show_suggested=False):
+    request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'address'))
     request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))
 
-    order_by = request.session.get('order_by', 'last_event_date')
+    order_by = request.session.get('order_by', 'address')
     order = request.session.get('order', 'asc')
 
     if show_suggested:
@@ -25,10 +26,8 @@ def list(request, show_suggested=False):
         offenders = sorted(list(offenders), key=lambda offender: offender.cidr)
     elif order_by == 'created_date':
         offenders = sorted(list(offenders), key=lambda offender: offender.created_date)
-    elif order_by == 'last_event_date':
-        offenders = sorted(list(offenders), key=lambda offender: offender.get_last_event_date())
     elif order_by == 'attackscore':
-        offenders = sorted(list(offenders), key=lambda offender: offender.get_attack_score())
+        offenders = sorted(list(offenders), key=lambda offender: offender.attack_score())
 
     if order == 'desc':
         offenders.reverse()
@@ -39,16 +38,12 @@ def list(request, show_suggested=False):
 
     return render_to_response(
         'offender/index.html',
-        {'offenders': offenders, 'data': data },
+        {'offenders': offenders, 'data': data},
         context_instance = RequestContext(request)
     )
 
 @anonymous_csrf
 def show(request):
-    pass
-
-@anonymous_csrf
-def edit(request):
     pass
 
 @anonymous_csrf

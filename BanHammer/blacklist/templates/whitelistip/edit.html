@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<h1>Edit whitelisted IPs</h1>
+	{% if form.errors %}
+		{{ form.non_field_errors() }}
+	{% endif %}
+	
+	<form class="form-horizontal" action="/whitelistip/{{ id }}/edit" method="post" name="whitelistip">
+	{{ csrf() }}
+	{% include "whitelistip/_form.html" %}
+	</form>
+{% endblock %}
