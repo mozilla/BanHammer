@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<h1>Edit offender</h1>
+	{% if form.errors %}
+		{{ form.non_field_errors() }}
+	{% endif %}
+	
+	<form class="form-horizontal" action="/offender/{{ id }}/edit" method="post" name="offender">
+	{{ csrf() }}
+	{% include "offender/_form.html" %}
+	</form>
+{% endblock %}

@@ -41,3 +41,7 @@ fieldset#settings_score > div.control-group > label.control-label {
 	width: 400px;
 	text-align: left;
 }
+
+.icon-legend {
+	margin-top: 5px;
+}

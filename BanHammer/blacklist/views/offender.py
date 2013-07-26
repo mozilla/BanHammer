@@ -1,10 +1,11 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
-
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from ..models import Offender
+
+from ..models import Offender, Event, Blacklist, AttackScore
+from ..forms import OffenderForm
 
 import logging
 
@@ -44,11 +45,17 @@ def index(request, show_suggested=False):
 
 @anonymous_csrf
 def show(request, id):
-    offender = None
+    offender = Offender.objects.get(id=id)
+    blacklists = Blacklist.objects.filter(offender=offender,suggestion=False)
+    attackscore = None
+    events = Event.objects.filter(attackerAddress=offender.address)
     
     return render_to_response(
         'offender/show.html',
-        {'offender': offender},
+        {'offender': offender,
+         'blacklists': blacklists,
+         'events': events,
+         'attackscore': attackscore},
         context_instance = RequestContext(request)
     )
 
@@ -58,3 +65,34 @@ def delete(request, id):
     offender.delete()
     
     return HttpResponseRedirect('/offenders')
+
+@anonymous_csrf
+def edit(request, id):
+    if request.method == 'POST':
+        form = OffenderForm(request.POST)
+        if form.is_valid():
+            address = form.cleaned_data['address']
+            cidr = form.cleaned_data['cidr']
+            hostname = form.cleaned_data['hostname']
+            asn = form.cleaned_data['asn']
+
+            offender = Offender.objects.get(id=id)
+            offender.address = address.split('/')[0]
+            offender.cidr = cidr
+            offender.hostname = hostname
+            offender.asn = asn
+            offender.save()
+            
+            return HttpResponseRedirect('/offender/%s' % id)
+    else:
+        initial = Offender.objects.get(id=id)
+        initial = initial.__dict__
+        initial['address'] += '/'+str(initial['cidr'])
+        id = initial['id']
+        form = OffenderForm(initial)
+        
+    return render_to_response(
+        'offender/edit.html',
+        {'form': form, 'id': id},
+        context_instance = RequestContext(request)
+    )

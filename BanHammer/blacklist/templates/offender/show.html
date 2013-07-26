@@ -5,7 +5,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="span9">
-				<h1>Offender 8.8.8.8/32</h1>
+				<h1>Offender {{ offender.address }}/{{ offender.cidr }}</h1>
 			</div>
 			<div class="span3">
 				<h2>Score: 56</h2>
@@ -19,76 +19,238 @@
 	    <div class="row">
 		    <div class="span9">
 		    	<legend>Blacklists</legend>
-		    	<table class="table">
+		    	<table class="table" id="blacklists">
 		    		<tr>
-						<th>
+						<th class="center">
 						    Created
+						    <!--
 						    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 						    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
 						</th>
 						<th class="center">
 						    Expires
+						    <!--
 						    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 						    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
 						</th>
 						<th class="center">
 						    Reporter
+						    <!--
 						    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 						    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
 						</th>
 		    			<th></th>
 						<th class="center">
-							<a href="#" onclick="$('table#events > tbody > tr.hide').toggle(false)">
+							<a href="javascript:void(0)" onclick="$('table#blacklists > tbody > tr.hide').toggle(false)">
 						    	<i class="icon-minus"></i>
 						    </a>
-						    <a href="#" onclick="$('table#events > tbody > tr.hide').toggle(true)">
+						    <a href="javascript:void(0)" onclick="$('table#blacklists > tbody > tr.hide').toggle(true)">
 						    	<i class="icon-plus"></i>
 						    </a>
 						</th>
 						<th></th>
 		    		</tr>
-		    		<tr>
-					    <td class="center">2013-01-01 14:00</td>
-					    <td class="center">2013-01-01 14:00</td>
-					    <td class="center">test</td>
+		    		{% if blacklists %}
+					{% for b in blacklists %}
+						{% if b.expired() %}
+						<tr class='info'>
+						{% else %}
+						<tr>
+						{% endif %}
+					    <td class="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
+					    <td class="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
+					    <td class="center">{{ b.reporter }}</td>
+					    <td class="center">{% if b.bug_number %}
+					    	<a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{b.bug_number}}">
+					    		<img src="{{ static('images/link.png') }}">
+					    	</a>
+					    {% endif %}</td>
 					    <td class="center">
-						    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1010">
-						    	<img src="{{ static('images/link.png') }}">
-						    </a>
-					    </td>
-					    <td class="center">
-					    	<a href="#" onclick="$('#hide_blacklist_1010').toggle()">
+					    	<a href="javascript:void(0)" onclick="$('#hide_blacklist_{{ b.id }}').toggle()">
 					    		<img src="{{ static('images/comment.gif') }}">
 					    	</a>
 					    </td>
 					    <td class="center">
-					    <a href="/blacklist/delete/?id=1010">
-					    <img src="{{ static('images/delete.gif') }}">
-					    </a>
+					    	<a href="/blacklist/delete/?id={{b.id}}">
+					    		<i class="icon-remove"></i>
+					    	</a>
 					    </td>
-				    </tr>
-				    <tr class="hide warning" id="hide_blacklist_1010">
-				    	<td colspan=5>toto</td>
-				    </tr>
-		    		<tr class='info'>
-		    			
-		    		</tr>
+					    </tr>
+					    <tr class="hide warning" id="hide_blacklist_{{ b.id }}">
+					    	<td colspan="5">{{b.comment}}</td>
+					    </tr>
+					{% endfor %}
+					{% else %}
+					<tr><td colspan="6" class="empty">
+					<div class="banner">No blacklists.</div>
+					</td></tr>
+					{% endif %}
 		    	</table>
 		    </div>
 		    <div class="span3">
-		    	<legend>Offender</legend>
+		    	<legend>
+		    		Offender
+		    		<a href="/offender/{{ offender.id }}/edit">
+		    			<i class="icon-pencil icon-legend"></i>
+		    		</a>
+		    	</legend>
 		    	<ul>
-		    		<li>Address: 8.8.8.8</li>
-		    		<li>CIDR: 32</li>
-		    		<li>hostname: plop.plop.com</li>
-		    		<li>ASN: AS908190</li>
-		    		<li>Created: 2013-01-01</li>
-		    		<li>Updated: 2013-01-01</li>
+		    		<li>Address: {{ offender.address }}</li>
+		    		<li>CIDR: {{ offender.cidr }}</li>
+		    		<li>hostname: {{ offender.hostname }}</li>
+		    		<li>ASN: {{ offender.asn }}</li>
+		    		<li>Created: {{ offender.created_date }}</li>
+		    		<li>Updated: {{ offender.updated_date }}</li>
 		    	</ul>
 		    </div>
 	    </div>
-	    <div class="span12">
+	    <div class="row">
 	    	<legend>Events</legend>
+		    	<table class="table" id="events">
+		    		<tr>
+						<th class="center">
+						    Created
+						    <!--
+						    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
+						</th>
+						<th class="center">
+						    Rule
+						    <!--
+						    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
+						</th>
+						<th class="center">
+						    Severity
+						    <!--
+						    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
+						</th>
+						<th class="center">
+							Attack Score
+						</th>
+						<th class="center">
+						    Event ID
+						    <!--
+						    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+							-->
+						</th>
+						<th class="center">
+							<a href="javascript:void(0)" onclick="$('table#events > tbody > tr.hide_comment').toggle(false)">
+						    	<i class="icon-minus"></i>
+						    </a>
+						    <a href="javascript:void(0)" onclick="$('table#events > tbody > tr.hide_comment').toggle(true)">
+						    	<i class="icon-plus"></i>
+						    </a>
+						</th>
+						<th></th>
+		    		</tr>
+		    		{% if events %}
+		    		{% for e in events %}
+			    		<tr>
+						    <td class="center">{{ e.created_date.strftime('%Y-%m-%d %H:%m') }}</td>
+						    <td class="center">{{ e.rulename }} (+5)</td>
+						    <td class="center">{{ e.severity }} (+10)</td>
+						    <td class="center">
+						    	<a href="javascript:void(0)" onclick="$('#hide_event_score_{{ e.id }}').toggle()">
+						    		8217
+						    	</a>
+						    </td>
+						    <td class="center">{{ e.eventId }}</td>
+						    <td class="center">
+						    	<a href="javascript:void(0)" onclick="$('#hide_event_comment_{{ e.id }}').toggle()">
+						    		<img src="{{ static('images/comment.gif') }}">
+						    	</a>
+						    </td>
+						    <td class="center">
+						    	<a href="/event/{{ e.id }}/delete">
+						    		<i class="icon-remove"></i>
+						    	</a>
+						    </td>
+					    </tr>
+					    <tr class="warning hide hide_comment" id="hide_event_comment_{{ e.id }}">
+					    	<td colspan="6">
+					    		<ul>
+					    			{% if e.attackerUserName %}
+					    				<li>attackerUserName: {{ e.attackerUserName }}</li>
+					    			{% endif %}
+					    			{% if e.requestUrl %}
+					    				<li>requestUrl: {{ e.requestUrl }}</li>
+					    			{% endif %}
+					    			{% if e.requestUrlHost %}
+					    				<li>requestUrlHost: {{ e.requestUrlHost }}</li>
+					    			{% endif %}
+					    			{% if e.sourceGeoCountryName %}
+					    				<li>sourceGeoCountryName: {{ e.sourceGeoCountryName }}</li>
+					    			{% endif %}
+					    			{% if e.requestContext %}
+					    				<li>requestContext: {{ e.requestContext }}</li>
+					    			{% endif %}
+					    			{% if e.targetHostName %}
+					    				<li>targetHostName: {{ e.targetHostName }}</li>
+					    			{% endif %}
+					    			{% if e.targetAddress %}
+					    				<li>targetAddress: {{ e.targetAddress }}</li>
+					    			{% endif %}
+					    			{% if e.attackerGeoLocationInfo %}
+					    				<li>attackerGeoLocationInfo: {{ e.attackerGeoLocationInfo }}</li>
+					    			{% endif %}
+					    			{% if e.sourceAddress %}
+					    				<li>sourceAddress: {{ e.sourceAddress }}</li>
+					    			{% endif %}
+					    			{% if e.login %}
+					    				<li>login: {{ e.login }}</li>
+					    			{% endif %}
+					    			{% if e.referrer %}
+					    				<li>referrer: {{ e.referrer }}</li>
+					    			{% endif %}
+					    			{% if e.sourceUserName %}
+					    				<li>sourceUserName: {{ e.sourceUserName }}</li>
+					    			{% endif %}
+					    			{% if e.fileName %}
+					    				<li>fileName: {{ e.fileName }}</li>
+					    			{% endif %}
+					    			{% if e.getDestHostName %}
+					    				<li>getDestHostName: {{ e.getDestHostName }}</li>
+					    			{% endif %}
+					    		</ul>
+					    	</td>
+					    </tr>
+					    <tr class="success hide hide_score" id="hide_event_score_{{ e.id }}">
+					    	<td colspan="6">
+					    		<table class="table table-hover">
+					    			<tr>
+					    				<th>Element</th>
+					    				<th>Calculus</th>
+					    				<th>Total</th>
+					    			</tr>
+					    			<tr>
+						    			<td>Severity</td>
+						    			<td>1 * 6</td>
+						    			<td>6</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Different Event Types</td>
+					    				<td>1 * 5</td>
+					    				<td>5</td>
+					    			</tr>
+					    		</table>
+					    	</td>
+					    </tr>
+					{% endfor %}
+					{% else %}
+					<tr><td colspan="8" class="empty">
+					<div class="banner">No events.</div>
+					</td></tr>
+					{% endif %}
+		    	</table>
 	    </div>
 	</div>
 {% endblock %}

@@ -96,10 +96,11 @@ def edit(request, id):
         initial = WhitelistIP.objects.get(id=id)
         initial = initial.__dict__
         initial['address'] += '/'+str(initial['cidr'])
+        id = initial['id']
         form = WhitelistIPForm(initial)
         
     return render_to_response(
         'whitelistip/edit.html',
-        {'form': form, 'id': initial['id']},
+        {'form': form, 'id': id},
         context_instance = RequestContext(request)
     )

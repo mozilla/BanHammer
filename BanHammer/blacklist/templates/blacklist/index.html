@@ -53,15 +53,16 @@
 		</th>
 		<th></th>
 		<th class="center">
-			<a href="#" onclick="$('.table > tbody > tr.hide').toggle(false)">
+			<a href="javascript:void(0)" onclick="$('.table > tbody > tr.hide').toggle(false)">
 		    	<i class="icon-minus"></i>
 		    </a>
-		    <a href="#" onclick="$('.table > tbody > tr.hide').toggle(true)">
+		    <a href="javascript:void(0)" onclick="$('.table > tbody > tr.hide').toggle(true)">
 		    	<i class="icon-plus"></i>
 		    </a>
 		</th>
 		<th></th>
 	</tr>
+	{% if blacklists %}
 	{% for b in blacklists %}
 		{% if b.expired() %}
 		<tr class='info'>
@@ -79,7 +80,7 @@
 	    </a>
 	    {% endif %}</td>
 	    <td class="center">
-	    	<a href="#" onclick="$('#hide_{{ b.id }}').toggle()">
+	    	<a href="javascript:void(0)" onclick="$('#hide_{{ b.id }}').toggle()">
 	    		<img src="{{ static('images/comment.gif') }}">
 	    	</a>
 	    </td>
@@ -93,8 +94,7 @@
 	    	<td colspan=5>{{b.comment}}</td>
 	    </tr>
 	{% endfor %}
-	
-	{% if not blacklists %}
+	{% else %}
 	<tr><td colspan="7" class="empty">
 	<div class="banner">No active blacklists.</div>
 	</td></tr>

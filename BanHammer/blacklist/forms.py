@@ -8,7 +8,7 @@ class BaseForm(forms.Form):
     @classmethod
     def validator_email(self):
         return RegexValidator(
-            r'.*@.*',
+            r'^.*@.*$',
             'has to be an email address.',
             'Invalid email'
         )
@@ -16,7 +16,7 @@ class BaseForm(forms.Form):
     @classmethod
     def validator_integer(self):
         return RegexValidator(
-            r'[0-9]+',
+            r'^[0-9]+$',
             'has to be an integer.',
             'Invalid integer'
         )
@@ -189,6 +189,63 @@ class WhitelistIPForm(BaseForm):
         widget=forms.TextInput( attrs={'size':'50'} ),
         max_length=1024
     )
+
+    # clean_target takes the target field (a v4 or v6 IP address, with
+    # optional CIDR) and creates validated 'address' and 'cidr'
+    # values
+    def clean_address(self):
+        target = self.cleaned_data['address']
+        fields = target.split('/')
+
+        try:
+            address = netaddr.ip.IPAddress(fields[0])
+        except netaddr.core.AddrFormatError:
+            raise forms.ValidationError("Invalid IP address")
+
+        try:
+            cidr = int(fields[1])
+        except ValueError:
+            raise forms.ValidationError("Invalid CIDR value")
+        except IndexError:
+            if address.version == 4:
+                cidr = 32
+            else:
+                cidr = 128
+
+        if address.version == 4:
+            if cidr > 32 or cidr < 16:
+                raise forms.ValidationError("Invalid CIDR value")
+        elif address.version == 6:
+            if cidr > 128 or cidr < 32:
+                raise forms.ValidationError("Invalid CIDR value")
+
+        self.cleaned_data['address'] = fields[0]
+        self.cleaned_data['cidr'] = cidr
+        return target
+
+class OffenderForm(BaseForm):
+    address = forms.CharField(
+        widget=forms.TextInput( attrs={'size':'43'} ),
+        max_length=43
+    )
+
+    hostname = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        required=False,
+    )
+    
+    asn = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=8,
+        required=False,
+        validators=[BaseForm.validator_integer()],
+    )
+    
+    def clean_asn(self):
+        if self.cleaned_data['asn']:
+            return int(self.cleaned_data['asn'])
+        return None
 
     # clean_target takes the target field (a v4 or v6 IP address, with
     # optional CIDR) and creates validated 'address' and 'cidr'
