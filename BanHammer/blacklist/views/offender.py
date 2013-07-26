@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 
-from ..models import Offender, Event, Blacklist, AttackScore
+from ..models import Offender, Event, Blacklist, AttackScore, AttackScoreHistory
 from ..forms import OffenderForm
 
 import logging
@@ -47,8 +47,15 @@ def index(request, show_suggested=False):
 def show(request, id):
     offender = Offender.objects.get(id=id)
     blacklists = Blacklist.objects.filter(offender=offender,suggestion=False)
-    attackscore = None
+    attackscore = AttackScore.objects.filter(offender=offender).reverse()[0]
     events = Event.objects.filter(attackerAddress=offender.address)
+    
+    for e in events:
+        e.attackscore = AttackScoreHistory.objects.filter(event=e)
+        if e.attackscore.count() != 0:
+            e.attackscore = e.attackscore[0]
+        else:
+            e.attackscore = None
     
     return render_to_response(
         'offender/show.html',

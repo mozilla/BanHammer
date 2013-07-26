@@ -8,7 +8,7 @@
 				<h1>Offender {{ offender.address }}/{{ offender.cidr }}</h1>
 			</div>
 			<div class="span3">
-				<h2>Score: 56</h2>
+				<h2>Score: {{ attackscore.score }}</h2>
 			</div>
 		</div>
 		<div class="row">
@@ -160,7 +160,7 @@
 						    <td class="center">{{ e.severity }} (+10)</td>
 						    <td class="center">
 						    	<a href="javascript:void(0)" onclick="$('#hide_event_score_{{ e.id }}').toggle()">
-						    		8217
+						    		{{ e.attackscore.total_score }}
 						    	</a>
 						    </td>
 						    <td class="center">{{ e.eventId }}</td>
@@ -225,23 +225,55 @@
 					    </tr>
 					    <tr class="success hide hide_score" id="hide_event_score_{{ e.id }}">
 					    	<td colspan="6">
+					    		{% if e.attackscore %}
 					    		<table class="table table-hover">
 					    			<tr>
 					    				<th>Element</th>
-					    				<th>Calculus</th>
-					    				<th>Total</th>
+					    				<th>Value</th>
+					    				<th>Score</th>
 					    			</tr>
 					    			<tr>
 						    			<td>Severity</td>
-						    			<td>1 * 6</td>
-						    			<td>6</td>
+						    			<td>{{ e.attackscore.severity }}</td>
+						    			<td>{{ e.attackscore.severity_score }}</td>
 					    			</tr>
 					    			<tr>
 					    				<td>Different Event Types</td>
-					    				<td>1 * 5</td>
-					    				<td>5</td>
+					    				<td>{{ e.attackscore.event_types }}</td>
+					    				<td>{{ e.attackscore.event_types_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Number of times network-wide blocked with BGP blackholing</td>
+					    				<td>{{ e.attackscore.times_bgp_blocked }}</td>
+					    				<td>{{ e.attackscore.times_bgp_blocked_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Number of times ZLB blocked</td>
+					    				<td>{{ e.attackscore.times_zlb_blocked }}</td>
+					    				<td>{{ e.attackscore.times_zlb_blocked_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Number of times ZLB redirected</td>
+					    				<td>{{ e.attackscore.times_zlb_redirected }}</td>
+					    				<td>{{ e.attackscore.times_zlb_redirected_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Last attack score</td>
+					    				<td>{{ e.attackscore.last_attackscore }}</td>
+					    				<td>{{ e.attackscore.last_attackscore_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Offender on Emerging Threat compromised IPs list</td>
+					    				<td>{{ e.attackscore.et_compromised_ips }}</td>
+					    				<td>{{ e.attackscore.et_compromised_ips_score }}</td>
+					    			</tr>
+					    			<tr>
+					    				<td>Offender on DShield block list</td>
+					    				<td>{{ e.attackscore.dshield_block }}</td>
+					    				<td>{{ e.attackscore.dshield_block_score }}</td>
 					    			</tr>
 					    		</table>
+					    		{% endif %}
 					    	</td>
 					    </tr>
 					{% endfor %}
