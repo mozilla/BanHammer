@@ -43,8 +43,14 @@ def index(request, show_suggested=False):
     )
 
 @anonymous_csrf
-def show(request):
-    pass
+def show(request, id):
+    offender = None
+    
+    return render_to_response(
+        'offender/show.html',
+        {'offender': offender},
+        context_instance = RequestContext(request)
+    )
 
 @anonymous_csrf
 def delete(request, id):

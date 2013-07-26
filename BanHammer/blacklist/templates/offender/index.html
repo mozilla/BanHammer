@@ -51,7 +51,11 @@
 		    {% else %}
 		    <tr>
 			{% endif %}
-			    <td class="left">{{ b.address }}</td>
+			    <td class="left">
+			    	<a href="/offender/{{ b.id }}">
+			    		{{ b.address }}
+			    	</a>
+			    </td>
 			    <td class="left">/{{ b.cidr }}</td>
 			    <td class="center">{{ b.attack_score() }}</td>
 			    <td class="center">{{ b.last_event_date() }}</td>

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="span9">
+				<h1>Offender 8.8.8.8/32</h1>
+			</div>
+			<div class="span3">
+				<h2>Score: 56</h2>
+			</div>
+		</div>
+		<div class="row">
+		    <div class="offset5 span2 center bold alert alert-info">
+		    	All times are in UTC
+		    </div>
+	    </div>
+	    <div class="row">
+		    <div class="span9">
+		    	<legend>Blacklists</legend>
+		    	<table class="table">
+		    		<tr>
+						<th>
+						    Created
+						    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+						</th>
+						<th class="center">
+						    Expires
+						    <a href='?order_by=end_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=end_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+						</th>
+						<th class="center">
+						    Reporter
+						    <a href='?order_by=reporter&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+						    <a href='?order_by=reporter&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+						</th>
+		    			<th></th>
+						<th class="center">
+							<a href="#" onclick="$('table#events > tbody > tr.hide').toggle(false)">
+						    	<i class="icon-minus"></i>
+						    </a>
+						    <a href="#" onclick="$('table#events > tbody > tr.hide').toggle(true)">
+						    	<i class="icon-plus"></i>
+						    </a>
+						</th>
+						<th></th>
+		    		</tr>
+		    		<tr>
+					    <td class="center">2013-01-01 14:00</td>
+					    <td class="center">2013-01-01 14:00</td>
+					    <td class="center">test</td>
+					    <td class="center">
+						    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1010">
+						    	<img src="{{ static('images/link.png') }}">
+						    </a>
+					    </td>
+					    <td class="center">
+					    	<a href="#" onclick="$('#hide_blacklist_1010').toggle()">
+					    		<img src="{{ static('images/comment.gif') }}">
+					    	</a>
+					    </td>
+					    <td class="center">
+					    <a href="/blacklist/delete/?id=1010">
+					    <img src="{{ static('images/delete.gif') }}">
+					    </a>
+					    </td>
+				    </tr>
+				    <tr class="hide warning" id="hide_blacklist_1010">
+				    	<td colspan=5>toto</td>
+				    </tr>
+		    		<tr class='info'>
+		    			
+		    		</tr>
+		    	</table>
+		    </div>
+		    <div class="span3">
+		    	<legend>Offender</legend>
+		    	<ul>
+		    		<li>Address: 8.8.8.8</li>
+		    		<li>CIDR: 32</li>
+		    		<li>hostname: plop.plop.com</li>
+		    		<li>ASN: AS908190</li>
+		    		<li>Created: 2013-01-01</li>
+		    		<li>Updated: 2013-01-01</li>
+		    	</ul>
+		    </div>
+	    </div>
+	    <div class="span12">
+	    	<legend>Events</legend>
+	    </div>
+	</div>
+{% endblock %}
