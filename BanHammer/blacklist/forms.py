@@ -180,7 +180,7 @@ class SettingsForm(BaseForm):
         return cleaned_data
 
 class WhitelistIPForm(BaseForm):
-    address = forms.CharField(
+    target = forms.CharField(
         widget=forms.TextInput( attrs={'size':'43'} ),
         max_length=43
     )
@@ -193,8 +193,8 @@ class WhitelistIPForm(BaseForm):
     # clean_target takes the target field (a v4 or v6 IP address, with
     # optional CIDR) and creates validated 'address' and 'cidr'
     # values
-    def clean_address(self):
-        target = self.cleaned_data['address']
+    def clean_target(self):
+        target = self.cleaned_data['target']
         fields = target.split('/')
 
         try:
@@ -219,7 +219,7 @@ class WhitelistIPForm(BaseForm):
             if cidr > 128 or cidr < 32:
                 raise forms.ValidationError("Invalid CIDR value")
 
-        self.cleaned_data['address'] = fields[0]
+        self.cleaned_data['address'] = address
         self.cleaned_data['cidr'] = cidr
         return target
 

@@ -52,8 +52,8 @@ def new(request):
             address = form.cleaned_data['address']
             cidr = form.cleaned_data['cidr']
             comment = form.cleaned_data['comment']
-            reporter = 'test' #//XXX
-            #reporter = request.META.get("REMOTE_USER")
+            #reporter = 'test' #//XXX
+            reporter = request.META.get("REMOTE_USER")
 
             whitelist = WhitelistIP(
                 address=address,
@@ -85,7 +85,7 @@ def edit(request, id):
             reporter = request.META.get("REMOTE_USER")
 
             whitelist = WhitelistIP.objects.get(id=id)
-            whitelist.address = address.split('/')[0]
+            whitelist.address = address
             whitelist.cidr = cidr
             whitelist.comment = comment
             whitelist.reporter = reporter
@@ -95,7 +95,7 @@ def edit(request, id):
     else:
         initial = WhitelistIP.objects.get(id=id)
         initial = initial.__dict__
-        initial['address'] += '/'+str(initial['cidr'])
+        initial['target'] = initial['address']+'/'+str(initial['cidr'])
         id = initial['id']
         form = WhitelistIPForm(initial)
         

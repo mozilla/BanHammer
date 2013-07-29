@@ -124,13 +124,14 @@ class Command(BaseCommand):
             offender = Offender.find_create_from_ip(event.attackerAddress)
             score_indicators = AttackScoreHistory.score_indicators(event, offender)
             score_factors = self._get_score_factors()
-            score_details = AttackScore.compute_score(score_indicators, score_factors)
-            attackscore = self._save_attackscore(offender, score_details['total'])
+            score_details = AttackScore.compute_attackscore(score_indicators, score_factors)
             attackscore_history_kwargs = self._get_attackscore_history_kwargs(offender,
                 event, score_details, score_indicators)
             self._save_attackscore_history(attackscore_history_kwargs)
+            offenderscore = AttackScore.compute_offenderscore(offender, score_details['total'])
+            offenderscore = self._save_offenderscore(offender, offenderscore)
             # Create a blacklist suggestion if score > threshold
-            blacklist = attackscore.compute_blacklist_suggestion()
+            blacklist = offenderscore.compute_blacklist_suggestion()
             if blacklist != None:
                 # TODO: automatic switch
                 blacklist.save()
@@ -154,9 +155,15 @@ class Command(BaseCommand):
         event.save()
         return event
     
-    def _save_attackscore(self, offender, score):
-        attackscore = AttackScore(score=score, offender=offender)
-        attackscore.save()
+    def _save_offenderscore(self, offender, score):
+        attackscore = AttackScore.objects.filter(offender=offender)
+        if attackscore.count() != 0:
+            attackscore = attackscore[0]
+            attackscore.score = score
+            attackscore.save()
+        else:
+            attackscore = AttackScore(score=score, offender=offender)
+            attackscore.save()
         return attackscore
     
     def _get_score_factors(self):

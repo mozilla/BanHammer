@@ -63,8 +63,8 @@ class TestAttackScore(object):
         }
         self.attackscore = models.AttackScore()
 
-    def test_compute_score(self):
-        score_details = self.attackscore.compute_score(
+    def test_compute_attackscore(self):
+        score_details = self.attackscore.compute_attackscore(
             self.score_indicators, self.score_factors)
         nt.assert_equal(score_details, {
             'dshield_block': 0,

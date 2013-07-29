@@ -221,7 +221,7 @@ class IPWhitelistTestCase(WebTest):
         index = self.app.get('/whitelistip')
         edit = index.click('<i class="icon-pencil"></i>', index=1)
         form = edit.form
-        form['address'] = '1.2.3.4/32'
+        form['target'] = '1.2.3.4/32'
         form['comment'] = 'Test comment'
         index = form.submit().follow()
         assert '1.2.3.4' in index
@@ -232,7 +232,7 @@ class IPWhitelistTestCase(WebTest):
         index = self.app.get('/whitelistip')
         add = index.click('Add new whitelisted IPs')
         form = add.form
-        form['address'] = '4.3.2.1/32'
+        form['target'] = '4.3.2.1/32'
         form['comment'] = 'Test comment'
         index = form.submit().follow()
         assert '4.3.2.1' in index

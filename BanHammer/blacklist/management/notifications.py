@@ -7,10 +7,10 @@ from BanHammer.blacklist.models import Config
 from BanHammer import settings
 
 def email_enabled():
-    return bool(Config.objects.get(key="notifications_email_enable").value)
+    return bool(int(Config.objects.get(key="notifications_email_enable").value))
 
 def irc_enabled():
-    return bool(Config.objects.get(key="notifications_irc_enable").value)
+    return bool(int(Config.objects.get(key="notifications_irc_enable").value))
 
 def send_irc_new_event(offender, event, score_factors, attackscore_history_kwargs):
     message = irc_new_event_data(offender, event, score_factors, attackscore_history_kwargs)

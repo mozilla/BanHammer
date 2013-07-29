@@ -151,7 +151,7 @@ class AttackScore(models.Model):
     offender = models.ForeignKey(Offender)
 
     @classmethod
-    def compute_score(cls, score_indicators, score_factors):
+    def compute_attackscore(cls, score_indicators, score_factors):
         score_details = {}
 
         for indicator in score_indicators:
@@ -163,6 +163,13 @@ class AttackScore(models.Model):
             score_details['total'] += i
 
         return score_details
+    
+    @classmethod
+    def compute_offenderscore(cls, offender, attack_score):
+        attackscore = AttackScore.objects.filter(offender=offender)
+        if attackscore.count() == 0:
+            return attack_score
+        return attackscore[0].score + attack_score
 
     def compute_blacklist_suggestion(self):
         # TODO: suggest the good type
