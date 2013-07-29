@@ -10,10 +10,20 @@
     </div>
 	<div class="row">
 		<div class="span2">
-			<a class="btn btn-primary" href="/blacklist/post/">
-				<i class="icon-white icon-plus-sign"></i>
-				Add new blacklist
-			</a>
+		    <div class="btn-group">
+			    <a class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">
+			    	<i class="icon-white icon-plus-sign"></i>
+			    	Add new blacklist
+			    	<span class="caret"></span>
+			    </a>
+			    <ul class="dropdown-menu">
+			    	<li><a href="/blacklist/new/bgp_block">
+			    		BGP block
+			    	</a></li>
+			    	<li><a href="#">ZLB block</a></li>
+			    	<li><a href="#">ZLB redirect</a></li>
+			    </ul>
+		    </div>
 		</div>
 		<div class="span3 pull-right">
 			{% if data.show_expired == False %}
@@ -36,6 +46,11 @@
 		    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 		    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 		</th>
+		<th class="center">
+		    Type
+		    <a href='?order_by=type&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
+		    <a href='?order_by=type&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
+		</th class="center">
 		<th>
 		    Created
 		    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
@@ -71,6 +86,15 @@
 		{% endif %}
 	    <td class="left">{{ b.offender.address }}</td>
 	    <td class="left">/{{ b.offender.cidr }}</td>
+	    <td class="center">
+	    	{% if b.type == 'bgp_block' %}
+	    		BGP Blocked
+	    	{% elif b.type == 'zlb_block' %}
+	    		ZLB Blocked
+	    	{% elif b.type == 'zlb_redirect' %}
+	    		ZLB Redirected
+	    	{% endif %}
+	    </td>
 	    <td class="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
 	    <td class="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
 	    <td class="center">{{ b.reporter }}</td>

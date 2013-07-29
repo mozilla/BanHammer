@@ -22,7 +22,7 @@ class BaseForm(forms.Form):
         )
        
 
-class ComplaintForm(BaseForm):
+class ComplaintBGPBlockForm(BaseForm):
 
     # Create a list of default blacklist durations
     durations = [

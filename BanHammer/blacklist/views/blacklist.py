@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender, Blacklist
-from ..forms import ComplaintForm
+from ..forms import ComplaintBGPBlockForm
 
 
 # default view for displaying all blacklists
@@ -29,6 +29,8 @@ def index(request, show_expired=False):
         blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.offender.address)
     elif order_by == 'cidr':
         blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.offender.cidr)
+    elif order_by == 'type':
+        blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.type)
     elif order_by == 'start_date':
         blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.start_date)
     elif order_by == 'end_date':
@@ -51,13 +53,14 @@ def index(request, show_expired=False):
 
 # view for creating new blacklists
 @anonymous_csrf
-def post(request):
+def new_bgp_block(request):
     if request.method == 'POST':
-        form = ComplaintForm(request.POST)
+        form = ComplaintBGPBlockForm(request.POST)
         if form.is_valid():
 
             address = form.cleaned_data['address']
             cidr = form.cleaned_data['cidr']
+            type = "bgp_block"
             comment = form.cleaned_data['comment']
             bug_number = form.cleaned_data['bug_number']
             start_date = form.cleaned_data['start_date']
@@ -73,6 +76,7 @@ def post(request):
             o.save()
 
             b = Blacklist(
+                type=type,
                 start_date=start_date,
                 end_date=end_date,
                 comment=comment,
@@ -85,10 +89,10 @@ def post(request):
             return HttpResponseRedirect('/blacklist')
 
     else:
-        form = ComplaintForm()
+        form = ComplaintBGPBlockForm()
 
     return render_to_response(
-        'blacklist/post.html',
+        'blacklist/new_bgp_block.html',
         {'form': form,
          'body_init': True},
         context_instance = RequestContext(request)

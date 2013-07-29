@@ -47,7 +47,9 @@ def index(request, show_suggested=False):
 def show(request, id):
     offender = Offender.objects.get(id=id)
     blacklists = Blacklist.objects.filter(offender=offender,suggestion=False)
-    attackscore = AttackScore.objects.filter(offender=offender).reverse()[0]
+    attackscore = AttackScore.objects.filter(offender=offender)
+    if attackscore.count() != 0:
+        attackscore = attackscore.reverse()[0]
     events = Event.objects.filter(attackerAddress=offender.address)
     
     for e in events:
