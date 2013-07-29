@@ -2,7 +2,7 @@
 
 
 {% block content %}
-	<h1>Edit offender</h1>
+	<h1>Edit offender {{ offender.address }}/{{ offender.cidr }}</h1>
 	{% if form.errors %}
 		{{ form.non_field_errors() }}
 	{% endif %}

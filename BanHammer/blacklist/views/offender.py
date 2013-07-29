@@ -80,28 +80,23 @@ def edit(request, id):
     if request.method == 'POST':
         form = OffenderForm(request.POST)
         if form.is_valid():
-            address = form.cleaned_data['address']
-            cidr = form.cleaned_data['cidr']
             hostname = form.cleaned_data['hostname']
             asn = form.cleaned_data['asn']
 
             offender = Offender.objects.get(id=id)
-            offender.address = address.split('/')[0]
-            offender.cidr = cidr
             offender.hostname = hostname
             offender.asn = asn
             offender.save()
             
             return HttpResponseRedirect('/offender/%s' % id)
     else:
-        initial = Offender.objects.get(id=id)
-        initial = initial.__dict__
-        initial['address'] += '/'+str(initial['cidr'])
+        offender = Offender.objects.get(id=id)
+        initial = offender.__dict__
         id = initial['id']
         form = OffenderForm(initial)
         
     return render_to_response(
         'offender/edit.html',
-        {'form': form, 'id': id},
+        {'form': form, 'id': id, 'offender': offender},
         context_instance = RequestContext(request)
     )

@@ -22,7 +22,7 @@ The settings for the score and notifications are in the blacklist_config table.
 Run the tests
 -------------
 
-`$ python manage.py test BanHammer/blacklist/tests/*.py`
+`$ python manage.py test BanHammer/blacklist/tests/tests_*.py`
 
 License
 -------
