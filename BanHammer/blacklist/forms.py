@@ -237,7 +237,19 @@ class OffenderForm(BaseForm):
         validators=[BaseForm.validator_integer()],
     )
     
+    score = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=7,
+        required=False,
+        validators=[BaseForm.validator_integer()],
+    )
+    
     def clean_asn(self):
         if self.cleaned_data['asn']:
             return int(self.cleaned_data['asn'])
+        return None
+    
+    def clean_score(self):
+        if self.cleaned_data['score']:
+            return int(self.cleaned_data['score'])
         return None

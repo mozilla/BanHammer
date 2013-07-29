@@ -88,11 +88,28 @@ def edit(request, id):
             offender.asn = asn
             offender.save()
             
+            score = form.cleaned_data['score']
+            if score:
+                attackscore = AttackScore.objects.filter(offender=offender)
+                if attackscore.count() != 0:
+                    attackscore = attackscore[0]
+                    attackscore.score = score
+                    attackscore.save()
+                else:
+                    attackscore = AttackScore(
+                        score=score,
+                        offender=offender,
+                    )
+                    attackscore.save()
+            
             return HttpResponseRedirect('/offender/%s' % id)
     else:
         offender = Offender.objects.get(id=id)
         initial = offender.__dict__
         id = initial['id']
+        attackscore = AttackScore.objects.filter(offender=offender)
+        if attackscore.count() != 0:
+            initial['score'] = attackscore[0].score
         form = OffenderForm(initial)
         
     return render_to_response(

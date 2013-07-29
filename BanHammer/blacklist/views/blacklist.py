@@ -53,7 +53,7 @@ def index(request, show_expired=False):
 
 # view for creating new blacklists
 @anonymous_csrf
-def new_bgp_block(request):
+def new_bgp_block(request, id=None):
     if request.method == 'POST':
         form = ComplaintBGPBlockForm(request.POST)
         if form.is_valid():
@@ -89,7 +89,13 @@ def new_bgp_block(request):
             return HttpResponseRedirect('/blacklist')
 
     else:
-        form = ComplaintBGPBlockForm()
+        if id:
+            offender = Offender.objects.get(id=id)
+            initial = {}
+            initial['target'] = '%s/%s' % (offender.address, offender.cidr)
+            form = ComplaintBGPBlockForm(initial=initial)
+        else:
+            form = ComplaintBGPBlockForm()
 
     return render_to_response(
         'blacklist/new_bgp_block.html',

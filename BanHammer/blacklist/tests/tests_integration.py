@@ -117,6 +117,9 @@ class OffenderTestCase(WebTest):
         
         # Event
         assert 'No events.' in show.body
+        
+        # Blacklist
+        assert 'name="target" value="8.8.8.8/32"' in show.click('BGP block')
     
     def test_show_suggested(self):
         steps.given_offender_suggested()
@@ -163,7 +166,7 @@ class OffenderTestCase(WebTest):
         assert '<td>Offender on Emerging Threat compromised IPs list</td>' in show.body
         assert '<td>Offender on DShield block list</td>' in show.body
 
-    def test_edit(self):
+    def test_edit_blocked(self):
         steps.given_offender_blocked()
         index = self.app.get('/offenders')
         show = index.click('8.8.8.8')
@@ -172,10 +175,28 @@ class OffenderTestCase(WebTest):
         
         form['hostname'] = 'trololo.lol.com'
         form['asn'] = 42
+        form['score'] = 15
         
         show = form.submit().follow()
         assert '<li>hostname: trololo.lol.com</li>' in show.body
         assert '<li>ASN: 42</li>' in show.body
+        assert '<h2>Score: 15</h2>' in show.body
+
+    def test_edit_suggested(self):
+        steps.given_offender_suggested()
+        index = self.app.get('/offenders/show_suggested')
+        show = index.click('4.2.2.1')
+        edit = show.click('<i class="icon-pencil icon-legend"></i>')
+        form = edit.form
+        
+        form['hostname'] = 'trololo.lol.com'
+        form['asn'] = 42
+        form['score'] = 52
+        
+        show = form.submit().follow()
+        assert '<li>hostname: trololo.lol.com</li>' in show.body
+        assert '<li>ASN: 42</li>' in show.body
+        assert '<h2>Score: 52</h2>' in show.body
 
 class IPWhitelistTestCase(WebTest):
     fixtures = ['initial_data.json']
