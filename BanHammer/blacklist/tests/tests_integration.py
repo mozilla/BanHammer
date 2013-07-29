@@ -176,3 +176,44 @@ class OffenderTestCase(WebTest):
         show = form.submit().follow()
         assert '<li>hostname: trololo.lol.com</li>' in show.body
         assert '<li>ASN: 42</li>' in show.body
+
+class IPWhitelistTestCase(WebTest):
+    fixtures = ['initial_data.json']
+
+    def test_index(self):
+        index = self.app.get('/whitelistip')
+
+        assert 'Address' in index
+        assert 'CIDR' in index
+        assert 'Reporter' in index
+        assert 'Created date' in index
+        assert 'Updated date' in index
+        
+        assert '10.0.0.0' in index
+        assert '/8' in index
+        assert 'BanHammer-ng' in index
+        assert '2013-01-01 00:01:00' in index
+        assert '<img src="/static/images/comment.gif">' in index
+        assert 'Private IPv4 space RFC 1918' in index
+
+    def test_edit(self):
+        index = self.app.get('/whitelistip')
+        edit = index.click('<i class="icon-pencil"></i>', index=1)
+        form = edit.form
+        form['address'] = '1.2.3.4/32'
+        form['comment'] = 'Test comment'
+        index = form.submit().follow()
+        assert '1.2.3.4' in index
+        assert '/32' in index
+        assert 'Test comment' in index
+
+    def test_add(self):
+        index = self.app.get('/whitelistip')
+        add = index.click('Add new whitelisted IPs')
+        form = add.form
+        form['address'] = '4.3.2.1/32'
+        form['comment'] = 'Test comment'
+        index = form.submit().follow()
+        assert '4.3.2.1' in index
+        assert '/32' in index
+        assert 'Test comment' in index
