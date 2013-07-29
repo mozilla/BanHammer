@@ -44,6 +44,14 @@ def index(request, show_suggested=False):
     )
 
 @anonymous_csrf
+def show_ip(request, ip):
+    offender = Offender.objects.filter(address=ip)
+    if offender.count() != 1:
+        return HttpResponseRedirect('/offenders')
+    else:
+        return show(request, offender[0].id)
+
+@anonymous_csrf
 def show(request, id):
     offender = Offender.objects.get(id=id)
     blacklists = Blacklist.objects.filter(offender=offender,suggestion=False)
