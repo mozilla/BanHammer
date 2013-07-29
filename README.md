@@ -19,6 +19,11 @@ To use this feature, you need to load the external rules provided by Emerging Th
 
 The settings for the score and notifications are in the blacklist_config table.
 
+Run the tests
+-------------
+
+`$ python manage.py test BanHammer/blacklist/tests/*.py`
+
 License
 -------
 This software is licensed under the [New BSD License][BSD]. For more
