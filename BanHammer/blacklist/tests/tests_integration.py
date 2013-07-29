@@ -198,6 +198,28 @@ class OffenderTestCase(WebTest):
         assert '<li>ASN: 42</li>' in show.body
         assert '<h2>Score: 52</h2>' in show.body
 
+class EventTestCase(WebTest):
+    def test_delete_event(self):
+        steps.given_offender_suggested()
+        steps.given_another_event()
+        index = self.app.get('/offenders/show_suggested')
+        show = index.click('4.2.2.1')
+        
+        assert show.body.count('Test Rule') == 2
+        assert '<h2>Score: 60</h2>' in show
+        
+        delete = show.click('<i class="icon-remove"></i>', index=1)
+        show = delete.follow()
+        
+        assert show.body.count('Test Rule') == 1
+        assert '<h2>Score: 30</h2>' in show
+        
+        delete = show.click('<i class="icon-remove"></i>')
+        show = delete.follow()
+        
+        assert not 'Test Rule' in show
+        assert '<h2>Score: 0</h2>' in show
+
 class IPWhitelistTestCase(WebTest):
     fixtures = ['initial_data.json']
 

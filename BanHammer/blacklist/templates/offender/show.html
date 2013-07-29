@@ -208,7 +208,8 @@
 						    	</a>
 						    </td>
 						    <td class="center">
-						    	<a href="/event/{{ e.id }}/delete">
+						    	<a href="/event/{{ e.id }}/delete"
+						    		onclick="return confirm('Deleting this event will substract its attack score from the offender score.')">
 						    		<i class="icon-remove"></i>
 						    	</a>
 						    </td>
