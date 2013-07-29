@@ -217,3 +217,58 @@ class IPWhitelistTestCase(WebTest):
         assert '4.3.2.1' in index
         assert '/32' in index
         assert 'Test comment' in index
+
+class SettingsTestCase(WebTest):
+    fixtures = ['initial_data.json']
+
+    def test_index(self):
+        index = self.app.get('/settings')
+
+        assert 'Enable email notifications' in index
+        assert 'Expeditor address for email notifications' in index
+        assert 'Recipient address for email notifications' in index
+        assert 'Enable IRC notifications' in index
+        assert 'Threshold for notifications of offenders' in index
+        assert 'Factor for <strong>severity</strong> field in events' in index
+        assert 'Factor for <strong>different types of past events</strong>' in index
+        assert 'Factor for number of times the offender has been already <strong>blocked network-wide (BGP blackholing)</strong>' in index
+        assert 'Factor for number of times the offender has been already <strong>blocked on ZLBs</strong>' in index
+        assert 'Factor for number of times the offender has been already <strong>redirected on ZLBs</strong>' in index
+        assert 'Factor for the <strong>last attack score</strong>' in index
+        assert 'matching the IP on Emerging Threat' in index
+        assert 'matching the IP on DShield.org' in index
+    
+    def test_edit(self):
+        index = self.app.get('/settings')
+        form = index.form
+        
+        form['notifications_email_enable'] = 'off'
+        form['notifications_email_address_from'] = 'from@example.com'
+        form['notifications_email_address_to'] = 'to@example.com'
+        form['notifications_irc_enable'] = 'off'
+        form['blacklist_unknown_threshold'] = '10'
+        form['score_factor_severity'] = '11'
+        form['score_factor_event_types'] = '12'
+        form['score_factor_times_bgp_blocked'] = '13'
+        form['score_factor_times_zlb_blocked'] = '14'
+        form['score_factor_times_zlb_redirected'] = '15'
+        form['score_factor_last_attackscore'] = '16'
+        form['score_factor_et_compromised_ips'] = '17'
+        form['score_factor_dshield_block'] = '18'
+        
+        index = form.submit()
+        index = self.app.get('/settings')
+        
+        assert '<input checked="checked" type="checkbox" name="notifications_email_enable" id="id_notifications_email_enable" />' in index
+        assert 'name="notifications_email_address_from" value="from@example.com"' in index
+        assert 'name="notifications_email_address_to" value="to@example.com"' in index
+        assert '<input checked="checked" type="checkbox" name="notifications_irc_enable" id="id_notifications_irc_enable" />' in index
+        assert 'name="blacklist_unknown_threshold" value="10"' in index
+        assert 'name="score_factor_severity" value="11"' in index
+        assert 'name="score_factor_event_types" value="12"' in index
+        assert 'name="score_factor_times_bgp_blocked" value="13"' in index
+        assert 'name="score_factor_times_zlb_blocked" value="14"' in index
+        assert 'name="score_factor_times_zlb_redirected" value="15"' in index
+        assert 'name="score_factor_last_attackscore" value="16"' in index
+        assert 'name="score_factor_et_compromised_ips" value="17"' in index
+        assert 'name="score_factor_dshield_block" value="18"' in index
