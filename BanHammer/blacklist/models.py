@@ -289,3 +289,14 @@ class WhitelistIP(models.Model):
                 # comparing IPv4 and IPv6 networks
                 pass
         return False
+
+class ZLB(models.Model):
+    created_date = models.DateTimeField(auto_now_add=True)
+    updated_date = models.DateTimeField(auto_now=True)
+    name = models.CharField(max_length=255)
+    hostname = models.CharField(max_length=255)
+    datacenter = models.CharField(max_length=255, null=True)
+    doc_url = models.CharField(max_length=255, null=True)
+    comment = models.CharField(max_length=255, null=True)
+    login = models.CharField(max_length=255)
+    password = models.CharField(max_length=255)

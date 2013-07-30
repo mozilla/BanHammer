@@ -253,3 +253,43 @@ class OffenderForm(BaseForm):
         if self.cleaned_data['score']:
             return int(self.cleaned_data['score'])
         return None
+
+class ZLBForm(BaseForm):
+    name = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+    )
+    
+    hostname = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+    )
+    
+    datacenter = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        required=False,
+    )
+    
+    comment = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        required=False,
+    )
+    
+    doc_url = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        required=False,
+    )
+
+    login = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+    )
+    
+    password = forms.CharField(
+        widget=forms.PasswordInput(),
+        max_length=255,
+        required=False,
+    )

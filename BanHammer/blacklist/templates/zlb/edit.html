@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+
+{% block content %}
+	<h1>Edit ZLB</h1>
+	{% if form.errors %}
+		{{ form.non_field_errors() }}
+	{% endif %}
+	
+	<form class="form-horizontal" action="/zlb/{{ id }}/edit" method="post" name="zlb">
+	{{ csrf() }}
+	{% include "zlb/_form.html" %}
+	</form>
+{% endblock %}

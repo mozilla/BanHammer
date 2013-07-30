@@ -1,0 +1,72 @@
+<div class="control-group">
+	<label class="control-label" for="id_name">
+		Name
+	</label>
+	<div class="controls">
+		{{ form.name }}
+		{{ form.name.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_hostname">
+		Hostname
+	</label>
+	<div class="controls">
+		{{ form.hostname }}
+		{{ form.hostname.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_datacenter">
+		Datacenter (opt)
+	</label>
+	<div class="controls">
+		{{ form.datacenter }}
+		{{ form.datacenter.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_doc_url">
+		Documentation URL (opt)
+	</label>
+	<div class="controls">
+		{{ form.doc_url }}
+		{{ form.doc_url.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_comment">
+		Comment (opt)
+	</label>
+	<div class="controls">
+		{{ form.comment }}
+		{{ form.comment.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_login">
+		Login
+	</label>
+	<div class="controls">
+		{{ form.login }}
+		{{ form.login.errors }}
+	</div>
+</div>
+<div class="control-group">
+	<label class="control-label" for="id_password">
+		Password
+	</label>
+	<div class="controls">
+		{{ form.password }}
+		{{ form.password.errors }}
+	</div>
+</div>
+<br>
+<div class="row">
+	<div class="span2">
+		<button type="submit" class="btn">Save</button>
+	</div>
+	<div class="span1">
+		<button type="reset" class="btn">Cancel</button>
+	</div>
+</div>

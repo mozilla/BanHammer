@@ -315,3 +315,62 @@ class SettingsTestCase(WebTest):
         assert 'name="score_factor_last_attackscore" value="16"' in index
         assert 'name="score_factor_et_compromised_ips" value="17"' in index
         assert 'name="score_factor_dshield_block" value="18"' in index
+
+class ZLBTestCase(WebTest):
+    def test_index(self):
+        index = self.app.get('/zlbs')
+
+        assert '<h1>ZLBs</h1>'
+        assert 'Name' in index
+        assert 'Hostname' in index
+        assert 'Datacenter' in index
+        assert 'Created date' in index
+        assert 'Updated date' in index
+        assert 'Documentation' in index
+        assert 'No ZLB.' in index
+
+    def test_add(self):
+        index = self.app.get('/zlbs')
+        add = index.click('Add new ZLB')
+        form = add.form
+        form['name'] = 'my name'
+        form['hostname'] = 'myhostname'
+        form['datacenter'] = 'my datacenter'
+        form['doc_url'] = 'http://www.example.com'
+        form['comment'] = 'Test comment'
+        form['login'] = 'my login'
+        form['password'] = 'toto'
+        index = form.submit().follow()
+        
+        assert 'my name' in index
+        assert 'myhostname' in index
+        assert 'my datacenter' in index
+        assert '<a href="http://www.example.com">' in index
+        assert 'Test comment' in index
+
+    def test_edit(self):
+        self.test_add()
+        index = self.app.get('/zlbs')
+        edit = index.click('<i class="icon-pencil"></i>')
+        form = edit.form
+        form['name'] = 'your name'
+        form['hostname'] = 'yourhostname'
+        form['datacenter'] = 'your datacenter'
+        form['doc_url'] = 'http://www.example2.com'
+        form['comment'] = 'your comment'
+        form['login'] = 'your login'
+        form['password'] = ''
+        index = form.submit().follow()
+        
+        assert 'your name' in index
+        assert 'yourhostname' in index
+        assert 'your datacenter' in index
+        assert '<a href="http://www.example2.com">' in index
+        assert 'your comment' in index
+
+    def test_delete(self):
+        self.test_add()
+        index = self.app.get('/zlbs')
+        delete = index.click('<i class="icon-remove"></i>')
+        index = delete.follow()
+        assert 'No ZLB.' in index

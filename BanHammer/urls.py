@@ -7,6 +7,7 @@ from BanHammer.blacklist.views import offender as views_offender
 from BanHammer.blacklist.views import setting as views_setting
 from BanHammer.blacklist.views import whitelistip as views_whitelistip
 from BanHammer.blacklist.views import event as views_event
+from BanHammer.blacklist.views import zlb as views_zlb
 
 from funfactory.monkeypatches import patch
 patch()
@@ -41,6 +42,10 @@ urlpatterns = patterns('',
     url(r'^whitelistip/(\d+)/edit$', views_whitelistip.edit, name='whitelistip_edit'),
     url(r'^whitelistip/(\d+)/delete$', views_whitelistip.delete, name='whitelistip_delete'),
     url(r'^event/(\d+)/delete', views_event.delete, name='event_delete'),
+    url(r'^zlbs', views_zlb.index, name='zlb_index'),
+    url(r'^zlb/new', views_zlb.new, name='zlb_new'),
+    url(r'^zlb/(\d+)/delete$', views_zlb.delete, name='zlb_delete'),
+    url(r'^zlb/(\d+)/edit', views_zlb.edit, name='zlb_edit'),
     # Example:
     #(r'', include(urls)),
     
