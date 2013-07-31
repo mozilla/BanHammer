@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+	<link href="{{ static('css/demo_table.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="span9">
+				<h1>ZLB {{ zlb.name }} ({{ zlb.hostname }})</h1>
+			</div>
+		</div>
+		<div class="row">
+			<!-- Find Protection Classes applied (including non-BanHammer) -->
+			<!-- Find TrafficScript rules applied (including non-BanHammer) -->
+			<!-- Update -->
+			<!-- Need update -->
+			<!-- Last update: (UTC) -->
+		</div>
+	    <div class="row">
+	    	<legend>Virtual Servers</legend>
+	    	{% if vs %}
+	    	<table id="virtualservers" class="display">
+	    		<thead>
+		    		<tr>
+		    			<th>Name</th>
+		    			<th>Port</th>
+		    			<th>Protocol</th>
+		    			<th>Default Pool</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+	    			{% for i in vs %}
+	    			{% if i.enabled %}
+		    		<tr class="gradeA">
+		    		{% else %}
+		    		<tr class="gradeX">
+		    		{% endif %}
+		    			<td>
+		    				{{ i.name }}
+		    			</td>
+		    			<td>{{ i.port }}</td>
+		    			<td>{{ i.protocol }}</td>
+		    			<td>{{ i.default_pool }}</td>
+		    		</tr>
+		    		{% endfor %}
+	    		</tbody>
+	    	</table>
+	    	{% endif %}
+	    </div>
+	</div>
+{% endblock %}
+
+{% block js_footer %}
+	<script src="{{ static('js/jquery.js') }}"></script>
+    <script src="{{ static('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ static('js/zlb_show.js') }}"></script>
+{% endblock %}
+{% block js_bootstrap %}{% endblock %}
+{% block js_jquery %}{% endblock %}

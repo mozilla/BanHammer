@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="span9">
+				<h1>ZLB {{ zlb.name }} ({{ zlb.hostname }})</h1>
+			</div>
+		</div>
+		<br><br>
+		<div class="alert alert-error center">
+			<h3>
+				This ZLB is currently updating,
+				please refresh this page in a couple of minutes.
+			</h3>
+		</div>
+	</div>
+{% endblock %}

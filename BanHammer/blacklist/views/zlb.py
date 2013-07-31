@@ -1,14 +1,18 @@
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.exceptions import ObjectDoesNotExist
-
+from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from ..models import ZLB
+
+from ..models import ZLB, ZLBVirtualServer, ZLBVirtualServerRule, ZLBVirtualServerProtection
 from ..forms import ZLBForm
+from BanHammer.blacklist.management import zeus
+import BanHammer.blacklist.tasks as tasks
 
 @anonymous_csrf
-def index(request):
+@never_cache
+def index(request, zlb=None, action=None):
     request.session['order_by'] = request.GET.get('order_by', 'hostname')
     request.session['order'] = request.GET.get('order', 'asc')
 
@@ -31,9 +35,15 @@ def index(request):
     if order == 'desc':
         zlbs.reverse()
 
+    data = {'zlbs': zlbs}
+    
+    if action == 'update':
+        data['zlb'] = zlb
+        data['action'] = 'update'
+
     return render_to_response(
         'zlb/index.html',
-        {'zlbs': zlbs},
+        data,
         context_instance = RequestContext(request)
     )
 
@@ -106,4 +116,56 @@ def delete(request, id):
     zlb = ZLB.objects.get(id=id)
     zlb.delete()
     
+    return HttpResponseRedirect('/zlbs')
+
+@anonymous_csrf
+def show_old(request, id):
+    zlb = ZLB.objects.get(id=id)
+    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
+    z.connect('VirtualServer')
+
+    vs = {}
+    names = list(z.conn.getVirtualServerNames())
+    for i in names:
+        vs[i] = {}
+        enabled = z.conn.getEnabled([i])[0]
+        vs[i]['enabled'] = enabled
+        basicInfo = z.conn.getBasicInfo([i])[0]
+        vs[i]['port'] = basicInfo.port
+        vs[i]['protocol'] = basicInfo.protocol
+        vs[i]['default_pool'] = basicInfo.default_pool
+
+    return render_to_response(
+        'zlb/show.html',
+        {'vs': vs,
+         'zlb': zlb,},
+        context_instance = RequestContext(request)
+    )
+
+@anonymous_csrf
+@never_cache
+def show(request, id):
+    zlb = ZLB.objects.get(id=id)
+    if zlb.updating:
+        return render_to_response(
+            'zlb/updating.html',
+            {'zlb': zlb,},
+            context_instance = RequestContext(request)
+        )
+        
+    vs = ZLBVirtualServer.objects.filter(zlb_id=zlb.id)
+    pr = {}
+    rul = {}
+    return render_to_response(
+        'zlb/show.html',
+        {'zlb': zlb,
+         'vs': vs,},
+        context_instance = RequestContext(request)
+    )
+
+@anonymous_csrf
+@never_cache
+def update(request, id):
+    tasks.update_zlb.delay(id)
+    zlb = ZLB.objects.get(id=id)
     return HttpResponseRedirect('/zlbs')

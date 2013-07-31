@@ -300,3 +300,40 @@ class ZLB(models.Model):
     comment = models.CharField(max_length=255, null=True)
     login = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
+    updating = models.BooleanField()
+
+class ZLBVirtualServer(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    name = models.CharField(max_length=255)
+    enabled = models.BooleanField()
+    port = models.IntegerField()
+    protocol = models.CharField(max_length=255)
+    default_pool = models.CharField(max_length=255)
+
+class ZLBRule(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    name = models.CharField(max_length=255)
+    rule_text = models.TextField(null=True)
+    rule_notes = models.TextField(null=True)
+
+class ZLBProtection(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    name = models.CharField(max_length=255)
+    allowed_addresses = models.TextField(null=True)
+    banned_addresses = models.TextField(null=True)
+    debug = models.BooleanField()
+    enabled = models.BooleanField()
+    note = models.TextField(null=True)
+    testing = models.BooleanField()
+
+class ZLBVirtualServerRule(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    virtualserver = models.ForeignKey(ZLBVirtualServer)
+    rule = models.ForeignKey(ZLBRule)
+    enabled = models.BooleanField()
+    run_frequency = models.CharField(max_length=255, null=True)
+
+class ZLBVirtualServerProtection(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    virtualserver = models.ForeignKey(ZLBVirtualServer)
+    protection = models.ForeignKey(ZLBProtection)

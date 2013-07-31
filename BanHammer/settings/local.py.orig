@@ -72,6 +72,9 @@ ENGAGE_ROBOTS = True
 # BROKER_VHOST = 'playdoh'
 # CELERY_RESULT_BACKEND = 'amqp'
 
+CELERYD_TASK_TIME_LIMIT=4000
+CELERYD_TASK_SOFT_TIME_LIMIT=3600
+
 ## Log settings
 
 # SYSLOG_TAG = "http_app_playdoh"  # Make this unique to your project.
@@ -99,3 +102,4 @@ DSHIELD_BLOCK_CONTENT_FILE = 'dshield_block'
 DSHIELD_BLOCK_REV_FILE = 'dshield_block.rev'
 
 MANAGEMENT_FOLDER = "/somedir/BanHammer/BanHammer/blacklist/management"
+WSDL = MANAGEMENT_FOLDER+'/wsdl'

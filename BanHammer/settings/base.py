@@ -21,6 +21,8 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
     'django_nose',
     'debug_toolbar',
     'bootstrap',
+    'djcelery',
+    'kombu.transport.django',
 ]
 
 LOCALE_PATHS = (

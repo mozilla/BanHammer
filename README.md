@@ -8,6 +8,7 @@ Installation
 
 1. Rename `BanHammer/blacklist/fixtures/initial_data.json.orig` to `BanHammer/blacklist/fixtures/initial_data`
 2. Follow [playdoh installation instructions](http://playdoh.readthedocs.org/en/latest/getting-started/installation.html)
+3. Run celeryd `python manage.py celeryd`
 
 Scoring and notification script (optional)
 ------------------------------------------

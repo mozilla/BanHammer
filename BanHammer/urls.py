@@ -46,6 +46,8 @@ urlpatterns = patterns('',
     url(r'^zlb/new', views_zlb.new, name='zlb_new'),
     url(r'^zlb/(\d+)/delete$', views_zlb.delete, name='zlb_delete'),
     url(r'^zlb/(\d+)/edit', views_zlb.edit, name='zlb_edit'),
+    url(r'^zlb/(\d+)/update', views_zlb.update, name='zlb_update'),
+    url(r'^zlb/(\d+)', views_zlb.show, name='zlb_show'),
     # Example:
     #(r'', include(urls)),
     

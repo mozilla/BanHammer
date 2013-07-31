@@ -1,4 +1,5 @@
 -r ../vendor/src/funfactory/funfactory/requirements/compiled.txt
 
 netaddr
+SOAPpy
 git+https://github.com/auzigog/jinja-bootstrap.git

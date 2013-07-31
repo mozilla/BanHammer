@@ -45,3 +45,7 @@ fieldset#settings_score > div.control-group > label.control-label {
 .icon-legend {
 	margin-top: 5px;
 }
+
+table.display tr.odd.enabled {
+	background-color: #DDFFDD;
+}

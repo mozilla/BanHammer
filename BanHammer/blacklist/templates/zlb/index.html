@@ -8,6 +8,13 @@
 	    	All times are in UTC
 	    </div>
     </div>
+    {% if action and action == 'update' %}
+    <div class="row">
+    	<div class="offset4 span4 center alert alert-success">
+    		<strong>An update for ZLB {{ zlb.name }} has ben scheduled.</strong>
+    	</div>
+    </div>
+    {% endif %}
 	<div class="row">
 		<div class="span3">
 			<a class="btn btn-primary" href="/zlb/new">
@@ -55,11 +62,17 @@
 			</th>
 			<th></th>
 			<th></th>
+			<th></th>
+			<th></th>
 		</tr>
 		{% if zlbs %}
 		{% for z in zlbs %}
 		    <tr>
-			    <td class="left">{{ z.name }}</td>
+			    <td class="left">
+			    	<a href="/zlb/{{ z.id }}">
+			    		{{ z.name }}
+			    	</a>
+			    </td>
 			    <td class="left">{{ z.hostname }}</td>
 			    <td class="center">{{ z.datacenter }}</td>
 			    <td class="center">{{ z.created_date }}</td>
@@ -76,6 +89,16 @@
 			    	</a>
 			    	{% endif %}
 			    </td>
+			    <td>
+			    	{% if z.updating or action == 'update' %}
+			    		Updating...
+			    	{% endif %}
+			    </td>
+			    <td class="center">
+			    	<a href="/zlb/{{ z.id }}/update">
+			    		<i class="icon-refresh"></i>
+			    	</a>
+			    </td>
 			    <td class="center">
 			    	<a href="/zlb/{{z.id}}/edit">
 			    		<i class="icon-pencil"></i>
@@ -89,7 +112,7 @@
 		    </tr>
 		    {% if z.comment %}
 		    <tr class="hide warning" id="hide_{{ z.id }}">
-		    	<td colspan=5>
+		    	<td colspan="5">
 		    			{{z.comment}}
 		    	</td>
 		    </tr>
