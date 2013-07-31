@@ -52,7 +52,7 @@
 		    <a href='?order_by=type&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 		</th class="center">
 		<th>
-		    Created
+		    Start Time
 		    <a href='?order_by=start_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
 		    <a href='?order_by=start_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
 		</th>
@@ -95,8 +95,8 @@
 	    		ZLB Redirected
 	    	{% endif %}
 	    </td>
-	    <td class="center">{{ b.start_date.strftime('%Y-%m-%d %H:%m') }}</td>
-	    <td class="center">{{ b.end_date.strftime('%Y-%m-%d %H:%m') }}</td>
+	    <td class="center">{{ b.start_date }}</td>
+	    <td class="center">{{ b.end_date }}</td>
 	    <td class="center">{{ b.reporter }}</td>
 	    <td class="center">{% if b.bug_number %}
 	    <a href="https://bugzilla.mozilla.org/show_bug.cgi?id={{b.bug_number}}">

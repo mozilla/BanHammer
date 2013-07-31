@@ -101,3 +101,7 @@ MIDDLEWARE_CLASSES.remove('funfactory.middleware.LocaleURLMiddleware')
 TEMPLATE_PATH=os.path.join(os.path.dirname(__file__), '../base/templates/')
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
+
+USE_TZ = False
+TIME_ZONE = 'GMT'
+
