@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+	<link href="{{ static('css/demo_table.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="span9">
+				<h1>TrafficScript Rules on {{ zlb.name }} ({{ zlb.hostname }})</h1>
+			</div>
+		</div>
+		<br>
+		<div class="row">
+			<div class="span4 center">
+				<a href="/zlb/{{ zlb.id }}" class="btn">
+					<i class="icon-arrow-left"></i>
+					Show ZLB
+				</a>
+			</div>
+		</div>
+		<br>
+	    <div class="row">
+	    	{% if rules %}
+	    	<table id="rules" class="display">
+	    		<thead>
+		    		<tr>
+		    			<th>Name</th>
+		    			<th></th>
+		    			<th>Rule Notes</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+	    			{% for i in rules %}
+		    		<tr>
+		    			<td>{{ i.name }}</td>
+		    			<td>
+		    				<a href="javascript:void(0)" onclick="$('#hide_{{ i.id }}').toggle()">
+		    					Show Rule Text
+		    				</a>
+	    					<span class="hide" id='hide_{{ i.id }}'>
+	    						<br><br>
+	    						{{ i.rule_text|nl2br }}
+	    					</span>
+		    			</td>
+		    			<td>{{ i.rule_note|nl2br }}</td>
+		    		</tr>
+		    		{% endfor %}
+	    		</tbody>
+	    	</table>
+	    	{% endif %}
+	    </div>
+	</div>
+{% endblock %}
+
+{% block js_footer %}
+	<script src="{{ static('js/jquery.js') }}"></script>
+    <script src="{{ static('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ static('js/zlb_rules.js') }}"></script>
+{% endblock %}
+{% block js_bootstrap %}{% endblock %}
+{% block js_jquery %}{% endblock %}

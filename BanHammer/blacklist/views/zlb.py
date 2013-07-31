@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 
 from ..models import ZLB, ZLBVirtualServer, ZLBVirtualServerRule, ZLBVirtualServerProtection
+from ..models import ZLBRule, ZLBProtection, Offender
 from ..forms import ZLBForm
 from BanHammer.blacklist.management import zeus
 import BanHammer.blacklist.tasks as tasks
@@ -119,30 +120,6 @@ def delete(request, id):
     return HttpResponseRedirect('/zlbs')
 
 @anonymous_csrf
-def show_old(request, id):
-    zlb = ZLB.objects.get(id=id)
-    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
-    z.connect('VirtualServer')
-
-    vs = {}
-    names = list(z.conn.getVirtualServerNames())
-    for i in names:
-        vs[i] = {}
-        enabled = z.conn.getEnabled([i])[0]
-        vs[i]['enabled'] = enabled
-        basicInfo = z.conn.getBasicInfo([i])[0]
-        vs[i]['port'] = basicInfo.port
-        vs[i]['protocol'] = basicInfo.protocol
-        vs[i]['default_pool'] = basicInfo.default_pool
-
-    return render_to_response(
-        'zlb/show.html',
-        {'vs': vs,
-         'zlb': zlb,},
-        context_instance = RequestContext(request)
-    )
-
-@anonymous_csrf
 @never_cache
 def show(request, id):
     zlb = ZLB.objects.get(id=id)
@@ -169,3 +146,54 @@ def update(request, id):
     tasks.update_zlb.delay(id)
     zlb = ZLB.objects.get(id=id)
     return HttpResponseRedirect('/zlbs')
+
+@anonymous_csrf
+def index_protection(request, zlb_id):
+    def _parse_addr(addresses):
+        addr_list = addresses.split(', ')
+        addresses = []
+        for addr in addr_list:
+            network = addr.split('/')
+            addr = network[0]
+            if len(network) == 2:
+                cidr = network[1]
+            else:
+                cidr = None
+            if cidr:
+                offender = Offender.objects.filter(address=addr, cidr=cidr)
+            else:
+                offender = Offender.objects.filter(address=addr)
+            if offender.count() != 0:
+                addresses.append(offender[0])
+            else:
+                addresses.append(addr)
+        return addresses
+    
+    zlb = ZLB.objects.get(id=zlb_id)
+    protections = ZLBProtection.objects.filter(zlb_id=zlb_id)
+    for p in protections:
+        p.allowed_addresses = _parse_addr(p.allowed_addresses)
+        p.banned_addresses = _parse_addr(p.banned_addresses)
+        p.virtual_servers = ZLBVirtualServerProtection.objects.filter(zlb_id=zlb_id, protection_id=p.id)
+        
+    return render_to_response(
+        'zlb/protections.html',
+        {'zlb': zlb,
+         'protections': protections,},
+        context_instance = RequestContext(request)
+    )
+
+@anonymous_csrf
+def index_rules(request, zlb_id):
+    offender_t = Offender
+    zlb = ZLB.objects.get(id=zlb_id)
+    rules = ZLBRule.objects.filter(zlb_id=zlb_id)
+    for rule in rules:
+        rule.virtual_servers = ZLBVirtualServerRule.objects.filter(zlb_id=zlb_id, rule_id=rule.id)
+    
+    return render_to_response(
+        'zlb/rules.html',
+        {'zlb': zlb,
+         'rules': rules,},
+        context_instance = RequestContext(request)
+    )

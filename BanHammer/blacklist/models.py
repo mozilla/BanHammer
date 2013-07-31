@@ -301,6 +301,9 @@ class ZLB(models.Model):
     login = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     updating = models.BooleanField()
+    
+    def need_update(self):
+        return (self.updated_date + datetime.timedelta(days=1)) <= datetime.datetime.now()
 
 class ZLBVirtualServer(models.Model):
     zlb = models.ForeignKey(ZLB)

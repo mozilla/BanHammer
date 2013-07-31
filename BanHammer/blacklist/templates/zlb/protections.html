@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+	<link href="{{ static('css/demo_table.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<div class="span9">
+				<h1>Protection Classes on {{ zlb.name }} ({{ zlb.hostname }})</h1>
+			</div>
+		</div>
+		<br>
+		<div class="row">
+			<div class="span4 center">
+				<a href="/zlb/{{ zlb.id }}" class="btn">
+					<i class="icon-arrow-left"></i>
+					Show ZLB
+				</a>
+			</div>
+		</div>
+		<br>
+	    <div class="row">
+	    	{% if protections %}
+	    	<table id="protections" class="display">
+	    		<thead>
+		    		<tr>
+		    			<th>Name</th>
+		    			<th>Enabled</th>
+		    			<th>Allowed Addresses</th>
+		    			<th>Banned Addresses</th>
+		    			<th>Debug</th>
+		    			<th>Testing</th>
+		    			<th>Note</th>
+		    			<th>Virtual Servers</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+	    			{% for i in protections %}
+	    			{% if i.enabled %}
+		    		<tr class="gradeA">
+		    		{% else %}
+		    		<tr class="gradeX">
+		    		{% endif %}
+		    			<td>{{ i.name }}</td>
+		    			<td>{{ i.enabled }}</td>
+		    			<td>
+		    				{% for addr in i.allowed_addresses %}
+		    					{% if addr.id %}
+		    						<a href="/offender/{{ addr.id }}">
+		    							{{ addr.address }}/{{ addr.cidr }}
+		    						</a><br>
+		    					{% else %}
+		    						{{ addr }}<br>
+		    					{% endif %}
+		    				{% endfor %}
+		    			</td>
+		    			<td>
+		    				{% for addr in i.banned_addresses %}
+		    					{% if addr.id %}
+		    						<a href="/offender/{{ addr.id }}">
+		    							{{ addr.address }}/{{ addr.cidr }}
+		    						</a><br>
+		    					{% else %}
+		    						{{ addr }}<br>
+		    					{% endif %}
+		    				{% endfor %}
+		    			</td>
+		    			<td>{{ i.debug }}</td>
+		    			<td>{{ i.testing }}</td>
+		    			<td>{{ i.note|nl2br }}</td>
+		    			<td>
+		    				{% for vs in i.virtual_servers %}
+		    					{{ vs.virtualserver.name }}<br>
+		    				{% endfor %}
+		    			</td>
+		    		</tr>
+		    		{% endfor %}
+	    		</tbody>
+	    	</table>
+	    	{% endif %}
+	    </div>
+	</div>
+{% endblock %}
+
+{% block js_footer %}
+	<script src="{{ static('js/jquery.js') }}"></script>
+    <script src="{{ static('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ static('js/zlb_protections.js') }}"></script>
+{% endblock %}
+{% block js_bootstrap %}{% endblock %}
+{% block js_jquery %}{% endblock %}

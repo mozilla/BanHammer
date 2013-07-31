@@ -12,13 +12,31 @@
 				<h1>ZLB {{ zlb.name }} ({{ zlb.hostname }})</h1>
 			</div>
 		</div>
+		<br>
 		<div class="row">
-			<!-- Find Protection Classes applied (including non-BanHammer) -->
-			<!-- Find TrafficScript rules applied (including non-BanHammer) -->
-			<!-- Update -->
-			<!-- Need update -->
-			<!-- Last update: (UTC) -->
+			<div class="span4 center">
+				<a href="/zlb/{{ zlb.id }}/protection" class="btn btn-info">
+					Find Protection Classes applied
+				</a>
+			</div>
+			<div class="span4 center">
+				<a href="/zlb/{{ zlb.id }}/rules" class="btn btn-info">
+					Find TrafficScript applied
+				</a>
+			</div>
+			<div class="span4 center">
+				{% if zlb.need_update() %}
+				<a href="/zlb/{{ zlb.id }}/update" class="btn btn-warning">
+					Need Update (last update: {{ zlb.updated_date }})
+				</a>
+				{% else %}
+				<a href="/zlb/{{ zlb.id }}/update" class="btn">
+					Update (last update: {{ zlb.updated_date }})
+				</a>
+				{% endif %}
+			</div>
 		</div>
+		<br>
 	    <div class="row">
 	    	<legend>Virtual Servers</legend>
 	    	{% if vs %}
@@ -26,6 +44,7 @@
 	    		<thead>
 		    		<tr>
 		    			<th>Name</th>
+		    			<th>Enabled</th>
 		    			<th>Port</th>
 		    			<th>Protocol</th>
 		    			<th>Default Pool</th>
@@ -41,6 +60,7 @@
 		    			<td>
 		    				{{ i.name }}
 		    			</td>
+		    			<td>{{ i.enabled }}</td>
 		    			<td>{{ i.port }}</td>
 		    			<td>{{ i.protocol }}</td>
 		    			<td>{{ i.default_pool }}</td>
