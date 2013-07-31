@@ -1,0 +1,150 @@
+[
+  {
+    "model": "blacklist.zlb",
+    "pk": 1,
+    "fields": {
+      "created_date": "2013-01-01 00:01",
+      "updated_date": "2013-01-01 00:01",
+      "name": "demo zlb",
+      "hostname": "demo.example.com",
+      "datacenter": "secret dc",
+      "doc_url": "http://www.example.com",
+      "comment": "a very secret zlb",
+      "login": "mylogin",
+      "password": "mypassword",
+      "updating": 0
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserver",
+    "pk": 1,
+    "fields": {
+      "zlb": 1,
+      "name": "Virtual Server 1",
+      "enabled": 1,
+      "port": 80,
+      "protocol": "http",
+      "default_pool": "my pool 1"
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserver",
+    "pk": 2,
+    "fields": {
+      "zlb": 1,
+      "name": "Virtual Server 2",
+      "enabled": 0,
+      "port": 443,
+      "protocol": "https",
+      "default_pool": "my pool 2"
+    }
+  },
+  {
+    "model": "blacklist.zlbrule",
+    "pk": 1,
+    "fields": {
+      "zlb": 1,
+      "name": "My Rule 1",
+      "rule_text": "My Rule\nText 1",
+      "rule_notes": "Note 1"
+    }
+  },
+  {
+    "model": "blacklist.zlbrule",
+    "pk": 2,
+    "fields": {
+      "zlb": 1,
+      "name": "My Rule 2",
+      "rule_text": "My Rule\nText 2",
+      "rule_notes": "Note 2"
+    }
+  },
+  {
+    "model": "blacklist.zlbprotection",
+    "pk": 1,
+    "fields": {
+      "zlb": 1,
+      "name": "My Protection 1",
+      "allowed_addresses": "2.3.4.5, 3.4.5.6",
+      "banned_addresses": "167.71.21.0/24, 9.8.7.6",
+      "debug": 1,
+      "enabled": 0,
+      "note": "Note 1",
+      "testing": 1
+    }
+  },
+  {
+    "model": "blacklist.zlbprotection",
+    "pk": 2,
+    "fields": {
+      "zlb": 1,
+      "name": "My Protection 2",
+      "allowed_addresses": "2.3.8.0/21, 3.5.5.6",
+      "banned_addresses": "167.71.21.3, 9.0.7.6",
+      "debug": 0,
+      "enabled": 1,
+      "note": "Note 2",
+      "testing": 0
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverrule",
+    "pk": 1,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": 1,
+      "rule": 1,
+      "enabled": 0,
+      "run_frequency": "first_event"
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverrule",
+    "pk": 2,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": 1,
+      "rule": 2,
+      "enabled": 1,
+      "run_frequency": "first_event"
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverrule",
+    "pk": 3,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": "2",
+      "rule": 2,
+      "enabled": 1,
+      "run_frequency": "first_event"
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverprotection",
+    "pk": 1,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": 1,
+      "protection": 1
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverprotection",
+    "pk": 2,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": 2,
+      "protection": 2
+    }
+  },
+  {
+    "model": "blacklist.zlbvirtualserverprotection",
+    "pk": 3,
+    "fields": {
+      "zlb": 1,
+      "virtualserver": 2,
+      "protection": 1
+    }
+  }
+]

@@ -21,7 +21,7 @@
 			</div>
 			<div class="span4 center">
 				<a href="/zlb/{{ zlb.id }}/rules" class="btn btn-info">
-					Find TrafficScript applied
+					Find TrafficScript Rules applied
 				</a>
 			</div>
 			<div class="span4 center">
@@ -58,7 +58,9 @@
 		    		<tr class="gradeX">
 		    		{% endif %}
 		    			<td>
-		    				{{ i.name }}
+		    				<a href="/zlb/{{ zlb.id }}/virtual_server/{{ i.id}}">
+		    					{{ i.name }}
+		    				</a>
 		    			</td>
 		    			<td>{{ i.enabled }}</td>
 		    			<td>{{ i.port }}</td>

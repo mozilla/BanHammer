@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="container">
+		<div class="row">
+			<h1>Virtual Server {{ virtual_server.name }} on {{ zlb.name }} ({{ zlb.hostname }})</h1>
+		</div>
+		<br>
+		<div class="row">
+			<div class="span4 center">
+				<a href="/zlb/{{ zlb.id }}" class="btn">
+					<i class="icon-arrow-left"></i>
+					Show ZLB
+				</a>
+			</div>
+		</div>
+		<br>
+	    <div class="row">
+			<div class="span8">
+				<legend>TrafficScript Rules</legend>
+		    	{% if rules %}
+		    	<table id="rules" class="table">
+		    		<thead>
+			    		<tr>
+			    			<th>Name</th>
+			    			<th>Enabled</th>
+			    			<th></th>
+			    			<th>Run Frequency</th>
+			    			<th>Rule Notes</th>
+			    		</tr>
+		    		</thead>
+		    		<tbody>
+		    			{% for i in rules %}
+			    		<tr>
+			    			<td>{{ i.rule.name }}</td>
+			    			<td>{{ i.enabled }}</td>
+			    			<td>
+			    				<a href="javascript:void(0)" onclick="$('#hide_{{ i.id }}').toggle()">
+			    					Show Rule Text
+			    				</a>
+		    					<span class="hide" id='hide_{{ i.id }}'>
+		    						<br><br>
+		    						{{ i.rule.rule_text|nl2br }}
+		    					</span>
+			    			</td>
+			    			<td>{{ i.run_frequency }}</td>
+			    			<td>{{ i.rule.rule_note|nl2br }}</td>
+			    		</tr>
+			    		{% endfor %}
+		    		</tbody>
+		    	</table>
+		    	{% endif %}
+	    	</div>
+	    	<div class="span4">
+	    		<legend>Virtual Server</legend>
+	    		<ul>
+	    			<li>Name: {{ virtual_server.name }}</li>
+	    			<li>Enabled: {{ virtual_server.enabled }}</li>
+	    			<li>Port: {{ virtual_server.port }}</li>
+	    			<li>Protocol: {{ virtual_server.protocol }}</li>
+	    			<li>Default Pool: {{ virtual_server.default_pool }}</li>
+	    		</ul>
+	    	</div>
+	    </div>
+	    <div class="row">
+	    	<legend>Protection Classes</legend>
+	    	{% if protections %}
+	    	<table id="protections" class="table">
+	    		<thead>
+		    		<tr>
+		    			<th>Name</th>
+		    			<th>Enabled</th>
+		    			<th>Allowed Addresses</th>
+		    			<th>Banned Addresses</th>
+		    			<th>Debug</th>
+		    			<th>Testing</th>
+		    			<th>Note</th>
+		    		</tr>
+	    		</thead>
+	    		<tbody>
+	    			{% for i in protections %}
+					<tr>
+		    			<td>{{ i.protection.name }}</td>
+		    			<td>{{ i.protection.enabled }}</td>
+		    			<td>
+		    				{% for addr in i.protection.allowed_addresses %}
+		    					{% if addr.id %}
+		    						<a href="/offender/{{ addr.id }}">
+		    							{{ addr.address }}/{{ addr.cidr }}
+		    						</a><br>
+		    					{% else %}
+		    						{{ addr }}<br>
+		    					{% endif %}
+		    				{% endfor %}
+		    			</td>
+		    			<td>
+		    				{% for addr in i.protection.banned_addresses %}
+		    					{% if addr.id %}
+		    						<a href="/offender/{{ addr.id }}">
+		    							{{ addr.address }}/{{ addr.cidr }}
+		    						</a><br>
+		    					{% else %}
+		    						{{ addr }}<br>
+		    					{% endif %}
+		    				{% endfor %}
+		    			</td>
+		    			<td>{{ i.protection.debug }}</td>
+		    			<td>{{ i.protection.testing }}</td>
+		    			<td>{{ i.protection.note|nl2br }}</td>
+		    		</tr>
+		    		{% endfor %}
+	    		</tbody>
+	    	</table>
+	    	{% endif %}
+	    </div>
+	</div>
+{% endblock %}

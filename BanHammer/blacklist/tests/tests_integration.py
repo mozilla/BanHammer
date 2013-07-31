@@ -8,9 +8,8 @@ class MenuTestCase(WebTest):
         assert '<h1>Offenders</h1>' in index.click('Offenders')
         # Blacklist & Show Expired Blacklists match
         assert '<h1>Blacklists</h1>' in index.click('Blacklists', index=1)
-        # TODO: ZLBs
+        assert '<h1>ZLBs</h1>' in index.click('ZLBs')
         assert '<h1>IP Whitelist</h1>' in index.click('IP Whitelist')
-        # TODO: Mozilla Domain Whitelist
         assert '<h1>Settings</h1>' in index.click('Settings')
 
 class BlacklistTestCase(WebTest):
@@ -374,3 +373,99 @@ class ZLBTestCase(WebTest):
         delete = index.click('<i class="icon-remove"></i>')
         index = delete.follow()
         assert 'No ZLB.' in index
+
+class VirtualServerTestCase(WebTest):
+    fixtures = ['zlb.json']
+
+    def test_rules(self):
+        index = self.app.get('/zlb/1')
+        rules = index.click('Find TrafficScript Rules applied')
+        
+        assert 'TrafficScript Rules on demo zlb (demo.example.com)' in rules
+        assert 'Show ZLB' in rules
+        assert '<th>Name</th>' in rules
+        assert '<th></th>' in rules
+        assert '<th>Rule Notes</th>' in rules
+        assert '<th>Virtual Servers</th>' in rules
+        assert 'My Rule 1' in rules
+        assert 'Show Rule Text' in rules
+        assert 'My Rule<br>Text 1' in rules
+        assert rules.body.count('Virtual Server 1') == 2
+        assert 'My Rule 2' in rules
+        assert 'Show Rule Text' in rules
+        assert 'My Rule<br>Text 2' in rules
+        assert 'Virtual Server 2' in rules
+
+        show = rules.click('Virtual Server 2')
+        assert 'Virtual Server 2' in show
+
+    def test_protection(self):
+        index = self.app.get('/zlb/1')
+        protection = index.click('Find Protection Classes applied')
+        
+        assert '<h1>Protection Classes on demo zlb (demo.example.com)</h1>' in protection
+        assert 'Show ZLB' in protection
+        assert '<th>Name</th>' in protection
+        assert '<th>Enabled</th>' in protection
+        assert '<th>Allowed Addresses</th>' in protection
+        assert '<th>Banned Addresses</th>' in protection
+        assert '<th>Debug</th>' in protection
+        assert '<th>Testing</th>' in protection
+        assert '<th>Note</th>' in protection
+        assert '<th>Virtual Servers</th>' in protection
+        assert '<td>My Protection 1</td>' in protection
+        assert protection.body.count('<td>False</td>') == 3
+        assert '2.3.4.5' in protection
+        assert '3.4.5.6' in protection
+        assert '167.71.21.0' in protection
+        assert '9.8.7.6' in protection
+        assert protection.body.count('<td>True</td>') == 3
+        assert '<td>Note 1</td>' in protection
+        assert 'Virtual Server 1' in protection
+        assert protection.body.count('Virtual Server 2') == 2
+        assert '<td>My Protection 2</td>' in protection
+        assert '2.3.8.0' in protection
+        assert '3.5.5.6' in protection
+        assert '167.71.21.3' in protection
+        assert '9.0.7.6' in protection
+        assert '<td>Note 2</td>' in protection
+
+    def test_show(self):
+        index = self.app.get('/zlb/1')
+        show = index.click('Virtual Server 1')
+        
+        assert 'Show ZLB' in show
+        assert '<legend>TrafficScript Rules</legend>' in show
+        assert '<th>Name</th>' in show
+        assert '<th>Enabled</th>' in show
+        assert '<th></th>' in show
+        assert '<th>Run Frequency</th>' in show
+        assert '<th>Rule Notes</th>' in show
+        assert '<td>My Rule 1</td>' in show
+        assert '<td>False</td>' in show
+        assert 'Show Rule Text' in show
+        assert 'My Rule<br>Text 1' in show
+        assert '<td>first_event</td>' in show
+        assert '<td>My Rule 2</td>' in show
+        assert 'My Rule<br>Text 2' in show
+        assert '<legend>Virtual Server</legend>' in show
+        assert '<li>Name: Virtual Server 1</li>' in show
+        assert '<li>Enabled: True</li>' in show
+        assert '<li>Port: 80</li>' in show
+        assert '<li>Protocol: http</li>' in show
+        assert '<li>Default Pool: my pool 1</li>' in show
+        assert '<th>Name</th>' in show
+        assert '<th>Enabled</th>' in show
+        assert '<th>Allowed Addresses</th>' in show
+        assert '<th>Banned Addresses</th>' in show
+        assert '<th>Debug</th>' in show
+        assert '<th>Testing</th>' in show
+        assert '<th>Note</th>' in show
+        assert '<td>My Protection 1</td>' in show
+        assert '<td>False</td>' in show
+        assert '2.3.4.5' in show
+        assert '3.4.5.6' in show
+        assert '167.71.21.0' in show
+        assert '9.8.7.6' in show
+        assert show.body.count('<td>True</td>') == 3
+        assert '<td>Note 1</td>' in show

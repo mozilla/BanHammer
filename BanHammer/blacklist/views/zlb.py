@@ -147,28 +147,28 @@ def update(request, id):
     zlb = ZLB.objects.get(id=id)
     return HttpResponseRedirect('/zlbs')
 
+def _parse_addr(addresses):
+    addr_list = addresses.split(', ')
+    addresses = []
+    for addr in addr_list:
+        network = addr.split('/')
+        addr = network[0]
+        if len(network) == 2:
+            cidr = network[1]
+        else:
+            cidr = None
+        if cidr:
+            offender = Offender.objects.filter(address=addr, cidr=cidr)
+        else:
+            offender = Offender.objects.filter(address=addr)
+        if offender.count() != 0:
+            addresses.append(offender[0])
+        else:
+            addresses.append(addr)
+    return addresses
+
 @anonymous_csrf
 def index_protection(request, zlb_id):
-    def _parse_addr(addresses):
-        addr_list = addresses.split(', ')
-        addresses = []
-        for addr in addr_list:
-            network = addr.split('/')
-            addr = network[0]
-            if len(network) == 2:
-                cidr = network[1]
-            else:
-                cidr = None
-            if cidr:
-                offender = Offender.objects.filter(address=addr, cidr=cidr)
-            else:
-                offender = Offender.objects.filter(address=addr)
-            if offender.count() != 0:
-                addresses.append(offender[0])
-            else:
-                addresses.append(addr)
-        return addresses
-    
     zlb = ZLB.objects.get(id=zlb_id)
     protections = ZLBProtection.objects.filter(zlb_id=zlb_id)
     for p in protections:
@@ -185,7 +185,6 @@ def index_protection(request, zlb_id):
 
 @anonymous_csrf
 def index_rules(request, zlb_id):
-    offender_t = Offender
     zlb = ZLB.objects.get(id=zlb_id)
     rules = ZLBRule.objects.filter(zlb_id=zlb_id)
     for rule in rules:
@@ -195,5 +194,24 @@ def index_rules(request, zlb_id):
         'zlb/rules.html',
         {'zlb': zlb,
          'rules': rules,},
+        context_instance = RequestContext(request)
+    )
+
+@anonymous_csrf
+def virtual_server(request, zlb_id, vs_id):
+    zlb = ZLB.objects.get(id=zlb_id)
+    virtual_server = ZLBVirtualServer.objects.get(id=vs_id)
+    rules = ZLBVirtualServerRule.objects.filter(virtualserver=virtual_server)
+    protections = ZLBVirtualServerProtection.objects.filter(virtualserver=virtual_server)
+    for p in protections:
+        p.protection.allowed_addresses = _parse_addr(p.protection.allowed_addresses)
+        p.protection.banned_addresses = _parse_addr(p.protection.banned_addresses)
+
+    return render_to_response(
+        'zlb/virtual_server.html',
+        {'zlb': zlb,
+         'virtual_server': virtual_server,
+         'rules': rules,
+         'protections': protections},
         context_instance = RequestContext(request)
     )

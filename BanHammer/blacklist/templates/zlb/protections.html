@@ -73,7 +73,10 @@
 		    			<td>{{ i.note|nl2br }}</td>
 		    			<td>
 		    				{% for vs in i.virtual_servers %}
-		    					{{ vs.virtualserver.name }}<br>
+			    				<a href="/zlb/{{ zlb.id }}/virtual_server/{{ vs.virtualserver.id}}">
+			    					{{ vs.virtualserver.name }}
+			    				</a>
+		    					<br>
 		    				{% endfor %}
 		    			</td>
 		    		</tr>
