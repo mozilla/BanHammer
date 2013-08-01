@@ -1,0 +1,12 @@
+{% extends "blacklist/_new_zlb.html" %}
+
+{% block page_h1 %}
+<h1>Apply a ZLB block blacklist</h1>
+{% endblock %}
+
+{% block zlb_new_form_tag %}
+<form class="form-horizontal"
+ action="/blacklist/new/zlb_block"
+ method="post"
+ name="blacklist">
+{% endblock %}

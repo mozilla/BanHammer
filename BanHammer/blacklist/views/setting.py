@@ -7,9 +7,6 @@ from session_csrf import anonymous_csrf
 from ..models import Config
 from ..forms import SettingsForm
 
-import logging
-
-
 @anonymous_csrf
 def list(request):
     if request.method == 'POST':
@@ -19,8 +16,6 @@ def list(request):
                 config = Config.objects.get(key=field.__dict__['html_name'])
                 config.value = form.cleaned_data[field.__dict__['html_name']]
                 config.save()
-        else:
-            logging.error(form.errors)
     else:
         initial = {}
         data = {}

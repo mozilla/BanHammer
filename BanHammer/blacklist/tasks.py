@@ -3,8 +3,6 @@ from celery.task import task
 from BanHammer.blacklist import models
 from BanHammer.blacklist.management import zeus
 
-import logging
-
 @task(name="BanHammer.blacklist.tasks.update_zlb")
 def update_zlb(id):
     zlb_m = models.ZLB.objects.get(id=id)

@@ -13,6 +13,8 @@ class MenuTestCase(WebTest):
         assert '<h1>Settings</h1>' in index.click('Settings')
 
 class BlacklistTestCase(WebTest):
+    fixtures = ['zlb.json']
+    
     def test_index_empty(self):
         index = self.app.get('/blacklist/')
         assert '<h1>Blacklists</h1>' in index
@@ -43,6 +45,68 @@ class BlacklistTestCase(WebTest):
         assert 'Hide Expired Blacklists' in index
         assert '8.8.8.8' in index
         assert 'BGP Blocked' in index
+        assert '2013-01-01 01:00:00' in index
+        assert '2013-01-01 13:00:00' in index
+        assert 'test' in index
+        assert not 'No active blacklists.' in index
+        assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
+
+    def test_new_zlb_redirect(self):
+        index = self.app.get('/blacklist/')
+        new = index.click('ZLB redirect')
+        
+        assert 'Apply a ZLB redirection blacklist' in new
+        form = new.form
+        form['target'] = '8.8.8.8/32'
+        form['duration'] = '43200'
+        form['start_date'] = '01/01/2013 01:00'
+        form['end_date'] = '01/01/2013 13:00'
+        form['comment'] = 'testlist'
+        form['bug_number'] = '12345'
+        
+        new = form.submit()
+        assert '<li>This field is required.</li>' in new
+        
+        form = new.form
+        form.set('select', True, 1)
+        index = form.submit().follow().follow()
+        
+        index = index.click('Show Expired Blacklists')
+        assert '<h1>Blacklists</h1>' in index
+        assert 'Hide Expired Blacklists' in index
+        assert '8.8.8.8' in index
+        assert 'ZLB Redirected' in index
+        assert '2013-01-01 01:00:00' in index
+        assert '2013-01-01 13:00:00' in index
+        assert 'test' in index
+        assert not 'No active blacklists.' in index
+        assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
+
+    def test_new_zlb_blocked(self):
+        index = self.app.get('/blacklist/')
+        new = index.click('ZLB block')
+        
+        assert 'Apply a ZLB block blacklist' in new
+        form = new.form
+        form['target'] = '8.8.8.8/32'
+        form['duration'] = '43200'
+        form['start_date'] = '01/01/2013 01:00'
+        form['end_date'] = '01/01/2013 13:00'
+        form['comment'] = 'testlist'
+        form['bug_number'] = '12345'
+        
+        new = form.submit()
+        assert '<li>This field is required.</li>' in new
+        
+        form = new.form
+        form.set('select', True, 1)
+        index = form.submit().follow().follow()
+        
+        index = index.click('Show Expired Blacklists')
+        assert '<h1>Blacklists</h1>' in index
+        assert 'Hide Expired Blacklists' in index
+        assert '8.8.8.8' in index
+        assert 'ZLB Blocked' in index
         assert '2013-01-01 01:00:00' in index
         assert '2013-01-01 13:00:00' in index
         assert 'test' in index
@@ -119,6 +183,8 @@ class OffenderTestCase(WebTest):
         
         # Blacklist
         assert 'name="target" value="8.8.8.8/32"' in show.click('BGP block')
+        assert 'name="target" value="8.8.8.8/32"' in show.click('ZLB redirect')
+        assert 'name="target" value="8.8.8.8/32"' in show.click('ZLB block')
     
     def test_show_suggested(self):
         steps.given_offender_suggested()

@@ -7,8 +7,6 @@ from session_csrf import anonymous_csrf
 from ..models import Offender, Event, Blacklist, AttackScore, AttackScoreHistory
 from ..forms import OffenderForm
 
-import logging
-
 def index(request, show_suggested=False):
     request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'address'))
     request.session['order'] = request.GET.get('order', request.session.get('order', 'asc'))

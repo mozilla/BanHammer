@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+	<link href="{{ static('css/demo_table.css') }}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+	{% block site_js %}
+	  {% compress js %}
+	    <script src="{{ static('js/blacklist.js') }}"></script>
+	  {% endcompress %}
+	{% endblock %}
+
+	{% block page_h1 %}
+	{% endblock %}
+	{% if form.errors %}
+		{{ form.non_field_errors() }}
+	{% endif %}
+	
+	{% block zlb_new_form_tag %}
+	{% endblock %}
+	{{ csrf() }}
+	<div class="row">
+			<div class="span6">
+			<fieldset class="gray">
+				<div class="control-group">
+					<label class="control-label" for="id_target">Address</label>
+					<div class="controls">
+						{{ form.target }}
+						{{ form.target.errors }}
+					</div>
+					<div class="create_edit_comment">
+						Enter a blacklist target, with optional CIDR value<br/>
+						Example: 63.245.208.1, 63.245.209.0/24, 2620:101:8000::/48
+					</div>
+				</div>
+			</fieldset>
+			<fieldset class="gray">
+				<div class="control-group">
+					<label class="control-label" for="id_duration">Blacklist for</label>
+					<div class="controls">
+						{{ form.duration }}
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="id_start_date">Start Time</label>
+					<div class="controls">
+						{{ form.start_date }}
+						{{ form.start_date.errors }}
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="id_end_date">End Time</label>
+					<div class="controls">
+						{{ form.end_date }}
+						{{ form.end_date.errors }}
+					</div>
+				</div>
+				<div class="create_edit_comment">
+					All times are in UTC<br/>
+					Your local timezone is currently: <span name="timezone" id="id_timezone">Unknown</span>
+				</div>
+			</fieldset>
+			<fieldset class="gray">
+				<div class="control-group">
+					<label class="control-label" for="id_comment">Comment</label>
+					<div class="controls">
+						{{ form.comment }}
+						{{ form.comment.errors }}
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="id_bug_number">Bug ID (optional)</label>
+					<div class="controls">
+						{{ form.bug_number }}
+						{{ form.bug_number.errors }}
+					</div>
+				</div>	
+			</fieldset>
+			<br>
+		</div>
+	</div>
+	<div class="row">
+		{{ form.select.errors }}
+    	{% if vs %}
+    	<table id="virtualservers" class="display">
+    		<thead>
+	    		<tr>
+	    			<th></th>
+	    			<th></th>
+	    			<th></th>
+	    			<th>Name</th>
+	    			<th>Enabled</th>
+	    			<th>ZLB</th>
+	    			<th>Port</th>
+	    			<th>Protocol</th>
+	    			<th>Default Pool</th>
+	    		</tr>
+    		</thead>
+    		<tbody>
+    			{% for i in vs %}
+    			{% if i.enabled %}
+    				{% if prefs[i.name] and prefs[i.name].confirm %}
+	    			<tr class="gradeA confirmation" id="{{ i.id }}">
+	    			{% else %}
+	    			<tr class="gradeA" id="{{ i.id }}">
+	    			{% endif %}
+	    		{% else %}
+	    			{% if prefs[i.name] and prefs[i.name].confirm %}
+	    			<tr class="gradeX confirmation" id="{{ i.id }}">
+	    			{% else %}
+	    			<tr class="gradeX" id="{{ i.id }}">
+	    			{% endif %}
+	    		{% endif %}
+	    			<td>
+	    				<input type="checkbox"
+	    				 id="id_select_{{ i.id }}"
+	    				 value="{{ i.id }}"
+	    				 name="select"/>
+	    			</td>
+	    			<td class="center">
+	    				<span class="hide">hide</span>
+	    				{% if prefs[i.name] and prefs[i.name].favorite %}
+	    					<i class="icon-star"></i>
+	    				{% endif %}
+	    			</td>
+	    			<td class="center">
+	    				<span class="hide">hide</span>
+	    				{% if prefs[i.name] and prefs[i.name].confirm %}
+	    					<i class="icon-flag"></i>
+	    				{% endif %}
+	    			</td>
+	    			<td>
+	    				<a href="/zlb/{{ i.zlb_id }}/virtual_server/{{ i.id}}"
+	    				 target="_blank">
+	    					{{ i.name }}
+	    				</a>
+	    			</td>
+	    			<td>{{ i.enabled }}</td>
+	    			<td>
+	    				<a href="/zlb/{{ i.zlb_id }}" target="_blank">
+	    					{{ zlbs[i.zlb_id] }}
+	    				</a>
+	    			</td>
+	    			<td>{{ i.port }}</td>
+	    			<td>{{ i.protocol }}</td>
+	    			<td>{{ i.default_pool }}</td>
+	    		</tr>
+	    		{% endfor %}
+    		</tbody>
+    	</table>
+    	{% endif %}
+    </div>
+    <br><br>
+	<div class="row">
+		<div class="span2">
+			<button type="submit" class="btn">Apply Blacklist</button>
+		</div>
+		<div class="span1">
+			<button type="reset" class="btn">Cancel</button>
+		</div>
+	</div>
+	</form>
+{% endblock %}
+
+
+{% block js_footer %}
+	<script src="{{ static('js/jquery.js') }}"></script>
+    <script src="{{ static('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ static('js/zlb_redirect.js') }}"></script>
+{% endblock %}
+{% block js_bootstrap %}{% endblock %}
+{% block js_jquery %}{% endblock %}

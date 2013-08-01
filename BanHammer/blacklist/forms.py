@@ -2,6 +2,8 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
+from models import ZLBVirtualServer
+
 import netaddr
 
 class BaseForm(forms.Form):
@@ -100,6 +102,13 @@ class ComplaintBGPBlockForm(BaseForm):
 
         return cleaned_data
 
+class ComplaintZLBForm(ComplaintBGPBlockForm):
+    select = forms.MultipleChoiceField(
+        choices=zip(map(lambda a: a['id'],
+                        ZLBVirtualServer.objects.values('id')),
+                    ['']*ZLBVirtualServer.objects.count()),
+        widget=forms.widgets.CheckboxSelectMultiple())
+
 class SettingsForm(BaseForm):
     checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
 
@@ -107,7 +116,7 @@ class SettingsForm(BaseForm):
     zlb_redirection_url = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
-    ) 
+    )
 
     # Notifications
     notifications_email_enable = forms.CharField(

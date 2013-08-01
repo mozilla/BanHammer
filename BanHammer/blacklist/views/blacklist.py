@@ -7,9 +7,8 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from ..models import Offender, Blacklist
-from ..forms import ComplaintBGPBlockForm
-
+from ..models import Offender, Blacklist, ZLBVirtualServer, ZLBVirtualServerPref, ZLB
+from ..forms import ComplaintBGPBlockForm, ComplaintZLBForm
 
 # default view for displaying all blacklists
 @anonymous_csrf
@@ -104,6 +103,73 @@ def new_bgp_block(request, id=None):
         context_instance = RequestContext(request)
     )
 
+@anonymous_csrf
+def new_zlb_redirect(request, id=None):
+    return new_zlb(request, 'zlb_redirect', id)
+
+@anonymous_csrf
+def new_zlb_block(request, id=None):
+    return new_zlb(request, 'zlb_block', id)
+
+@anonymous_csrf
+def new_zlb(request, type, id):
+    if request.method == 'POST':
+        form = ComplaintZLBForm(request.POST)
+        if form.is_valid():
+            address = form.cleaned_data['address']
+            cidr = form.cleaned_data['cidr']
+            comment = form.cleaned_data['comment']
+            bug_number = form.cleaned_data['bug_number']
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+            #reporter = 'test' #//XXX
+            reporter = request.META.get("REMOTE_USER")
+ 
+            # Fetch/create the Offender and Blacklist objects.
+            o, new = Offender.objects.get_or_create(
+                address=address,
+                cidr=cidr
+            )
+            o.save()
+ 
+            b = Blacklist(
+                type=type,
+                start_date=start_date,
+                end_date=end_date,
+                comment=comment,
+                bug_number=bug_number,
+                reporter=reporter,
+                offender=o
+            )
+            b.save()
+ 
+            return HttpResponseRedirect('/blacklist')
+    else:
+        if id:
+            offender = Offender.objects.get(id=id)
+            initial = {}
+            initial['target'] = '%s/%s' % (offender.address, offender.cidr)
+            form = ComplaintZLBForm(initial=initial)
+        else:
+            form = ComplaintZLBForm()
+    zlbs_o = ZLB.objects.all()
+    zlbs = {}
+    for i in zlbs_o:
+        zlbs[i.id] = i.name
+    vs = ZLBVirtualServer.objects.all()
+    prefs_o = ZLBVirtualServerPref.objects.all()
+    prefs = {}
+    for p in prefs_o:
+        prefs[p.vs_name] = p
+    return render_to_response(
+        'blacklist/new_%s.html' % type,
+        {'body_init': True,
+         'vs': vs,
+         'prefs': prefs,
+         'form': form,
+         'zlbs': zlbs,},
+        context_instance = RequestContext(request)
+    )
 
 # view for deleting blacklists
 @anonymous_csrf

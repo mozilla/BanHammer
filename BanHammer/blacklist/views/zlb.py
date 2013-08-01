@@ -237,8 +237,9 @@ def virtual_server_favorite(request, zlb_id, vs_id):
         )
         p.save()
     else:
-        pref[0].favorite = True
-        pref[0].save()
+        pref = pref[0]
+        pref.favorite = True
+        pref.save()
     return HttpResponseRedirect('/zlb/%s/virtual_server/%s' % (zlb_id, vs_id))
 
 @anonymous_csrf
