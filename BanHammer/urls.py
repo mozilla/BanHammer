@@ -49,7 +49,11 @@ urlpatterns = patterns('',
     url(r'^zlb/(\d+)/update$', views_zlb.update, name='zlb_update'),
     url(r'^zlb/(\d+)/protection$', views_zlb.index_protection, name='zlb_index_protection'),
     url(r'^zlb/(\d+)/rules$', views_zlb.index_rules, name='zlb_index_rules'),
-    url(r'^zlb/(\d+)/virtual_server/(\d+)', views_zlb.virtual_server, name='zlb_index_virtual_server'),
+    url(r'^zlb/(\d+)/virtual_server/(\d+)$', views_zlb.virtual_server, name='zlb_index_virtual_server'),
+    url(r'^zlb/(\d+)/virtual_server/(\d+)/favorite$', views_zlb.virtual_server_favorite, name='zlb_index_virtual_server_favorite'),
+    url(r'^zlb/(\d+)/virtual_server/(\d+)/unfavorite$', views_zlb.virtual_server_unfavorite, name='zlb_index_virtual_server_unfavorite'),
+    url(r'^zlb/(\d+)/virtual_server/(\d+)/confirm$', views_zlb.virtual_server_confirm, name='zlb_index_virtual_server_confirm'),
+    url(r'^zlb/(\d+)/virtual_server/(\d+)/unconfirm$', views_zlb.virtual_server_unconfirm, name='zlb_index_virtual_server_unconfirm'),
     url(r'^zlb/(\d+)$', views_zlb.show, name='zlb_show'),
 
     # Example:

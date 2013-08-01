@@ -13,6 +13,46 @@
 					Show ZLB
 				</a>
 			</div>
+			<div class="span4 center">
+				{% if prefs %}
+					{% if prefs[0].favorite %}
+    					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/unfavorite" class="btn">
+							<i class="icon-bookmark"></i>
+							Delete bookmark
+						</a>
+					{% else %}
+						<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/favorite" class="btn">
+							<i class="icon-bookmark"></i>
+							Bookmark
+						</a>
+					{% endif %}
+				{% else %}
+					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/favorite" class="btn">
+						<i class="icon-bookmark"></i>
+						Bookmark
+					</a>
+    			{% endif %}
+			</div>
+			<div class="span4 center">
+				{% if prefs %}
+					{% if prefs[0].confirm %}
+    					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/unconfirm" class="btn">
+							<i class="icon-flag"></i>
+							Delete confirmation requirement
+						</a>
+					{% else %}
+						<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/confirm" class="btn">
+							<i class="icon-flag"></i>
+							Require confirmation
+						</a>
+					{% endif %}
+				{% else %}
+					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/confirm" class="btn">
+						<i class="icon-flag"></i>
+						Require confirmation
+					</a>
+    			{% endif %}
+			</div>
 		</div>
 		<br>
 	    <div class="row">
@@ -59,6 +99,28 @@
 	    			<li>Port: {{ virtual_server.port }}</li>
 	    			<li>Protocol: {{ virtual_server.protocol }}</li>
 	    			<li>Default Pool: {{ virtual_server.default_pool }}</li>
+	    			<li>Bookmarked: 
+	    				{% if prefs %}
+	    					{% if prefs[0].favorite %}
+	    						True
+	    					{% else %}
+	    						False
+	    					{% endif %}
+	    				{% else %}
+	    					False
+	    				{% endif %}
+	    			</li>
+	    			<li>Need confirmation: 
+	    				{% if prefs %}
+	    					{% if prefs[0].confirm %}
+	    						True
+	    					{% else %}
+	    						False
+	    					{% endif %}
+	    				{% else %}
+	    					False
+	    				{% endif %}
+	    			</li>
 	    		</ul>
 	    	</div>
 	    </div>

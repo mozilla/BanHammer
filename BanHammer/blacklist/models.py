@@ -313,6 +313,12 @@ class ZLBVirtualServer(models.Model):
     protocol = models.CharField(max_length=255)
     default_pool = models.CharField(max_length=255)
 
+class ZLBVirtualServerPref(models.Model):
+    zlb = models.ForeignKey(ZLB)
+    vs_name = models.CharField(max_length=255)
+    confirm = models.BooleanField()
+    favorite = models.BooleanField()
+
 class ZLBRule(models.Model):
     zlb = models.ForeignKey(ZLB)
     name = models.CharField(max_length=255)

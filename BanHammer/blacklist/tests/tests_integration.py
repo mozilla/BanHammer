@@ -471,3 +471,17 @@ class VirtualServerTestCase(WebTest):
         assert '9.8.7.6' in show
         assert show.body.count('<td>True</td>') == 3
         assert '<td>Note 1</td>' in show
+
+    def test_bookmark(self):
+        index = self.app.get('/zlb/1')
+        show = index.click('Virtual Server 1')
+        assert 'Bookmarked: False'
+        show.click('Bookmark')
+        assert 'Bookmarked: True'
+
+    def test_confirm(self):
+        index = self.app.get('/zlb/1')
+        show = index.click('Virtual Server 1')
+        assert 'Need confirmation: False'
+        show.click('Bookmark')
+        assert 'Need confirmation: True'
