@@ -19,7 +19,7 @@ class BlacklistTestCase(WebTest):
         assert 'Address' in index
         assert 'CIDR' in index
         assert 'Type' in index
-        assert 'Created' in index
+        assert 'Start Time' in index
         assert 'Expires' in index
         assert 'Reporter' in index
         assert 'No active blacklists.' in index
@@ -43,8 +43,8 @@ class BlacklistTestCase(WebTest):
         assert 'Hide Expired Blacklists' in index
         assert '8.8.8.8' in index
         assert 'BGP Blocked' in index
-        assert '2013-01-01 01:01' in index
-        assert '2013-01-01 13:01' in index
+        assert '2013-01-01 01:00:00' in index
+        assert '2013-01-01 13:00:00' in index
         assert 'test' in index
         assert not 'No active blacklists.' in index
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
@@ -99,8 +99,8 @@ class OffenderTestCase(WebTest):
         
         # Blacklist
         assert 'BGP Blocked' in show.body
-        assert '2013-01-01 01:01' in show.body
-        assert '2013-01-01 13:01' in show.body
+        assert '2013-01-01 01:01:00' in show.body
+        assert '2013-01-01 13:01:00' in show.body
         assert 'test@example.com' in show.body
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in show.body
         assert '<img src="/static/images/comment.gif">' in show.body
@@ -284,6 +284,7 @@ class SettingsTestCase(WebTest):
         index = self.app.get('/settings')
         form = index.form
         
+        form['zlb_redirection_url'] = 'http://www.example.com'
         form['notifications_email_enable'] = 'off'
         form['notifications_email_address_from'] = 'from@example.com'
         form['notifications_email_address_to'] = 'to@example.com'
@@ -301,6 +302,7 @@ class SettingsTestCase(WebTest):
         index = form.submit()
         index = self.app.get('/settings')
         
+        assert 'name="zlb_redirection_url" value="http://www.example.com"' in index
         assert '<input checked="checked" type="checkbox" name="notifications_email_enable" id="id_notifications_email_enable" />' in index
         assert 'name="notifications_email_address_from" value="from@example.com"' in index
         assert 'name="notifications_email_address_to" value="to@example.com"' in index

@@ -103,6 +103,12 @@ class ComplaintBGPBlockForm(BaseForm):
 class SettingsForm(BaseForm):
     checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
 
+    # Misc
+    zlb_redirection_url = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+    ) 
+
     # Notifications
     notifications_email_enable = forms.CharField(
         widget=forms.CheckboxInput(),

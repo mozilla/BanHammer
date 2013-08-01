@@ -102,5 +102,13 @@
       "key": "notifications_irc_enable",
       "value": "0"
     }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 14,
+    "fields": {
+      "key": "zlb_redirection_url",
+      "value": "http://www.minet.net"
+    }
   }
 ]

@@ -12,6 +12,16 @@
 	{{ csrf() }}
 	<div class="container">
 		<fieldset>
+			<legend>Misc</legend>
+			<div class="control-group">
+				<label class="control-label" for="id_zlb_redirection_url">
+					Redirection URL for ZLB Redirect blacklists
+				</label>
+				<div class="controls">
+					{{ form.zlb_redirection_url }}
+					{{ form.zlb_redirection_url.errors }}
+				</div>
+			</div>
 			<legend>Notifications</legend>
 			<div class="control-group">
 				<label class="control-label" for="id_notifications_email_enable">
