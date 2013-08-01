@@ -81,6 +81,9 @@ class BlacklistTestCase(WebTest):
         assert 'test' in index
         assert not 'No active blacklists.' in index
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
+        assert '<a href="/zlb/1/virtual_server/2">' in index
+        assert 'Virtual Server 2' in index
+        assert '(<a href="/zlb/1">demo zlb</a>),' in index
 
     def test_new_zlb_blocked(self):
         index = self.app.get('/blacklist/')
@@ -112,6 +115,9 @@ class BlacklistTestCase(WebTest):
         assert 'test' in index
         assert not 'No active blacklists.' in index
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
+        assert '<a href="/zlb/1/virtual_server/2">' in index
+        assert 'Virtual Server 2' in index
+        assert '(<a href="/zlb/1">demo zlb</a>),' in index
 
     def test_delete(self):
         self.test_new_bgp_block()

@@ -88,7 +88,11 @@
 		{% else %}
 		<tr>
 		{% endif %}
-	    <td class="left">{{ b.offender.address }}</td>
+	    <td class="left">
+	    	<a href="/offender/{{ b.offender.id }}">
+	    		{{ b.offender.address }}
+	    	</a>
+	    </td>
 	    <td class="left">/{{ b.offender.cidr }}</td>
 	    <td class="center">
 	    	{% if b.type == 'bgp_block' %}
@@ -119,7 +123,21 @@
 	    </td>
 	    </tr>
 	    <tr class="hide warning" id="hide_{{ b.id }}">
-	    	<td colspan=5>{{b.comment}}</td>
+	    	<td colspan=5>
+	    		<ul>
+	    			<li>Comment: {{b.comment}}</li>
+	    			{% if b.virtual_servers %}
+	    			<li>Blacklist applied on:
+	    				{% for vs in b.virtual_servers %}
+	    					<a href="/zlb/{{ vs.zlb_id }}/virtual_server/{{ vs.virtual_server_id }}">
+	    						{{ vs.virtual_server_name }}
+	    					</a>
+	    					(<a href="/zlb/{{ vs.zlb_id }}">{{ vs.zlb_name }}</a>), 
+	    				{% endfor %}
+	    			</li>
+	    			{% endif %}
+	    		</ul>
+	    	</td>
 	    </tr>
 	{% endfor %}
 	{% else %}

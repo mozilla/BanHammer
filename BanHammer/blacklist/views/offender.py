@@ -4,7 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 
-from ..models import Offender, Event, Blacklist, AttackScore, AttackScoreHistory
+from ..models import Offender, Event, Blacklist, AttackScore, AttackScoreHistory, ZLBBlacklist
 from ..forms import OffenderForm
 
 def index(request, show_suggested=False):
@@ -64,6 +64,17 @@ def show(request, id):
             e.attackscore = e.attackscore[0]
         else:
             e.attackscore = None
+    
+    zlb_blacklists_o = ZLBBlacklist.objects.all()
+    zlb_blacklist = {}
+    for z in zlb_blacklists_o:
+        if z.blacklist_id not in zlb_blacklist.keys():
+            zlb_blacklist[z.blacklist_id] = [z]
+        else:
+            zlb_blacklist[z.blacklist_id].append(z)
+    for b in blacklists:
+        if b.type in ['zlb_redirect', 'zlb_block']:
+            b.virtual_servers = zlb_blacklist[b.id]
     
     return render_to_response(
         'offender/show.html',

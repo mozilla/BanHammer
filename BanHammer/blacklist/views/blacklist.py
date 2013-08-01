@@ -7,7 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
-from ..models import Offender, Blacklist, ZLBVirtualServer, ZLBVirtualServerPref, ZLB
+from ..models import Offender, Blacklist, ZLBVirtualServer, ZLBVirtualServerPref, ZLB, ZLBBlacklist
 from ..forms import ComplaintBGPBlockForm, ComplaintZLBForm
 
 # default view for displaying all blacklists
@@ -23,6 +23,17 @@ def index(request, show_expired=False):
         blacklists = Blacklist.objects.filter(suggestion=False)
     else:
         blacklists = Blacklist.objects.filter(end_date__gt=datetime.now(),suggestion=False)
+    
+    zlb_blacklists_o = ZLBBlacklist.objects.all()
+    zlb_blacklist = {}
+    for z in zlb_blacklists_o:
+        if z.blacklist_id not in zlb_blacklist.keys():
+            zlb_blacklist[z.blacklist_id] = [z]
+        else:
+            zlb_blacklist[z.blacklist_id].append(z)
+    for b in blacklists:
+        if b.type in ['zlb_redirect', 'zlb_block']:
+            b.virtual_servers = zlb_blacklist[b.id]
 
     if order_by == 'address':
         blacklists = sorted(list(blacklists), key=lambda blacklist: blacklist.offender.address)
@@ -142,6 +153,18 @@ def new_zlb(request, type, id):
                 offender=o
             )
             b.save()
+            
+            for vs in form.cleaned_data['select']:
+                vs_o = ZLBVirtualServer.objects.get(id=vs)
+                zlb = vs_o.zlb
+                z = ZLBBlacklist(
+                    blacklist=b,
+                    virtual_server=vs_o,
+                    virtual_server_name=vs_o.name,
+                    zlb=zlb,
+                    zlb_name=zlb.name,
+                )
+                z.save()
  
             return HttpResponseRedirect('/blacklist')
     else:

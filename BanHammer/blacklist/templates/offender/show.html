@@ -102,7 +102,21 @@
 					    </td>
 					    </tr>
 					    <tr class="hide warning" id="hide_blacklist_{{ b.id }}">
-					    	<td colspan="5">{{b.comment}}</td>
+					    	<td colspan=5>
+					    		<ul>
+					    			<li>Comment: {{b.comment}}</li>
+					    			{% if b.virtual_servers %}
+					    			<li>Blacklist applied on:
+					    				{% for vs in b.virtual_servers %}
+					    					<a href="/zlb/{{ vs.zlb_id }}/virtual_server/{{ vs.virtual_server_id }}">
+					    						{{ vs.virtual_server_name }}
+					    					</a>
+					    					(<a href="/zlb/{{ vs.zlb_id }}">{{ vs.zlb_name }}</a>), 
+					    				{% endfor %}
+					    			</li>
+					    			{% endif %}
+					    		</ul>
+					    	</td>
 					    </tr>
 					{% endfor %}
 					{% else %}

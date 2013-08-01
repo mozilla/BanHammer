@@ -346,3 +346,10 @@ class ZLBVirtualServerProtection(models.Model):
     zlb = models.ForeignKey(ZLB)
     virtualserver = models.ForeignKey(ZLBVirtualServer)
     protection = models.ForeignKey(ZLBProtection)
+
+class ZLBBlacklist(models.Model):
+    blacklist = models.ForeignKey(Blacklist)
+    virtual_server = models.ForeignKey(ZLBVirtualServer)
+    virtual_server_name = models.CharField(max_length=255)
+    zlb = models.ForeignKey(ZLB)
+    zlb_name = models.CharField(max_length=255)
