@@ -3,7 +3,7 @@ from django.core.mail import send_mail
 import subprocess
 import shlex
 
-from BanHammer.blacklist.models import Config
+from BanHammer.blacklist.models import Config, ZLBBlacklist
 from BanHammer import settings
 
 def email_enabled():
@@ -27,7 +27,7 @@ def irc_new_event_data(offender, event, score_factors, attackscore_history_kwarg
     message += " Last event %s." % event.rulename
     message += " More info: %s/offender/%s\n\n" % (
         settings.HTTP_SERVER,
-        offender.id
+        offender.address
     )
     return message
 
@@ -43,7 +43,7 @@ def email_new_event_data(offender, event, score_factors, attackscore_history_kwa
     data['message'] = "Events from ArcSight have exceeded the threshold in banhammer-ng.\n\n"
     data['message'] += "More info: %s/offender/%s\n\n" % (
         settings.HTTP_SERVER,
-        offender.id
+        offender.address
     )
     
     # Event
@@ -77,6 +77,57 @@ def email_new_event_data(offender, event, score_factors, attackscore_history_kwa
             )
     
     data['message'] += "\n"
+    
+    data['message'] += "Powered by RTBH-ng"
+    
+    return data
+
+def send_email_new_blacklist(blacklist, offender):
+    data = email_new_blacklist_data(blacklist, offender)
+    send_mail(fail_silently=False, **data)
+
+def email_new_blacklist_data(blacklist, offender):
+    data = {}
+    data['from_email'] = Config.objects.get(key='notifications_email_address_from').value
+    data['recipient_list'] = [Config.objects.get(key='notifications_email_address_to').value]
+    data['subject']= 'New %s blacklist: Offender %s/%i' % (
+        blacklist.type,
+        offender.address,
+        offender.cidr,
+    )
+    
+    data['message'] = "%s has added a new %s blacklist on BanHammer-ng.\n\n" % (
+        blacklist.reporter, blacklist.type)
+    
+    data['message'] += "More info: %s/offender/%s\n\n" % (
+        settings.HTTP_SERVER,
+        offender.id,
+    )
+    
+    data['message'] += "Blacklist details:\n"
+    data['message'] += "* Type: %s\n" % blacklist.type
+    data['message'] += "* Start Time (UTC): %s\n" % blacklist.start_date
+    data['message'] += "* Expiration (UTC): %s\n" % blacklist.end_date
+    data['message'] += "* Reporter: %s\n" % blacklist.reporter
+    data['message'] += "* Comment: %s\n" % blacklist.comment
+    if blacklist.bug_number:
+        data['message'] += "* Bug number: %s\n" % blacklist.bug_number
+    if blacklist.type in ['zlb_redirect', 'zlb_block']:
+        zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
+        data['message'] += "* Virtual Servers :"
+        for i in zlb_blacklist_o:
+            data['message'] += "%s (%s)," % (i.virtual_server_name, i.zlb_name)
+    data['message'] += "\n\n"
+    
+    data['message'] += "Offender details:\n"
+    data['message'] += "* address: %s\n" % offender.address
+    data['message'] += "* cidr: %s\n" % offender.cidr
+    if offender.hostname:
+        data['message'] += "* hostname: %s\n" % offender.hostname
+    if offender.asn:
+        data['message'] += "* ASN: %s\n" % offender.asn
+    
+    data['message'] += "\n\n"
     
     data['message'] += "Powered by RTBH-ng"
     

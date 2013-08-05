@@ -9,6 +9,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender, Blacklist, ZLBVirtualServer, ZLBVirtualServerPref, ZLB, ZLBBlacklist
 from ..forms import ComplaintBGPBlockForm, ComplaintZLBForm
+import BanHammer.blacklist.tasks as tasks
 
 # default view for displaying all blacklists
 @anonymous_csrf
@@ -95,6 +96,8 @@ def new_bgp_block(request, id=None):
                 offender=o
             )
             b.save()
+            
+            _new_post_add(b, o, 'bgp_block')
 
             return HttpResponseRedirect('/blacklist')
 
@@ -159,12 +162,13 @@ def new_zlb(request, type, id):
                 zlb = vs_o.zlb
                 z = ZLBBlacklist(
                     blacklist=b,
-                    virtual_server=vs_o,
                     virtual_server_name=vs_o.name,
                     zlb=zlb,
                     zlb_name=zlb.name,
                 )
                 z.save()
+ 
+            _new_post_add(b, o, type)
  
             return HttpResponseRedirect('/blacklist')
     else:
@@ -193,6 +197,24 @@ def new_zlb(request, type, id):
          'zlbs': zlbs,},
         context_instance = RequestContext(request)
     )
+    
+def _new_post_add(blacklist, offender, type):
+    # offender suggestion True -> False needed
+    if offender.suggestion:
+        offender.suggestion = False
+        offender.save()
+    # Celery task to send email if needed
+    tasks.add_blacklist_notification.delay(blacklist, offender)
+    # push rules
+    if type in ['zlb_redirect', 'zlb_block']:
+        if type == 'zlb_block':
+            zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
+            for zlb_blacklist in zlb_blacklist_o:
+                tasks.update_protection.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
+        elif type == 'zlb_redirect':
+            zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
+            for zlb_blacklist in zlb_blacklist_o:
+                tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
 
 # view for deleting blacklists
 @anonymous_csrf
