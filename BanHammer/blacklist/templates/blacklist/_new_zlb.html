@@ -101,13 +101,17 @@
     		<tbody>
     			{% for i in vs %}
     			{% if i.enabled %}
-    				{% if prefs[i.name] and prefs[i.name].confirm %}
+    				{% if type == "zlb_block" and prefs[i.name] and prefs[i.name].other_protection %}
+    				<tr class="gradeA other_protection" id="{{ i.id }}">
+    				{% elif prefs[i.name] and prefs[i.name].confirm %}
 	    			<tr class="gradeA confirmation" id="{{ i.id }}">
 	    			{% else %}
 	    			<tr class="gradeA" id="{{ i.id }}">
 	    			{% endif %}
 	    		{% else %}
-	    			{% if prefs[i.name] and prefs[i.name].confirm %}
+	    			{% if type == "zlb_block" and prefs[i.name] and prefs[i.name].other_protection %}
+    				<tr class="gradeX other_protection" id="{{ i.id }}">
+    				{% elif prefs[i.name] and prefs[i.name].confirm %}
 	    			<tr class="gradeX confirmation" id="{{ i.id }}">
 	    			{% else %}
 	    			<tr class="gradeX" id="{{ i.id }}">

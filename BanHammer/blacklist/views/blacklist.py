@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import Offender, Blacklist, ZLBVirtualServer, ZLBVirtualServerPref, ZLB, ZLBBlacklist
+from ..models import ZLBVirtualServerProtection
 from ..forms import ComplaintBGPBlockForm, ComplaintZLBForm
 import BanHammer.blacklist.tasks as tasks
 
@@ -194,7 +195,8 @@ def new_zlb(request, type, id):
          'vs': vs,
          'prefs': prefs,
          'form': form,
-         'zlbs': zlbs,},
+         'zlbs': zlbs,
+         'type': type,},
         context_instance = RequestContext(request)
     )
     

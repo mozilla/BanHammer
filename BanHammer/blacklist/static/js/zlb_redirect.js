@@ -45,6 +45,8 @@ $('#virtualservers tbody tr').live('click', function () {
 			$(this).removeClass('row_selected');
 		}
 		else {
+			if ($(this).hasClass('other_protection'))
+				confirmation = confirm('This virtual server has a non-banhammer protection class. Do you really want to disable this class on this virtual server?')
 			if ($(this).hasClass('confirmation'))
 				confirmation = confirm('Do you really want to select this Virtual Server?')
 			else

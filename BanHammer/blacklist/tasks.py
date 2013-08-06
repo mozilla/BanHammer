@@ -108,6 +108,28 @@ def update_zlb(id):
                     protection=pr_o,
                 )
                 vs_pr.save()
+                
+                if protection != 'banned-'+vs_name:
+                    try:
+                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                        pref.other_protection = True
+                        pref.save()
+                    except:
+                        pref = models.ZLBVirtualServerPref(
+                            zlb=zlb,
+                            vs_name=vs_name,
+                            confirm=False,
+                            favorite=False,
+                            other_protection=True,
+                        )
+                        pref.save()
+                else:
+                    try:
+                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                        pref.other_protection = False
+                        pref.save()
+                    except:
+                        pass
     
     zlb_m.updating = False
     zlb_m.save()
@@ -167,21 +189,14 @@ def update_protection(zlb_id, virtual_server_name):
     class_name_current = z.conn.getProtection([virtual_server_name])[0]
     if class_name_current:
         z.connect('Catalog.Protection')
-        enabled = z.conn.getEnabled([class_name_current])[0]
-        # if the current class is enabled, add banned addresses to it
-        if enabled:
-            z.connect('Catalog.Protection')
-            z.conn.addBannedAddresses([class_name_current], [networks])
-        # if the current class is disabled, detach it from the virtual server
-        else:
-            # update note to say that it has been detached by banhammer-ng
-            note = z.conn.getNote([class_name_current])[0]
-            note += "\nDetached from %s on %s by BanHammer-ng" % (virtual_server_name,
-                                                                  str(datetime.datetime.now()))
-            z.conn.setNote([class_name_current], [note])
-            z.connect('VirtualServer')
-            z.conn.setProtection([virtual_server_name], [''])
-            _create_and_attach_protection(z, virtual_server_name, networks, class_name)
+        # Detach the current rule
+        note = z.conn.getNote([class_name_current])[0]
+        note += "\nDetached from %s on %s by BanHammer-ng" % (virtual_server_name,
+                                                              str(datetime.datetime.now()))
+        z.conn.setNote([class_name_current], [note])
+        z.connect('VirtualServer')
+        z.conn.setProtection([virtual_server_name], [''])
+        _create_and_attach_protection(z, virtual_server_name, networks, class_name)
     else:
             _create_and_attach_protection(z, virtual_server_name, networks, class_name)
 
