@@ -25,111 +25,116 @@ def update_zlb(id):
     models.ZLBVirtualServer.objects.all().delete()
     
     logging.info('Updating Protection Classes')
-    # Fill the db
     z.connect('Catalog.Protection')
-    for rule_name in list(z.conn.getProtectionNames()):
+    protectionnames = list(z.conn.getProtectionNames())
+    allowed_addresses_list = list(z.conn.getAllowedAddresses(protectionnames))
+    banned_addresses_list = list(z.conn.getBannedAddresses(protectionnames))
+    debug_list = list(z.conn.getDebug(protectionnames))
+    enabled_list = list(z.conn.getEnabled(protectionnames))
+    note_list = list(z.conn.getNote(protectionnames))
+    testing_list = list(z.conn.getTesting(protectionnames))
+    
+    for rule_index in range(len(protectionnames)):
         allowed_addresses = []
-        for addr in list(z.conn.getAllowedAddresses([rule_name]))[0]:
+        for addr in allowed_addresses_list[rule_index]:
             allowed_addresses.append(str(addr))
         allowed_addresses = ', '.join(allowed_addresses)
             
         banned_addresses = []
-        for addr in list(z.conn.getBannedAddresses([rule_name]))[0]:
+        for addr in banned_addresses_list[rule_index]:
             banned_addresses.append(str(addr))
         banned_addresses = ', '.join(banned_addresses)
         
-        debug = z.conn.getDebug([rule_name])[0]
-        enabled = z.conn.getEnabled([rule_name])[0]
-        note = z.conn.getNote([rule_name])[0]
-        testing = z.conn.getTesting([rule_name])[0]
         pr = models.ZLBProtection(
             zlb_id=zlb.id,
-            name=rule_name,
+            name=protectionnames[rule_index],
             allowed_addresses=allowed_addresses,
             banned_addresses=banned_addresses,
-            debug=debug,
-            enabled=enabled,
-            note=note,
-            testing=testing,
+            debug=debug_list[rule_index],
+            enabled=enabled_list[rule_index],
+            note=note_list[rule_index],
+            testing=testing_list[rule_index],
         )
         pr.save()
-    
+
     logging.info('Updating TrafficScript Rules')
-    z.connect('Catalog.Rule')
-    for rule_name in list(z.conn.getRuleNames()):
-        details = z.conn.getRuleDetails([rule_name])[0]
-        rule_text = details.rule_text
-        rule_notes = details.rule_notes
+    z.connect('Catalog.Rule')    
+    rulenames = list(z.conn.getRuleNames())
+    ruledetails = list(z.conn.getRuleDetails(rulenames))
+
+    for rule_index in range(len(rulenames)):
         rule = models.ZLBRule(
             zlb_id=zlb.id,
-            name=rule_name,
-            rule_text=rule_text,
-            rule_notes=rule_notes,
+            name=rulenames[rule_index],
+            rule_text=ruledetails[rule_index].rule_text,
+            rule_notes=ruledetails[rule_index].rule_notes,
         )
         rule.save()
     
     logging.info('Updating Virtual Servers')
     z.connect('VirtualServer')
-    for vs_name in list(z.conn.getVirtualServerNames()):
-        enabled = z.conn.getEnabled([vs_name])[0]
-        basicInfo = z.conn.getBasicInfo([vs_name])[0]
-        port = basicInfo.port
-        protocol = basicInfo.protocol
-        default_pool = basicInfo.default_pool
+    logging.info("Virtual Servers - SOAP")
+    virtualservernames = list(z.conn.getVirtualServerNames())
+    enabled_list = list(z.conn.getEnabled(virtualservernames))
+    basicinfo_list = list(z.conn.getBasicInfo(virtualservernames))
+    rules_list = list(z.conn.getRules(virtualservernames))
+    protection_list = list(z.conn.getProtection(virtualservernames))
+    
+    logging.info("Virtual Servers - DB")
+    for vs_index in range(len(virtualservernames)):
+        vs_name = virtualservernames[vs_index]
         vs = models.ZLBVirtualServer(
             zlb_id=zlb.id,
             name=vs_name,
-            enabled=enabled,
-            port=port,
-            protocol=protocol,
-            default_pool=default_pool,
+            enabled=enabled_list[vs_index],
+            port=basicinfo_list[vs_index].port,
+            protocol=basicinfo_list[vs_index].protocol,
+            default_pool=basicinfo_list[vs_index].default_pool,
         )
         vs.save()
 
-        for rule in list(z.conn.getRules([vs_name]))[0]:
+        for rule in rules_list[vs_index]:
             rule_o = models.ZLBRule.objects.get(name=rule.name, zlb_id=zlb.id)
-            enabled = rule.enabled
-            run_frequency = str(rule.run_frequency)
             vs_rule = models.ZLBVirtualServerRule(
                 zlb_id=zlb.id,
                 virtualserver=vs,
                 rule=rule_o,
-                enabled=enabled,
-                run_frequency=run_frequency,
+                enabled=rule.enabled,
+                run_frequency=str(rule.run_frequency),
             )
             vs_rule.save()
     
-        for protection in z.conn.getProtection([vs_name]):
-            if protection:
-                pr_o = models.ZLBProtection.objects.get(name=protection, zlb_id=zlb.id)
-                vs_pr = models.ZLBVirtualServerProtection(
-                    zlb_id=zlb.id,
-                    virtualserver=vs,
-                    protection=pr_o,
-                )
-                vs_pr.save()
-                
-                if protection != 'banned-'+vs_name:
-                    try:
-                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
-                        pref.other_protection = True
-                        pref.save()
-                    except:
-                        pref = models.ZLBVirtualServerPref(
-                            zlb=zlb,
-                            vs_name=vs_name,
-                            confirm=False,
-                            favorite=False,
-                            other_protection=True,
-                        )
-                        pref.save()
-                else:
-                    try:
-                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
-                        pref.other_protection = False
-                        pref.save()
-                    except:
-                        pass
+        protection = protection_list[vs_index]
+        if protection:
+            pr_o = models.ZLBProtection.objects.get(name=protection, zlb_id=zlb.id)
+            vs_pr = models.ZLBVirtualServerProtection(
+                zlb_id=zlb.id,
+                virtualserver=vs,
+                protection=pr_o,
+            )
+            vs_pr.save()
+            
+            if protection != 'banned-'+vs_name:
+                try:
+                    pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                    pref.other_protection = True
+                    pref.save()
+                except:
+                    pref = models.ZLBVirtualServerPref(
+                        zlb=zlb,
+                        vs_name=vs_name,
+                        confirm=False,
+                        favorite=False,
+                        other_protection=True,
+                    )
+                    pref.save()
+            else:
+                try:
+                    pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                    pref.other_protection = False
+                    pref.save()
+                except:
+                    pass
     
     zlb_m.updating = False
     zlb_m.save()

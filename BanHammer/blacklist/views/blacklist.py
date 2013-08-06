@@ -173,6 +173,14 @@ def new_zlb(request, type, id):
  
             return HttpResponseRedirect('/blacklist')
     else:
+        zlbs = ZLB.objects.all()
+        for zlb in zlbs:
+            if zlb.updating:
+                return render_to_response(
+                    'zlb/updating.html',
+                    {'zlb': zlb,},
+                    context_instance = RequestContext(request)
+                )
         if id:
             offender = Offender.objects.get(id=id)
             initial = {}
