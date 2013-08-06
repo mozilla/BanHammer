@@ -168,7 +168,6 @@ def update_protection(zlb_id, virtual_server_name):
     if class_name_current:
         z.connect('Catalog.Protection')
         enabled = z.conn.getEnabled([class_name_current])[0]
-        logging.info("Enabled: %s" % str(enabled))
         # if the current class is enabled, add banned addresses to it
         if enabled:
             z.connect('Catalog.Protection')
@@ -185,6 +184,23 @@ def update_protection(zlb_id, virtual_server_name):
             _create_and_attach_protection(z, virtual_server_name, networks, class_name)
     else:
             _create_and_attach_protection(z, virtual_server_name, networks, class_name)
+
+@task(name="BanHammer.blacklist.tasks.update_protection_delete")
+def update_protection_delete(zlb_id, virtual_server_name, offender):
+    logging.info("zlb_id: %s" % zlb_id)
+    logging.info("virtual_server_name: %s" % virtual_server_name)
+    networks = ["%s/%s" % (offender.address, offender.cidr)]
+    logging.info("networks: %s" % str(networks))
+    
+    class_name = 'banned-%s' % virtual_server_name
+    zlb = models.ZLB.objects.get(id=zlb_id)
+    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
+    z.connect('VirtualServer')
+    
+    # A virtual server can only have one protection class
+    class_name_current = z.conn.getProtection([virtual_server_name])[0]
+    z.connect('Catalog.Protection')
+    z.conn.removeBannedAddresses([class_name_current], [networks])
 
 @task(name="BanHammer.blacklist.tasks.update_rule")
 def update_rule(zlb_id, virtual_server_name):

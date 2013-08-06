@@ -97,7 +97,7 @@ def new_bgp_block(request, id=None):
             )
             b.save()
             
-            _new_post_add(b, o, 'bgp_block')
+            _new_post(b, o, 'bgp_block')
 
             return HttpResponseRedirect('/blacklist')
 
@@ -168,7 +168,7 @@ def new_zlb(request, type, id):
                 )
                 z.save()
  
-            _new_post_add(b, o, type)
+            _new_post(b, o, type)
  
             return HttpResponseRedirect('/blacklist')
     else:
@@ -198,14 +198,14 @@ def new_zlb(request, type, id):
         context_instance = RequestContext(request)
     )
     
-def _new_post_add(blacklist, offender, type):
+def _new_post(blacklist, offender, type):
     # offender suggestion True -> False needed
     if offender.suggestion:
         offender.suggestion = False
         offender.save()
     # Celery task to send email if needed
     tasks.add_blacklist_notification.delay(blacklist, offender)
-    # push rules
+    # push rules to ZLBs
     if type in ['zlb_redirect', 'zlb_block']:
         if type == 'zlb_block':
             zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
@@ -216,20 +216,30 @@ def _new_post_add(blacklist, offender, type):
             for zlb_blacklist in zlb_blacklist_o:
                 tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
 
+def _delete_pre(blacklist, offender, type):
+    # delete rules on ZLBs
+    if type in ['zlb_redirect', 'zlb_block']:
+        if type == 'zlb_block':
+            zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
+            for zlb_blacklist in zlb_blacklist_o:
+                tasks.update_protection_delete.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name, offender)
+        elif type == 'zlb_redirect':
+            zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
+            for zlb_blacklist in zlb_blacklist_o:
+                tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
+
 # view for deleting blacklists
 @anonymous_csrf
 def delete(request):
     if request.method == 'GET':
-
         # Insert a confirmation dialog, at some point
-
         id = request.GET.get('id')
 
 	if not id.isdigit():
             return HttpResponseRedirect('/blacklist')
-		
         try:
             b = Blacklist.objects.get(id=id)
+            _delete_pre(b, b.offender, b.type)
             b.delete()
         except ObjectDoesNotExist:
             return HttpResponseRedirect('/blacklist')
