@@ -201,10 +201,13 @@ def update_protection(zlb_id, virtual_server_name):
             _create_and_attach_protection(z, virtual_server_name, networks, class_name)
 
 @task(name="BanHammer.blacklist.tasks.update_protection_delete")
-def update_protection_delete(zlb_id, virtual_server_name, offender):
+def update_protection_delete(zlb_id, virtual_server_name, offender=None, offender_ip=None, offender_cidr=None):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    networks = ["%s/%s" % (offender.address, offender.cidr)]
+    if offender:
+        networks = ["%s/%s" % (offender.address, offender.cidr)]
+    else:
+        networks = ["%s/%s" % (offender_ip, offender_cidr)]
     logging.info("networks: %s" % str(networks))
     
     class_name = 'banned-%s' % virtual_server_name
@@ -242,3 +245,14 @@ def update_rule(zlb_id, virtual_server_name):
     
     z.connect('VirtualServer')
     z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]]) 
+
+@task(name="BanHammer.blacklist.tasks.delete_offender")
+def delete_offender(offender_ip, offender_cidr, protections_vs, redirections_vs):
+    logging.info("offender: %s/%s" % (offender_ip, offender_cidr))
+    logging.info("Updating protection classes")
+    for (zlb_id, virtual_server_name) in protections_vs:
+        update_protection_delete(zlb_id, virtual_server_name,
+                                 offender_ip=offender_ip, offender_cidr=offender_cidr)
+    logging.info("Updating TrafficScript rules")
+    for (zlb_id, virtual_server_name) in redirections_vs:
+        update_rule(zlb_id, virtual_server_name)

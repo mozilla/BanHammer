@@ -6,6 +6,7 @@ from session_csrf import anonymous_csrf
 
 from ..models import Offender, Event, Blacklist, AttackScore, AttackScoreHistory, ZLBBlacklist
 from ..forms import OffenderForm
+from BanHammer.blacklist import tasks
 
 def index(request, show_suggested=False):
     request.session['order_by'] = request.GET.get('order_by', request.session.get('order_by', 'address'))
@@ -88,6 +89,21 @@ def show(request, id):
 @anonymous_csrf
 def delete(request, id):
     offender = Offender.objects.get(id=id)
+    protections_vs = []
+    protections = Blacklist.objects.filter(offender=offender,type="zlb_block")
+    for p in protections:
+        vs = ZLBBlacklist.objects.filter(blacklist=p)
+        for v in vs:
+            protections_vs.append((v.zlb_id, v.virtual_server_name))
+    redirections_vs = []
+    redirections = Blacklist.objects.filter(offender=offender,type="zlb_redirect")
+    for p in protections:
+        vs = ZLBBlacklist.objects.filter(blacklist=p)
+        for v in vs:
+            redirections_vs.append((v.zlb_id, v.virtual_server_name))
+    
+    tasks.delete_offender.delay(offender.address, offender.cidr, protections_vs, redirections_vs)
+    
     offender.delete()
     
     return HttpResponseRedirect('/offenders')
