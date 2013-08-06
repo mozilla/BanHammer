@@ -97,6 +97,7 @@ class Blacklist(models.Model):
     bug_number = models.IntegerField(max_length=7, null=True)
     suggestion = models.BooleanField()
     type = models.CharField(max_length=12, choices=TYPES)
+    removed = models.BooleanField()
     
     def expired(self):
         return self.end_date <= datetime.datetime.now()
@@ -181,7 +182,8 @@ class AttackScore(models.Model):
                 comment=('Suggestion by RTBH-ng (score: %i)' % self.score),
                 reporter='RTBH-ng bot',
                 suggestion=True,
-                type='unkown'
+                type='unkown',
+                removed=False,
             )
 
 # To describe the attack score for each event

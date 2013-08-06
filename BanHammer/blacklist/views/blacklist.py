@@ -94,7 +94,8 @@ def new_bgp_block(request, id=None):
                 comment=comment,
                 bug_number=bug_number,
                 reporter=reporter,
-                offender=o
+                offender=o,
+                removed=False,
             )
             b.save()
             
@@ -154,7 +155,8 @@ def new_zlb(request, type, id):
                 comment=comment,
                 bug_number=bug_number,
                 reporter=reporter,
-                offender=o
+                offender=o,
+                removed=False,
             )
             b.save()
             
@@ -236,7 +238,10 @@ def _delete_pre(blacklist, offender, type):
         elif type == 'zlb_redirect':
             zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist=blacklist)
             for zlb_blacklist in zlb_blacklist_o:
-                tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
+                zlb_id = zlb_blacklist.zlb_id
+                virtual_server_name = zlb_blacklist.virtual_server_name
+                zlb_blacklist.delete()
+                tasks.update_rule.delay(zlb_id, virtual_server_name)
 
 # view for deleting blacklists
 @anonymous_csrf

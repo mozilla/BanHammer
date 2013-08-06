@@ -223,7 +223,11 @@ def update_protection_delete(zlb_id, virtual_server_name, offender=None, offende
     # A virtual server can only have one protection class
     class_name_current = z.conn.getProtection([virtual_server_name])[0]
     z.connect('Catalog.Protection')
-    z.conn.removeBannedAddresses([class_name_current], [networks])
+    try:
+        z.conn.removeBannedAddresses([class_name_current], [networks])
+    except:
+        logging.error("%s on %s protection class was already removed" % ((str(networks),
+                                                                          class_name_current,)))
 
 @task(name="BanHammer.blacklist.tasks.update_rule")
 def update_rule(zlb_id, virtual_server_name):

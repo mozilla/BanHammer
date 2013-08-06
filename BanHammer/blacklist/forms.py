@@ -110,7 +110,7 @@ class ComplaintBGPBlockForm(BaseForm):
 
 class ComplaintZLBForm(ComplaintBGPBlockForm):
     select = forms.MultipleChoiceField(
-        choices=zip(map(lambda a: a['id'],
+        choices=zip(map(lambda a: str(a['id']),
                         ZLBVirtualServer.objects.values('id')),
                     ['']*ZLBVirtualServer.objects.count()),
         widget=forms.widgets.CheckboxSelectMultiple())

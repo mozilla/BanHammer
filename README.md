@@ -20,6 +20,13 @@ To use this feature, you need to load the external rules provided by Emerging Th
 
 The settings for the score and notifications are in the blacklist_config table.
 
+Maintenance tasks
+-----------------
+
+* Update third party rules for scoring: `$ python manage.py update_third_party_rules`
+* Clean expired blacklists from ZLBs: `$ python manage clean_blacklists`
+* Update data from ZLBs: `$ python manage update_zlbs`
+
 Run the tests
 -------------
 
