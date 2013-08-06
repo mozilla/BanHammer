@@ -2,13 +2,13 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
 
-from models import ZLBVirtualServer
+from models import ZLBVirtualServer, WhitelistIP
 
 import netaddr
 
 class BaseForm(forms.Form):
     @classmethod
-    def validator_email(self):
+    def validator_email(cls):
         return RegexValidator(
             r'^.*@.*$',
             'has to be an email address.',
@@ -16,13 +16,18 @@ class BaseForm(forms.Form):
         )
     
     @classmethod
-    def validator_integer(self):
+    def validator_integer(cls):
         return RegexValidator(
             r'^[0-9]+$',
             'has to be an integer.',
             'Invalid integer'
         )
-       
+    
+    @classmethod
+    def validator_whitelist_target(cls, value):
+        ip = value.split('/')[0]
+        if WhitelistIP.is_ip_in(ip):
+            raise ValidationError(u'%s is in the IP Whitelist' % value)
 
 class ComplaintBGPBlockForm(BaseForm):
 
@@ -39,7 +44,8 @@ class ComplaintBGPBlockForm(BaseForm):
 
     target = forms.CharField(
         widget=forms.TextInput( attrs={'size':'43'} ),
-        max_length=43
+        max_length=43,
+        validators=[BaseForm.validator_whitelist_target],
     )
 
     start_date = forms.DateTimeField(required=True)
