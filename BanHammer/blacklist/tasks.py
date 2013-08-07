@@ -229,6 +229,23 @@ def update_protection_delete(zlb_id, virtual_server_name, offender=None, offende
         logging.error("%s on %s protection class was already removed" % ((str(networks),
                                                                           class_name_current,)))
 
+def _get_rule_content(networks):
+    url_redirection = models.Config.objects.get(key='zlb_redirection_url')
+    url_redirection = url_redirection.value
+    
+    content = '# This script redirect attacker IPs to the BanHammer-ng captive portal\n\n'
+    content += '$networks = ["192.168.56.1/32"];\n'
+    content += '$ip = request.getRemoteIP();\n\n'
+
+    content += 'for($i=0; $i < array.length($networks); $i++) {\n'
+    content += 'if (string.ipmaskmatch($ip, $networks[$i])) {\n'
+    content += '# Enforce the redirection\n'
+    content += 'http.redirect("%s");\n' % url_redirection
+    content += '}\n'
+    content += '}\n'
+    
+    return content
+
 @task(name="BanHammer.blacklist.tasks.update_rule")
 def update_rule(zlb_id, virtual_server_name):
     logging.info("zlb_id: %s" % zlb_id)
@@ -240,8 +257,7 @@ def update_rule(zlb_id, virtual_server_name):
     zlb = models.ZLB.objects.get(id=zlb_id)
     z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
     
-    # TODO: inject the good rule
-    rule = "$ips = '%s';" % (''.join(networks))
+    rule = _get_rule_content(networks)
     logging.info(rule)
     
     z.connect('Catalog.Rule')
