@@ -161,11 +161,10 @@ def new_zlb(request, type, id):
             b.save()
             
             for vs in form.cleaned_data['select']:
-                vs_o = ZLBVirtualServer.objects.get(id=vs)
-                zlb = vs_o.zlb
+                zlb = vs.zlb
                 z = ZLBBlacklist(
                     blacklist=b,
-                    virtual_server_name=vs_o.name,
+                    virtual_server_name=vs.name,
                     zlb=zlb,
                     zlb_name=zlb.name,
                 )

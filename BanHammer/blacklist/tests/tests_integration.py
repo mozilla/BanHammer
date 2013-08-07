@@ -81,7 +81,7 @@ class BlacklistTestCase(WebTest):
         assert 'test' in index
         assert not 'No active blacklists.' in index
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
-        assert '<a href="/zlb/1/virtual_server/2">' in index
+        assert '<a href="/zlb/1/virtual_server/Virtual Server 2">' in index
         assert 'Virtual Server 2' in index
         assert '(<a href="/zlb/1">demo zlb</a>),' in index
 
@@ -115,7 +115,7 @@ class BlacklistTestCase(WebTest):
         assert 'test' in index
         assert not 'No active blacklists.' in index
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in index
-        assert '<a href="/zlb/1/virtual_server/2">' in index
+        assert '<a href="/zlb/1/virtual_server/Virtual Server 2">' in index
         assert 'Virtual Server 2' in index
         assert '(<a href="/zlb/1">demo zlb</a>),' in index
 
@@ -174,7 +174,7 @@ class OffenderTestCase(WebTest):
         assert 'test@example.com' in show.body
         assert '<a href="https://bugzilla.mozilla.org/show_bug.cgi?id=12345">' in show.body
         assert '<img src="/static/images/comment.gif">' in show.body
-        assert '<td colspan="5">testlist</td>' in show.body
+        assert '<li>Comment: testlist</li>' in show.body
         
         # Offender
         assert 'Address: 8.8.8.8' in show.body

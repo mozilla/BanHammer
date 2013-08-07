@@ -224,6 +224,12 @@ def virtual_server(request, zlb_id, vs_id):
         context_instance = RequestContext(request)
     )
 
+@never_cache
+@anonymous_csrf
+def virtual_server_name(request, zlb_id, vs_name):
+    virtual_server_o = ZLBVirtualServer.objects.get(zlb_id=zlb_id, name=vs_name)
+    return virtual_server(request, zlb_id, virtual_server_o.id)
+
 @anonymous_csrf
 def virtual_server_favorite(request, zlb_id, vs_id):
     vs = ZLBVirtualServer.objects.get(id=vs_id)

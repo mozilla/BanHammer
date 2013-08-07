@@ -129,7 +129,7 @@
 	    			{% if b.virtual_servers %}
 	    			<li>Blacklist applied on:
 	    				{% for vs in b.virtual_servers %}
-	    					<a href="/zlb/{{ vs.zlb_id }}/virtual_server/{{ vs.virtual_server_id }}">
+	    					<a href="/zlb/{{ vs.zlb_id }}/virtual_server/{{ vs.virtual_server_name }}">
 	    						{{ vs.virtual_server_name }}
 	    					</a>
 	    					(<a href="/zlb/{{ vs.zlb_id }}">{{ vs.zlb_name }}</a>), 
