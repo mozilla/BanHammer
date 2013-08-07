@@ -109,11 +109,9 @@ class ComplaintBGPBlockForm(BaseForm):
         return cleaned_data
 
 class ComplaintZLBForm(ComplaintBGPBlockForm):
-    select = forms.MultipleChoiceField(
-        choices=zip(map(lambda a: str(a['id']),
-                        ZLBVirtualServer.objects.values('id')),
-                    ['']*ZLBVirtualServer.objects.count()),
-        widget=forms.widgets.CheckboxSelectMultiple())
+    select = forms.ModelMultipleChoiceField(
+        queryset=ZLBVirtualServer.objects.all(),
+        widget=forms.CheckboxSelectMultiple)
 
 class SettingsForm(BaseForm):
     checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
