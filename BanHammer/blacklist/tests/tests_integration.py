@@ -370,6 +370,7 @@ class SettingsTestCase(WebTest):
         form['score_factor_last_attackscore'] = '16'
         form['score_factor_et_compromised_ips'] = '17'
         form['score_factor_dshield_block'] = '18'
+        form['score_decrease'] = '19'
         
         index = form.submit()
         index = self.app.get('/settings')
@@ -388,6 +389,7 @@ class SettingsTestCase(WebTest):
         assert 'name="score_factor_last_attackscore" value="16"' in index
         assert 'name="score_factor_et_compromised_ips" value="17"' in index
         assert 'name="score_factor_dshield_block" value="18"' in index
+        assert 'name="score_decrease" value="19"' in index
 
 class ZLBTestCase(WebTest):
     def test_index(self):

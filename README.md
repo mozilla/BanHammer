@@ -26,6 +26,7 @@ Maintenance tasks
 * Update third party rules for scoring: `$ python manage.py update_third_party_rules`
 * Clean expired blacklists from ZLBs: `$ python manage clean_blacklists`
 * Update data from ZLBs: `$ python manage update_zlbs`
+* Decrease score of offenders as time passes (e.g. set up a cron task to execute every hour) `$ python manage decrease_scores`
 
 Run the tests
 -------------

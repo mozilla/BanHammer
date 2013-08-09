@@ -110,5 +110,13 @@
       "key": "zlb_redirection_url",
       "value": "http://www.minet.net"
     }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 15,
+    "fields": {
+      "key": "score_decrease",
+      "value": "0"
+    }
   }
 ]

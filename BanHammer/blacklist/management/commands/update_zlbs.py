@@ -3,7 +3,7 @@ from BanHammer.blacklist import models
 from BanHammer.blacklist import tasks
 
 class Command(BaseCommand):
-    help = 'Update 3rd party rules (et and dshield)'
+    help = 'Update ZLBs data'
     
     def handle(self, *args, **options):
         self._update_zlbs()

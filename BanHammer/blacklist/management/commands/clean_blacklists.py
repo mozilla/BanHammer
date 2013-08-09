@@ -5,7 +5,7 @@ from BanHammer.blacklist.views import blacklist
 import datetime
 
 class Command(BaseCommand):
-    help = 'Update 3rd party rules (et and dshield)'
+    help = 'Clean old blacklists'
     
     def handle(self, *args, **options):
         self._remove_outdated_blacklists()

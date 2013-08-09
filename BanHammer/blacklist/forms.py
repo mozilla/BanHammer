@@ -188,6 +188,11 @@ class SettingsForm(BaseForm):
         max_length=255,
         validators=[BaseForm.validator_integer()],
     )
+    score_decrease = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BaseForm.validator_integer()],
+    )
 
     def clean(self):
         cleaned_data = self.cleaned_data
