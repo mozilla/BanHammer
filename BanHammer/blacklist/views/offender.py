@@ -97,14 +97,12 @@ def delete(request, id):
             protections_vs.append((v.zlb_id, v.virtual_server_name))
     redirections_vs = []
     redirections = Blacklist.objects.filter(offender=offender,type="zlb_redirect")
-    for p in protections:
+    for p in redirections:
         vs = ZLBBlacklist.objects.filter(blacklist=p)
         for v in vs:
             redirections_vs.append((v.zlb_id, v.virtual_server_name))
     
-    tasks.delete_offender.delay(offender.address, offender.cidr, protections_vs, redirections_vs)
-    
-    offender.delete()
+    tasks.delete_offender.delay(offender.id, offender.address, offender.cidr, protections_vs, redirections_vs)
     
     return HttpResponseRedirect('/offenders')
 
