@@ -1,6 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator
+from captcha.fields import CaptchaField
 
 from models import ZLBVirtualServer, WhitelistIP
 
@@ -311,4 +312,11 @@ class ZLBForm(BaseForm):
         widget=forms.PasswordInput(),
         max_length=255,
         required=False,
+    )
+
+class PortalForm(BaseForm):
+    captcha = CaptchaField()
+    referer = forms.CharField(
+        widget=forms.HiddenInput(),
+        max_length=255,
     )

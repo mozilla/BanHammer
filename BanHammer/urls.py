@@ -8,6 +8,7 @@ from BanHammer.blacklist.views import setting as views_setting
 from BanHammer.blacklist.views import whitelistip as views_whitelistip
 from BanHammer.blacklist.views import event as views_event
 from BanHammer.blacklist.views import zlb as views_zlb
+from BanHammer.blacklist.views import portal as views_portal
 
 from funfactory.monkeypatches import patch
 patch()
@@ -60,7 +61,8 @@ urlpatterns = patterns('',
     url(r'^zlb/(\d+)/virtual_server/(\d+)/confirm$', views_zlb.virtual_server_confirm, name='zlb_index_virtual_server_confirm'),
     url(r'^zlb/(\d+)/virtual_server/(\d+)/unconfirm$', views_zlb.virtual_server_unconfirm, name='zlb_index_virtual_server_unconfirm'),
     url(r'^zlb/(\d+)$', views_zlb.show, name='zlb_show'),
-
+    url(r'^portal', views_portal.index, name='portal_index'),
+    url(r'^captcha/', include('captcha.urls')),
     # Example:
     #(r'', include(urls)),
     

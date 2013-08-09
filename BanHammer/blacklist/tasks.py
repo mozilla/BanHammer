@@ -165,24 +165,26 @@ def _create_and_attach_protection(z, virtual_server_name, networks, class_name):
     z.connect('VirtualServer')
     z.conn.setProtection([virtual_server_name], [class_name])
 
-def _zlb_find_networks(type, virtual_server_name, zlb_id):
+def _zlb_find_networks_blacklist(type, virtual_server_name, zlb_id):
     blacklists = models.ZLBBlacklist.objects.filter(virtual_server_name=virtual_server_name, zlb_id=zlb_id)
     networks = []
+    blacklist_ids = []
     for blacklist in blacklists:
         blacklist = blacklist.blacklist
         if blacklist.type == type:
             offender = blacklist.offender
+            blacklist_ids.append(str(blacklist.id))
             if offender.cidr != 24 or offender.cidr != 128:
                 networks.append("%s/%s" % (offender.address, offender.cidr))
             else:
                 networks.append(offender.address)
-    return networks
+    return (networks, blacklist_ids)
 
 @task(name="BanHammer.blacklist.tasks.update_protection")
 def update_protection(zlb_id, virtual_server_name):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    networks = _zlb_find_networks('zlb_block', virtual_server_name, zlb_id)
+    (networks, _) = _zlb_find_networks_blacklist('zlb_block', virtual_server_name, zlb_id)
     logging.info("networks: %s" % str(networks))
     
     class_name = 'banned-%s' % virtual_server_name
@@ -229,18 +231,37 @@ def update_protection_delete(zlb_id, virtual_server_name, offender=None, offende
         logging.error("%s on %s protection class was already removed" % ((str(networks),
                                                                           class_name_current,)))
 
-def _get_rule_content(networks):
+def _get_rule_content(networks, blacklist_ids):
     url_redirection = models.Config.objects.get(key='zlb_redirection_url')
     url_redirection = url_redirection.value
-    
-    content = '# This script redirect attacker IPs to the BanHammer-ng captive portal\n\n'
-    content += '$networks = ["192.168.56.1/32"];\n'
-    content += '$ip = request.getRemoteIP();\n\n'
 
-    content += 'for($i=0; $i < array.length($networks); $i++) {\n'
-    content += 'if (string.ipmaskmatch($ip, $networks[$i])) {\n'
-    content += '# Enforce the redirection\n'
-    content += 'http.redirect("%s");\n' % url_redirection
+    content = "# This script redirect attacker IPs to the BanHammer-ng captive portal\n\n"
+    content += "$networks = ['"+"','".join(networks)+"'];\n"
+    content += "$secrets = "+str(blacklist_ids)+";\n"
+    content += "$ip = request.getRemoteIP();\n\n"
+    
+    content += "for($i=0; $i < array.length($networks); $i++) {\n"
+    content += "if (string.ipmaskmatch($ip, $networks[$i])) {\n"
+    content += "$query = http.getQueryString();\n"
+    content += "$cookie = http.getCookie('banhammer');\n"
+    content += "$end_url = http.getRawURL();\n"
+    content += "$host = http.getHeader('Host');\n"
+    content += "$query = http.getQueryString();\n"
+    content += "if (ssl.isSSL()) {\n"
+    content += "$protocol = 'https://';\n"
+    content += "}\n"
+    content += "else {\n"
+    content += "$protocol = 'http://';\n"
+    content += "}\n"
+    content += "$url = $protocol.$host.$end_url;\n"
+    content += "if(string.endsWith($query, $secrets[$i])) {\n"
+    content += "http.setResponseCookie('banhammer', $secrets[$i]);\n"
+    content += "}\n"
+    content += "else {\n"
+    content += "if ($cookie == '') {\n"
+    content += "http.redirect('"+url_redirection+"?url='.$url);\n"
+    content += '}\n'
+    content += '}\n'
     content += '}\n'
     content += '}\n'
     
@@ -250,14 +271,14 @@ def _get_rule_content(networks):
 def update_rule(zlb_id, virtual_server_name):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    networks = _zlb_find_networks('zlb_redirect', virtual_server_name, zlb_id)
+    (networks, blacklist_ids) = _zlb_find_networks_blacklist('zlb_redirect', virtual_server_name, zlb_id)
     logging.info("networks: %s" % str(networks))
     
     rule_name = 'banhammer-redirected-%s' % virtual_server_name
     zlb = models.ZLB.objects.get(id=zlb_id)
     z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
     
-    rule = _get_rule_content(networks)
+    rule = _get_rule_content(networks, blacklist_ids)
     logging.info(rule)
     
     z.connect('Catalog.Rule')

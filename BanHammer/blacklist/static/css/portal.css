@@ -1,0 +1,17 @@
+.center {
+	text-align: center !important;
+}
+
+ul.errorlist {
+	list-style-type: none;
+	display: inline;
+	margin-left: 0;
+	padding-left: 0;
+}
+
+ul.errorlist li {
+	display: inline;
+	color: red;
+	margin-left: 0px;
+	padding-left: 10px;
+}

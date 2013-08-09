@@ -3,3 +3,4 @@
 netaddr
 SOAPpy
 git+https://github.com/auzigog/jinja-bootstrap.git
+django-simple-captcha

@@ -23,6 +23,7 @@ INSTALLED_APPS = list(INSTALLED_APPS) + [
     'bootstrap',
     'djcelery',
     'kombu.transport.django',
+    'captcha',
 ]
 
 LOCALE_PATHS = (
