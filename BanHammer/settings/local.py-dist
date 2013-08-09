@@ -103,3 +103,5 @@ DSHIELD_BLOCK_REV_FILE = 'dshield_block.rev'
 
 MANAGEMENT_FOLDER = "/somedir/BanHammer/BanHammer/blacklist/management"
 WSDL = MANAGEMENT_FOLDER+'/wsdl'
+
+SALT = "secret"
