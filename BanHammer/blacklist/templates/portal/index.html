@@ -31,9 +31,17 @@
 		<button type="submit" class="btn">Submit</button>
 		</form>
 	</div>
+	<br><br><br><br><br>
+	<div class="span12 center">
+		If you have questions or concerns about us blocking you,
+		you can contact us at <span id="email"></span>
+	</div>
 {% endblock %}
 
 {% block js_bootstrap %}
 	<script src="/static/js/bootstrap{{ debugmin() }}.js"></script>
 {% endblock %}
 {% block js_analytics %}{% endblock %}
+{% block js_footer %}
+	<script src="/static/js/portal.js"></script>
+{% endblock %}
