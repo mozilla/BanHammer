@@ -148,7 +148,7 @@ class AttackScore(models.Model):
     created_date = models.DateTimeField(auto_now_add=True)
     # The updated date is used to decrease the score as time passes
     updated_date = models.DateTimeField(auto_now=True)
-    score = models.IntegerField(max_length=7)
+    score = models.BigIntegerField()
     offender = models.ForeignKey(Offender)
 
     @classmethod

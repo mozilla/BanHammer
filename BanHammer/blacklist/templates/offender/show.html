@@ -180,8 +180,8 @@
 		    		{% for e in events %}
 			    		<tr>
 						    <td class="center">{{ e.created_date }}</td>
-						    <td class="center">{{ e.rulename }} (+5)</td>
-						    <td class="center">{{ e.severity }} (+10)</td>
+						    <td class="center">{{ e.rulename }}</td>
+						    <td class="center">{{ e.severity }}</td>
 						    <td class="center">
 						    	<a href="javascript:void(0)" onclick="$('#hide_event_score_{{ e.id }}').toggle()">
 						    		{{ e.attackscore.total_score }}
