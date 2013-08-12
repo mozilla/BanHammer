@@ -1,8 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
-from BanHammer.blacklist.models import  Config, Event, Offender,\
-                                        AttackScore, Blacklist,\
+from BanHammer.blacklist.models import  Config, Event, Offender, Blacklist,\
                                         AttackScoreHistory, WhitelistIP
 from BanHammer.blacklist.management import notifications
 
@@ -124,14 +123,14 @@ class Command(BaseCommand):
             offender = Offender.find_create_from_ip(event.attackerAddress)
             score_indicators = AttackScoreHistory.score_indicators(event, offender)
             score_factors = self._get_score_factors()
-            score_details = AttackScore.compute_attackscore(score_indicators, score_factors)
+            score_details = Offender.compute_attackscore(score_indicators, score_factors)
             attackscore_history_kwargs = self._get_attackscore_history_kwargs(offender,
                 event, score_details, score_indicators)
             self._save_attackscore_history(attackscore_history_kwargs)
-            offenderscore = AttackScore.compute_offenderscore(offender, score_details['total'])
-            offenderscore = self._save_offenderscore(offender, offenderscore)
+            offenderscore = Offender.compute_offenderscore(offender, score_details['total'])
+            self._save_offenderscore(offender, offenderscore)
             # Create a blacklist suggestion if score > threshold
-            blacklist = offenderscore.compute_blacklist_suggestion()
+            blacklist = offender.compute_blacklist_suggestion()
             if blacklist != None:
                 # TODO: automatic switch
                 blacklist.save()
@@ -156,15 +155,8 @@ class Command(BaseCommand):
         return event
     
     def _save_offenderscore(self, offender, score):
-        attackscore = AttackScore.objects.filter(offender=offender)
-        if attackscore.count() != 0:
-            attackscore = attackscore[0]
-            attackscore.score = score
-            attackscore.save()
-        else:
-            attackscore = AttackScore(score=score, offender=offender)
-            attackscore.save()
-        return attackscore
+        offender.score = score
+        offender.save()
     
     def _get_score_factors(self):
         score_factors = {}

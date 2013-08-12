@@ -29,6 +29,37 @@ class Offender(models.Model):
     suggestion = models.BooleanField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
+    score = models.BigIntegerField()
+
+    @classmethod
+    def compute_attackscore(cls, score_indicators, score_factors):
+        score_details = {}
+
+        for indicator in score_indicators:
+            score_details[indicator] = score_indicators[indicator] * \
+                score_factors[indicator]
+
+        score_details['total'] = 0
+        for i in score_details.values():
+            score_details['total'] += i
+
+        return score_details
+    
+    @classmethod
+    def compute_offenderscore(cls, offender, attack_score):
+        return offender.score + attack_score
+
+    def compute_blacklist_suggestion(self):
+        unknown_threshold = int(Config.objects.get(key='blacklist_unknown_threshold').value)
+        if self.score > unknown_threshold:
+            return Blacklist(
+                offender=self,
+                comment=('Suggestion by RTBH-ng (score: %i)' % self.score),
+                reporter='RTBH-ng bot',
+                suggestion=True,
+                type='unkown',
+                removed=False,
+            )
 
     def _cidrToNetmask(self):
         bits = 0
@@ -51,12 +82,6 @@ class Offender(models.Model):
         else:
             return ''
     
-    def attack_score(self):
-        attackscore = AttackScore.objects.filter(offender=self)
-        if attackscore.count() != 0:
-            attackscore.reverse()
-            return attackscore[0].score
-
     @classmethod
     def find_create_from_ip(cls, ip):
         offender = Offender.objects.filter(address=ip)
@@ -76,6 +101,7 @@ class Offender(models.Model):
             offender = Offender(address=ip,
                 cidr=cidr,
                 suggestion=True,
+                score=0,
             )
             offender.save()
         else:
@@ -97,7 +123,8 @@ class Blacklist(models.Model):
     bug_number = models.IntegerField(max_length=7, null=True)
     suggestion = models.BooleanField()
     type = models.CharField(max_length=12, choices=TYPES)
-    removed = models.BooleanField()
+    block_captcha = models.BigIntegerField(default=0)
+    removed = models.BooleanField(default=False)
     
     def expired(self):
         return self.end_date <= datetime.datetime.now()
@@ -143,48 +170,6 @@ class Event(models.Model):
     fileName = models.CharField(max_length=255, null=True)
     # ?
     getDestHostName = models.CharField(max_length=255, null=True)
-
-class AttackScore(models.Model):
-    created_date = models.DateTimeField(auto_now_add=True)
-    # The updated date is used to decrease the score as time passes
-    updated_date = models.DateTimeField(auto_now=True)
-    score = models.BigIntegerField()
-    offender = models.ForeignKey(Offender)
-
-    @classmethod
-    def compute_attackscore(cls, score_indicators, score_factors):
-        score_details = {}
-
-        for indicator in score_indicators:
-            score_details[indicator] = score_indicators[indicator] * \
-                score_factors[indicator]
-
-        score_details['total'] = 0
-        for i in score_details.values():
-            score_details['total'] += i
-
-        return score_details
-    
-    @classmethod
-    def compute_offenderscore(cls, offender, attack_score):
-        attackscore = AttackScore.objects.filter(offender=offender)
-        if attackscore.count() == 0:
-            return attack_score
-        return attackscore[0].score + attack_score
-
-    def compute_blacklist_suggestion(self):
-        # TODO: suggest the good type
-        # TODO: suggest the good duration
-        unknown_threshold = int(Config.objects.get(key='blacklist_unknown_threshold').value)
-        if self.score > unknown_threshold:
-            return Blacklist(
-                offender=self.offender,
-                comment=('Suggestion by RTBH-ng (score: %i)' % self.score),
-                reporter='RTBH-ng bot',
-                suggestion=True,
-                type='unkown',
-                removed=False,
-            )
 
 # To describe the attack score for each event
 class AttackScoreHistory(models.Model):
@@ -240,12 +225,7 @@ class AttackScoreHistory(models.Model):
         ).count()
         
         # last attack score of the offender
-        indicators['last_attackscore'] = AttackScore.objects.filter(
-            offender=offender)
-        if len(indicators['last_attackscore']) > 0:
-            indicators['last_attackscore'] = indicators['last_attackscore'][0].score
-        else:
-            indicators['last_attackscore'] = 0
+        indicators['last_attackscore'] = offender.score
         
         # ip in emerging threat compromised ips list?
         f = file('%s/%s' % (settings.THIRD_PARTY_RULES_FOLDER, settings.ET_COMPROMISED_IPS_CONTENT_FILE), 'r')

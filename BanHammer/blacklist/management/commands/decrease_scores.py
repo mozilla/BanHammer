@@ -12,11 +12,6 @@ class Command(BaseCommand):
         decrease_factor = int(config_o.value)
         offenders_o = models.Offender.objects.all()
         for offender in offenders_o:
-            try:
-                attack_score_o = models.AttackScore.objects.get(offender=offender)
-                if attack_score_o.score - decrease_factor >= 0:
-                    attack_score_o.score -= decrease_factor
-                    attack_score_o.save()
-            except:
-                # No attack score object for this offender
-                pass
+            if offender.score - decrease_factor >= 0:
+                offender.score -= decrease_factor
+                offender.save()

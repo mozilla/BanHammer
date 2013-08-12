@@ -17,9 +17,11 @@ class TestOffender(object):
         self.offender_ipv4 = models.Offender(
             address='0.0.0.0',
             cidr=32,
+            score=30,
             suggestion=False)
         self.offender_ipv6 = models.Offender(
             address='2001:dead:beef::',
+            score=12,
             cidr=64)
 
     def test_cidrToNetmask(self):
@@ -61,10 +63,10 @@ class TestAttackScore(object):
             'times_bgp_blocked': 7,
             'times_zlb_blocked': 8
         }
-        self.attackscore = models.AttackScore()
+        self.offender = models.Offender()
 
     def test_compute_attackscore(self):
-        score_details = self.attackscore.compute_attackscore(
+        score_details = self.offender.compute_attackscore(
             self.score_indicators, self.score_factors)
         nt.assert_equal(score_details, {
             'dshield_block': 0,
@@ -98,7 +100,7 @@ class TestAttackScoreHistory(object):
             eventId=4321
         )
         event.save()
-        offender = models.Offender(address='0.0.0.0', cidr=32)
+        offender = models.Offender(address='0.0.0.0', cidr=32, score=0)
         score_indicators = models.AttackScoreHistory.score_indicators(
             event, offender)
         nt.assert_equal(score_indicators, {

@@ -1,10 +1,11 @@
-from BanHammer.blacklist.models import Blacklist, Offender, AttackScore, Event, AttackScoreHistory
+from BanHammer.blacklist.models import Blacklist, Offender, Event, AttackScoreHistory
 
 def given_offender_blocked():
     offender = Offender(
         address='8.8.8.8',
         cidr=32,
         suggestion=False,
+        score=0,
         created_date = '2013-01-01 01:00:00',
         updated_date = '2013-01-01 02:00:00',
     )
@@ -37,18 +38,11 @@ def given_offender_suggested():
         address='4.2.2.1',
         cidr=32,
         suggestion=True,
+        score=30,
         created_date = '2013-01-01 01:00:00',
         updated_date = '2013-01-01 02:00:00',
     )
     offender.save()
-    
-    attackscore = AttackScore(
-        created_date = '2013-01-01 01:00:00',
-        updated_date = '2013-01-01 02:00:00',
-        score=30,
-        offender=offender,
-    )
-    attackscore.save()
     
     attackscorehistory = AttackScoreHistory(
         created_date = '2013-01-01 01:00:00',
@@ -97,10 +91,8 @@ def given_another_event():
     event.save()
     
     offender = Offender.objects.get(address='4.2.2.1', cidr=32)
-    
-    attackscore = AttackScore.objects.get(offender=offender)
-    attackscore.score = 60
-    attackscore.save()
+    offender.score = 60
+    offender.save()
     
     attackscorehistory = AttackScoreHistory(
         created_date = '2013-01-01 01:00:00',

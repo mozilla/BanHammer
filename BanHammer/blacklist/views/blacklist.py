@@ -83,7 +83,8 @@ def new_bgp_block(request, id=None):
             # Fetch/create the Offender and Blacklist objects.
             o, new = Offender.objects.get_or_create(
                 address=address,
-                cidr=cidr
+                cidr=cidr,
+                score=0,
             )
             o.save()
 
@@ -144,7 +145,8 @@ def new_zlb(request, type, id):
             # Fetch/create the Offender and Blacklist objects.
             o, new = Offender.objects.get_or_create(
                 address=address,
-                cidr=cidr
+                cidr=cidr,
+                score=0,
             )
             o.save()
  

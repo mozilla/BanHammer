@@ -165,7 +165,7 @@ class OffenderTestCase(WebTest):
         show = index.click('8.8.8.8')
         # Title
         assert '<h1>Offender 8.8.8.8/32</h1>' in show.body
-        assert '<h2>Score: </h2>' in show.body
+        assert '<h2>Score: 0</h2>' in show.body
         
         # Blacklist
         assert 'BGP Blocked' in show.body
@@ -215,8 +215,8 @@ class OffenderTestCase(WebTest):
         assert 'Updated:' in show.body
         
         # Event
-        assert 'Test Rule (+5)' in show.body
-        assert '2 (+10)' in show.body
+        assert 'Test Rule' in show.body
+        assert '2' in show.body
         assert '30' in show.body
         assert '876781' in show.body
         assert '<li>attackerUserName: Script Kiddie</li>' in show.body

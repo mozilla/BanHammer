@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block css_site %}
+	<link href="{{ static('css/style.css') }}" rel="stylesheet">
+	<link href="{{ static('css/demo_table.css') }}" rel="stylesheet">
+{% endblock %}
 
 {% block content %}
 	<h1>Offenders</h1>
@@ -18,62 +22,63 @@
 		</div>
 	</div>
 	<br />
-	<table class="table">
-		<tr>
-			<th class="left">
-			    Address
-			    <a href='?order_by=address&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=address&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th class="left">
-			    CIDR
-			    <a href='?order_by=cidr&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=cidr&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th class="center">
-			    Attack Score
-			    <a href='?order_by=attackscore&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=attackscore&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th class="center">
-			    Last Event
-			</th>			
-			<th class="center">
-			    Created
-			    <a href='?order_by=created_date&order=asc'><img src='/static/images/bullet-arrow-up.gif'></a>
-			    <a href='?order_by=created_date&order=desc'><img src='/static/images/bullet-arrow-down.gif'></a>
-			</th>
-			<th></th>
-		</tr>
-		{% for b in offenders %}
-			{% if b.suggestion %}
-		    <tr class="info">
-		    {% else %}
-		    <tr>
-			{% endif %}
-			    <td class="left">
-			    	<a href="/offender/{{ b.id }}">
-			    		{{ b.address }}
-			    	</a>
-			    </td>
-			    <td class="left">/{{ b.cidr }}</td>
-			    <td class="center">{{ b.attack_score() }}</td>
-			    <td class="center">{{ b.last_event_date() }}</td>
-			    <td class="center">{{ b.created_date }}</td>
-			    <td class="center">
-			    	<a href="/offender/{{b.id}}/delete"
-			    	onclick="return confirm('Deleting this offender you\'ll also delete all its blacklists, events and scores')">
-			    		<img src="{{ static('images/delete.gif') }}">
-			    	</a>
-			    </td>
-		    </tr>
-		{% endfor %}
-		
-		{% if not offenders %}
-			<tr><td colspan="7" class="empty">
-				<div class="banner">No offenders.</div>
-			</td></tr>
-		{% endif %}
-		
+	{% if offenders %}
+	<table id="offenders" class="display">
+		<thead>
+			<tr>
+				<th class="left">
+				    Address
+				</th>
+				<th class="left">
+				    CIDR
+				</th>
+				<th class="center">
+				    Attack Score
+				</th>
+				<th class="center">
+				    Created
+				</th>
+				<th class="center">
+					Updated
+				</th>
+				<th></th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for o in offenders %}
+				{% if o.suggestion %}
+			    <tr class="info">
+			    {% else %}
+			    <tr>
+				{% endif %}
+				    <td class="left">
+				    	<a href="/offender/{{ o.id }}">
+				    		{{ o.address }}
+				    	</a>
+				    </td>
+				    <td class="left">/{{ o.cidr }}</td>
+				    <td class="center">{{ o.score }}</td>
+				    <td class="center">{{ o.created_date }}</td>
+				    <td class="center">{{ o.updated_date }}</td>
+				    <td class="center">
+				    	<a href="/offender/{{o.id}}/delete"
+				    	onclick="return confirm('Deleting this offender you\'ll also delete all its blacklists, events and scores')">
+				    		<img src="{{ static('images/delete.gif') }}">
+				    	</a>
+				    </td>
+			    </tr>
+			{% endfor %}
+		</tbody>
 	</table>
+	{% else %}
+	No offenders.
+	{% endif %}
 {% endblock %}
+
+{% block js_footer %}
+	<script src="{{ static('js/jquery.js') }}"></script>
+    <script src="{{ static('js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ static('js/offenders.js') }}"></script>
+{% endblock %}
+{% block js_bootstrap %}{% endblock %}
+{% block js_jquery %}{% endblock %}
