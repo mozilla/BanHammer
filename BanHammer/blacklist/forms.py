@@ -144,6 +144,15 @@ class SettingsForm(BaseForm):
         widget=forms.TextInput(),
         max_length=255,
     )
+    redirect_block_time = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BaseForm.validator_integer()],
+    )
+    redirect_block_url = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+    )
 
     # Email Notifications
     notifications_email_address_from = forms.CharField(

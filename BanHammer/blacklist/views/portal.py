@@ -26,8 +26,10 @@ def index(request):
                     ip = request.META.get('REMOTE_ADDR')
                     n = b.offender
                     if netaddr.IPAddress(ip) in netaddr.IPNetwork("%s/%i" % (n.address, n.cidr)):
-                        black_id = str(models.ZLBBlacklist.objects.get(blacklist=b).id)
+                        black_id = str(b.id)
                         secret = hashlib.sha256(settings.SALT+black_id).hexdigest()
+            logging.debug('black_id: %s' % black_id)
+            logging.debug('secret: %s' % secret)
             if parse.query:
                 return HttpResponseRedirect(referer+'&'+secret)
             else:

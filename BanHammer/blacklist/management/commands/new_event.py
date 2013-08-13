@@ -1,8 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from optparse import make_option
 
+from datetime import datetime
+
 from BanHammer.blacklist.models import  Config, Event, Offender, Blacklist,\
-                                        AttackScoreHistory, WhitelistIP
+                                        AttackScoreHistory, WhitelistIP, ZLBBlacklist
 from BanHammer.blacklist.management import notifications
 from BanHammer.blacklist import tasks
 
@@ -135,6 +137,9 @@ class Command(BaseCommand):
                 event.__dict__,
                 score_factors,
                 attackscore_history_kwargs)
+            # If on a redirection blacklist, block him from resolving the captcha
+            if self._is_on_redirection_blacklist(offender):
+                self._add_blocking_on_redirection(offender)
 
     def _save_event(self, options):
         event = Event(**options)
@@ -161,3 +166,23 @@ class Command(BaseCommand):
             
     def _save_attackscore_history(self, kwargs):
         AttackScoreHistory(**kwargs).save()
+        
+    def _is_on_redirection_blacklist(self, offender):
+        blacklists_o = Blacklist.objects.filter(offender=offender, type='zlb_redirect')
+        for blacklist in blacklists_o:
+            if not blacklist.expired():
+                return True
+        return False
+    
+    def _add_blocking_on_redirection(self, offender):
+        blacklists_o = Blacklist.objects.filter(offender=offender, type='zlb_redirect')
+        current_time = int(datetime.utcnow().strftime("%s"))
+        redirect_block_time = Config.objects.get(key='redirect_block_time').value
+        end_block_time = current_time + int(redirect_block_time)
+        for blacklist in blacklists_o:
+            if not blacklist.expired():
+                blacklist.block_captcha = end_block_time
+                blacklist.save()
+                zlb_blacklist_o = ZLBBlacklist.objects.filter(blacklist_id=blacklist.id)
+                for zlb_blacklist in zlb_blacklist_o:
+                    tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)

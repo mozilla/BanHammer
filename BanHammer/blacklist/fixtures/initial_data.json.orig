@@ -222,5 +222,21 @@
       "key": "notifications_irc_delete_offender_enable",
       "value": "1"
     }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 29,
+    "fields": {
+      "key": "redirect_block_time",
+      "value": "180"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 30,
+    "fields": {
+      "key": "redirect_block_url",
+      "value": "http://abuse.brozilla.com:8000/block.html"
+    }
   }
 ]

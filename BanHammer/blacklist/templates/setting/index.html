@@ -22,6 +22,24 @@
 					{{ form.zlb_redirection_url.errors }}
 				</div>
 			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_redirect_block_time">
+					Duration (in secs) of blocking an offender attacking while on a redirection blacklist
+				</label>
+				<div class="controls">
+					{{ form.redirect_block_time }}
+					{{ form.redirect_block_time.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_redirect_block_url">
+					Blocking URL where to redirect an offender attacking while on a redirection blacklist
+				</label>
+				<div class="controls">
+					{{ form.redirect_block_url }}
+					{{ form.redirect_block_url.errors }}
+				</div>
+			</div>
 		</fieldset>
 		<fieldset>
 			<legend>Email Notifications</legend>

@@ -148,7 +148,6 @@ def new_zlb(request, type, id):
             o, new = Offender.objects.get_or_create(
                 address=address,
                 cidr=cidr,
-                score=0,
             )
             o.save()
  

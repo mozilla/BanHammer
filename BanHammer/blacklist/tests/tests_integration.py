@@ -332,6 +332,10 @@ class SettingsTestCase(WebTest):
     def test_index(self):
         index = self.app.get('/settings')
 
+        assert 'Redirection URL for ZLB Redirect blacklists' in index
+        assert 'Duration of blocking an offender attacking while on a redirection blacklist' in index
+        assert 'Blocking URL where to redirect an offender attacking while on a redirection blacklist' in index
+
         assert 'Thresholds for notifications of offenders (scores separated by whitespaces)' in index
 
         assert 'Expeditor address for email notifications' in index
@@ -366,6 +370,8 @@ class SettingsTestCase(WebTest):
         form = index.form
         
         form['zlb_redirection_url'] = 'http://www.example.com'
+        form['redirect_block_time'] = '500'
+        form['redirect_block_url'] = 'http://www.minet.net'
         
         form['notifications_email_address_from'] = 'from@example.com'
         form['notifications_email_address_to'] = 'to@example.com'
@@ -401,6 +407,8 @@ class SettingsTestCase(WebTest):
         index = self.app.get('/settings')
         
         assert 'name="zlb_redirection_url" value="http://www.example.com"' in index
+        assert 'name="redirect_block_time" value="500"' in index
+        assert 'name="redirect_block_url" value="http://www.minet.net"' in index
         
         assert 'name="notifications_email_address_from" value="from@example.com"' in index
         assert 'name="notifications_email_address_to" value="to@example.com"' in index

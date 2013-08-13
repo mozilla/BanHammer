@@ -13,15 +13,3 @@ class ZLB(object):
         self.conn = SOAPpy.WSDL.Proxy('%s/%s.wsdl' % (settings.WSDL, wsdl))
         for method in self.conn.methods.keys():
             self.conn.methods[method].location = endpoint_uri
-
-#     def get_virtual_servers(self):
-#         vs = {}
-#         for i in list(self.conn.getVirtualServerNames()):
-#             vs[i] = {}
-#             basic = self.conn.getBasicInfo([i])
-#             vs[i]['default_pool'] = basic.default.pool
-#             vs[i]['protocol'] = basic.protocol
-#             vs[i]['port'] = basic.port
-#             vs[i]['enabled'] = self.conn.getEnabled([i])[0]
-#             vs[i]['trafficipgroups'] = self.conn.getListenTrafficIPGroups([i])[0]
-#         return vs
