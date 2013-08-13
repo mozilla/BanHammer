@@ -5,6 +5,10 @@ from BanHammer.blacklist.management import zeus
 from BanHammer.blacklist.management import notifications
 from BanHammer import settings
 
+from django.core.mail import send_mail
+
+import subprocess
+import shlex
 import datetime
 import logging
 import hashlib
@@ -140,16 +144,6 @@ def update_zlb(id):
     
     zlb_m.updating = False
     zlb_m.save()
-
-@task(name="BanHammer.blacklist.tasks.add_blacklist_notification",
-      default_retry_delay=60,
-      max_retries=3)
-def add_blacklist_notification(blacklist, offender):
-    try:
-        if notifications.email_enabled():
-            notifications.send_email_new_blacklist(blacklist, offender)
-    except Exception, exc:
-        raise update_protection.retry(exc=exc, countdown=5)
 
 def _create_and_attach_protection(z, virtual_server_name, networks, class_name):
     z.connect('Catalog.Protection')
@@ -295,10 +289,8 @@ def update_rule(zlb_id, virtual_server_name):
     z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]]) 
 
 @task(name="BanHammer.blacklist.tasks.delete_offender")
-def delete_offender(offender_id, offender_ip, offender_cidr, protections_vs, redirections_vs):
+def delete_offender(offender_ip, offender_cidr, protections_vs, redirections_vs):
     logging.info("offender: %s/%s" % (offender_ip, offender_cidr))
-    offender = models.Offender.objects.get(id=offender_id)
-    offender.delete()
     logging.info("protection_vs: %s" % str(protections_vs))
     logging.info("redirections_vs: %s" % str(redirections_vs))
     logging.info("Updating protection classes")
@@ -308,3 +300,113 @@ def delete_offender(offender_id, offender_ip, offender_cidr, protections_vs, red
     logging.info("Updating TrafficScript rules")
     for (zlb_id, virtual_server_name) in redirections_vs:
         update_rule(zlb_id, virtual_server_name)
+
+@task(name="BanHammer.blacklist.tasks.notification_new_event")
+def notification_new_event(offender_d, event_d, score_factors_d, attackscore_history_d):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_new_event_enable").value)):
+        thresholds = models.Config.objects.get(key="notifications_email_events_threshold").value
+        for threshold in thresholds.split(' '):
+            threshold = int(threshold)
+            score_after = offender_d['score']
+            score_before = score_after - attackscore_history_d['total_score']
+            if score_before < threshold and threshold <= score_after:
+                data = notifications.email_new_event_data(
+                    offender_d,
+                    event_d,
+                    score_factors_d,
+                    attackscore_history_d)
+                send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_new_event_enable").value)):
+        thresholds = models.Config.objects.get(key="notifications_irc_events_threshold").value
+        for threshold in thresholds.split(' '):
+            threshold= int(threshold)
+            score_after = offender_d['score']
+            score_before = score_after - attackscore_history_d['total_score']
+            if score_before < threshold and threshold <= score_after:
+                message = notifications.irc_new_event_data(
+                    offender_d,
+                    event_d,
+                    attackscore_history_d)
+                subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_delete_event")
+def notification_delete_event(event_d, reporter):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_delete_event_enable").value)):
+        data = notifications.email_delete_event_data(
+            event_d,
+            reporter)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_delete_event_enable").value)):
+        message = notifications.irc_delete_event_data(
+            event_d,
+            reporter)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_add_blacklist")
+def notification_add_blacklist(blacklist_d, offender_d):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_new_blacklist_enable").value)):
+        data = notifications.email_new_blacklist_data(
+            blacklist_d,
+            offender_d)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_new_blacklist_enable").value)):
+        message = notifications.irc_new_blacklist_data(
+            blacklist_d,
+            offender_d)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_delete_blacklist")
+def notification_delete_blacklist(blacklist_d, offender_d, reporter):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_delete_blacklist_enable").value)):
+        data = notifications.email_delete_blacklist_data(
+            blacklist_d,
+            offender_d,
+            reporter)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_delete_blacklist_enable").value)):
+        message = notifications.irc_delete_blacklist_data(
+            blacklist_d,
+            offender_d,
+            reporter)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_add_ip_whitelist")
+def notification_add_ip_whitelist(whitelistip_d):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_new_ip_whitelist_enable").value)):
+        data = notifications.email_new_ip_whitelist_data(whitelistip_d)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_new_ip_whitelist_enable").value)):
+        message = notifications.irc_new_ip_whitelist_data(whitelistip_d)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_delete_ip_whitelist")
+def notification_delete_ip_whitelist(whitelistip_d, reporter):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_delete_ip_whitelist_enable").value)):
+        data = notifications.email_delete_ip_whitelist_data(whitelistip_d, reporter)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_delete_ip_whitelist_enable").value)):
+        message = notifications.irc_delete_ip_whitelist_data(whitelistip_d, reporter)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))
+
+@task(name="BanHammer.blacklist.tasks.notification_delete_offender")
+def notification_delete_offender(offender_d, reporter):
+    # Email
+    if bool(int(models.Config.objects.get(key="notifications_email_delete_offender_enable").value)):
+        data = notifications.email_delete_offender_data(offender_d, reporter)
+        send_mail(fail_silently=False, **data)
+    # IRC
+    if bool(int(models.Config.objects.get(key="notifications_irc_delete_offender_enable").value)):
+        message = notifications.irc_delete_offender_data(offender_d, reporter)
+        subprocess.Popen(shlex.split(settings.MANAGEMENT_FOLDER+'/rtbh-ng_notify '+message))

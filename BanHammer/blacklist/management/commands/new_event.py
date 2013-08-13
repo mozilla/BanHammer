@@ -4,6 +4,7 @@ from optparse import make_option
 from BanHammer.blacklist.models import  Config, Event, Offender, Blacklist,\
                                         AttackScoreHistory, WhitelistIP
 from BanHammer.blacklist.management import notifications
+from BanHammer.blacklist import tasks
 
 DEBUG = True
 
@@ -129,25 +130,11 @@ class Command(BaseCommand):
             self._save_attackscore_history(attackscore_history_kwargs)
             offenderscore = Offender.compute_offenderscore(offender, score_details['total'])
             self._save_offenderscore(offender, offenderscore)
-            # Create a blacklist suggestion if score > threshold
-            blacklist = offender.compute_blacklist_suggestion()
-            if blacklist != None:
-                # TODO: automatic switch
-                blacklist.save()
-                if notifications.email_enabled():
-                    notifications.send_email_new_event(
-                        offender,
-                        event,
-                        score_factors,
-                        attackscore_history_kwargs,
-                    )
-                if notifications.irc_enabled():
-                    notifications.send_irc_new_event(
-                        offender,
-                        event,
-                        score_factors,
-                        attackscore_history_kwargs,
-                    )
+            tasks.notification_new_event.delay(
+                offender.__dict__,
+                event.__dict__,
+                score_factors,
+                attackscore_history_kwargs)
 
     def _save_event(self, options):
         event = Event(**options)

@@ -81,7 +81,15 @@ def delete(request, id):
         for v in vs:
             redirections_vs.append((v.zlb_id, v.virtual_server_name))
     
-    tasks.delete_offender.delay(offender.id, offender.address, offender.cidr, protections_vs, redirections_vs)
+    reporter = request.META.get("REMOTE_USER")
+    if not reporter:
+        reporter = 'test'
+    tasks.notification_delete_offender.delay(offender.__dict__, reporter)
+    tasks.delete_offender.delay(offender.address, offender.cidr, protections_vs, redirections_vs)
+    events_o = Event.objects.filter(attackerAddress=offender.address)
+    for event in events_o:
+        event.delete()
+    offender.delete()
     
     return HttpResponseRedirect('/offenders')
 

@@ -77,8 +77,9 @@ def new_bgp_block(request, id=None):
             bug_number = form.cleaned_data['bug_number']
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
-            #reporter = 'test' #//XXX
             reporter = request.META.get("REMOTE_USER")
+            if not reporter:
+                reporter = 'test'
 
             # Fetch/create the Offender and Blacklist objects.
             o, new = Offender.objects.get_or_create(
@@ -139,8 +140,9 @@ def new_zlb(request, type, id):
             bug_number = form.cleaned_data['bug_number']
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
-            #reporter = 'test' #//XXX
             reporter = request.META.get("REMOTE_USER")
+            if not reporter:
+                reporter = 'test'
  
             # Fetch/create the Offender and Blacklist objects.
             o, new = Offender.objects.get_or_create(
@@ -217,7 +219,7 @@ def _new_post(blacklist, offender, type):
         offender.suggestion = False
         offender.save()
     # Celery task to send email if needed
-    tasks.add_blacklist_notification.delay(blacklist, offender)
+    tasks.notification_add_blacklist.delay(blacklist.__dict__, offender.__dict__)
     # push rules to ZLBs
     if type in ['zlb_redirect', 'zlb_block']:
         if type == 'zlb_block':
@@ -229,7 +231,11 @@ def _new_post(blacklist, offender, type):
             for zlb_blacklist in zlb_blacklist_o:
                 tasks.update_rule.delay(zlb_blacklist.zlb_id, zlb_blacklist.virtual_server_name)
 
-def _delete_pre(blacklist, offender, type):
+def _delete_pre(request, blacklist, offender, type):
+    reporter = request.META.get("REMOTE_USER")
+    if not reporter:
+        reporter = 'test'
+    tasks.notification_delete_blacklist.delay(blacklist.__dict__, offender.__dict__, reporter)
     # delete rules on ZLBs
     if type in ['zlb_redirect', 'zlb_block']:
         if type == 'zlb_block':
@@ -255,7 +261,7 @@ def delete(request):
             return HttpResponseRedirect('/blacklist')
         try:
             b = Blacklist.objects.get(id=id)
-            _delete_pre(b, b.offender, b.type)
+            _delete_pre(request, b, b.offender, b.type)
             b.delete()
         except ObjectDoesNotExist:
             return HttpResponseRedirect('/blacklist')

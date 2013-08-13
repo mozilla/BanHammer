@@ -67,15 +67,15 @@
     "model": "blacklist.config",
     "pk": 9,
     "fields": {
-      "key": "blacklist_unknown_threshold",
-      "value": "5"
+      "key": "notifications_email_events_threshold",
+      "value": "30 60 90 120 150"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 10,
     "fields": {
-      "key": "notifications_email_enable",
+      "key": "notifications_email_new_event_enable",
       "value": "1"
     }
   },
@@ -83,40 +83,144 @@
     "model": "blacklist.config",
     "pk": 11,
     "fields": {
-      "key": "notifications_email_address_from",
-      "value": "banhammer@localhost"
+      "key": "notifications_email_new_blacklist_enable",
+      "value": "1"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 12,
     "fields": {
-      "key": "notifications_email_address_to",
-      "value": "root@localhost"
+      "key": "notifications_email_new_ip_whitelist_enable",
+      "value": "1"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 13,
     "fields": {
-      "key": "notifications_irc_enable",
-      "value": "0"
+      "key": "notifications_email_delete_event_enable",
+      "value": "1"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 14,
     "fields": {
-      "key": "zlb_redirection_url",
-      "value": "http://www.minet.net"
+      "key": "notifications_email_delete_blacklist_enable",
+      "value": "1"
     }
   },
   {
     "model": "blacklist.config",
     "pk": 15,
     "fields": {
+      "key": "notifications_email_delete_ip_whitelist_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 16,
+    "fields": {
+      "key": "notifications_irc_events_threshold",
+      "value": "30 60 90 120 150"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 17,
+    "fields": {
+      "key": "notifications_irc_new_event_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 18,
+    "fields": {
+      "key": "notifications_irc_new_blacklist_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 19,
+    "fields": {
+      "key": "notifications_irc_new_ip_whitelist_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 20,
+    "fields": {
+      "key": "notifications_irc_delete_event_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 21,
+    "fields": {
+      "key": "notifications_irc_delete_blacklist_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 22,
+    "fields": {
+      "key": "notifications_irc_delete_ip_whitelist_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 23,
+    "fields": {
+      "key": "notifications_email_address_from",
+      "value": "banhammer@localhost"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 24,
+    "fields": {
+      "key": "notifications_email_address_to",
+      "value": "averez@localhost"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 25,
+    "fields": {
+      "key": "zlb_redirection_url",
+      "value": "http://abuse.brozilla.com:8000"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 26,
+    "fields": {
       "key": "score_decrease",
       "value": "0"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 27,
+    "fields": {
+      "key": "notifications_email_delete_offender_enable",
+      "value": "1"
+    }
+  },
+  {
+    "model": "blacklist.config",
+    "pk": 28,
+    "fields": {
+      "key": "notifications_irc_delete_offender_enable",
+      "value": "1"
     }
   }
 ]

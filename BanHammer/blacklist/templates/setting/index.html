@@ -22,16 +22,9 @@
 					{{ form.zlb_redirection_url.errors }}
 				</div>
 			</div>
-			<legend>Notifications</legend>
-			<div class="control-group">
-				<label class="control-label" for="id_notifications_email_enable">
-					Enable email notifications
-				</label>
-				<div class="controls">
-					{{ form.notifications_email_enable }}
-					{{ form.notifications_email_enable.errors }}
-				</div>
-			</div>
+		</fieldset>
+		<fieldset>
+			<legend>Email Notifications</legend>
 			<div class="control-group">
 				<label class="control-label" for="id_notifications_email_address_from">
 					Expeditor address for email notifications
@@ -51,12 +44,150 @@
 				</div>
 			</div>
 			<div class="control-group">
-				<label class="control-label" for="id_notifications_irc_enable">
-					Enable IRC notifications (new event only, new blacklist not supported for IRC)
+				<label class="control-label" for="id_notifications_email_new_event_enable">
+					Email notifications for new events
 				</label>
 				<div class="controls">
-					{{ form.notifications_irc_enable }}
-					{{ form.notifications_irc_enable.errors }}
+					{{ form.notifications_email_new_event_enable }}
+					{{ form.notifications_email_new_event_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_events_threshold">
+					Thresholds for notifications of offenders (scores separated by whitespaces)
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_events_threshold }}
+					{{ form.notifications_email_events_threshold.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_delete_event_enable">
+					Email notifications when deleting an event
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_delete_event_enable }}
+					{{ form.notifications_email_delete_event_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_new_blacklist_enable">
+					Email notifications for new blacklists
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_new_blacklist_enable }}
+					{{ form.notifications_email_new_blacklist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_delete_blacklist_enable">
+					Email notifications when deleting a blacklist
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_delete_blacklist_enable }}
+					{{ form.notifications_email_delete_blacklist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_new_ip_whitelist_enable">
+					Email notifications for new ip whitelists
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_new_ip_whitelist_enable }}
+					{{ form.notifications_email_new_ip_whitelist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_delete_ip_whitelist_enable">
+					Email notifications when deleting an ip whitelist
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_delete_ip_whitelist_enable }}
+					{{ form.notifications_email_delete_ip_whitelist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_email_delete_offender_enable">
+					Email notifications when deleting an offender
+				</label>
+				<div class="controls">
+					{{ form.notifications_email_delete_offender_enable }}
+					{{ form.notifications_email_delete_offender_enable.errors }}
+				</div>
+			</div>
+		</fieldset>
+		<fieldset>
+			<legend>IRC Notifications</legend>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_new_event_enable">
+					IRC notifications for new events
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_new_event_enable }}
+					{{ form.notifications_irc_new_event_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_events_threshold">
+					Thresholds for notifications of offenders (scores separated by whitespaces)
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_events_threshold }}
+					{{ form.notifications_irc_events_threshold.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_delete_event_enable">
+					IRC notifications when deleting an event
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_delete_event_enable }}
+					{{ form.notifications_irc_delete_event_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_new_blacklist_enable">
+					IRC notifications for new blacklists
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_new_blacklist_enable }}
+					{{ form.notifications_irc_new_blacklist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_delete_blacklist_enable">
+					IRC notifications when deleting a blacklist
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_delete_blacklist_enable }}
+					{{ form.notifications_irc_delete_blacklist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_new_ip_whitelist_enable">
+					IRC notifications for new ip whitelists
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_new_ip_whitelist_enable }}
+					{{ form.notifications_irc_new_ip_whitelist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_delete_ip_whitelist_enable">
+					IRC notifications when deleting an ip whitelist
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_delete_ip_whitelist_enable }}
+					{{ form.notifications_irc_delete_ip_whitelist_enable.errors }}
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="id_notifications_irc_delete_offender_enable">
+					IRC notifications when deleting an offender
+				</label>
+				<div class="controls">
+					{{ form.notifications_irc_delete_offender_enable }}
+					{{ form.notifications_irc_delete_offender_enable.errors }}
 				</div>
 			</div>
 		</fieldset>
@@ -65,15 +196,6 @@
 			<div class="alert alert-info">
 				<strong>score = element1 * element_factor1 + element2 * element_factor2 + ...</strong><br />
 				Below you can configure the factor for each element
-			</div>
-			<div class="control-group">
-				<label class="control-label" for="id_blacklist_unknown_threshold">
-					Threshold for notifications of offenders
-				</label>
-				<div class="controls">
-					{{ form.blacklist_unknown_threshold }}
-					{{ form.blacklist_unknown_threshold.errors }}
-				</div>
 			</div>
 			<div class="control-group">
 				<label class="control-label" for="id_score_factor_severity">

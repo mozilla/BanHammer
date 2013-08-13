@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from session_csrf import anonymous_csrf
 from ..models import WhitelistIP
 from ..forms import WhitelistIPForm
+from BanHammer.blacklist import tasks
 
 @anonymous_csrf
 def index(request, show_suggested=False):
@@ -39,7 +40,11 @@ def index(request, show_suggested=False):
 
 @anonymous_csrf
 def delete(request, id):
+    reporter = request.META.get("REMOTE_USER")
+    if not reporter:
+        reporter = 'test'
     whitelistip = WhitelistIP.objects.get(id=id)
+    tasks.notification_delete_ip_whitelist.delay(whitelistip.__dict__, reporter)
     whitelistip.delete()
     
     return HttpResponseRedirect('/whitelistip')
@@ -52,8 +57,9 @@ def new(request):
             address = form.cleaned_data['address']
             cidr = form.cleaned_data['cidr']
             comment = form.cleaned_data['comment']
-            #reporter = 'test' #//XXX
             reporter = request.META.get("REMOTE_USER")
+            if not reporter:
+                reporter = 'test'
 
             whitelist = WhitelistIP(
                 address=address,
@@ -62,6 +68,7 @@ def new(request):
                 reporter=reporter,
             )
             whitelist.save()
+            tasks.notification_add_ip_whitelist.delay(whitelist.__dict__)
             
             return HttpResponseRedirect('/whitelistip')
     else:
@@ -81,8 +88,9 @@ def edit(request, id):
             address = form.cleaned_data['address']
             cidr = form.cleaned_data['cidr']
             comment = form.cleaned_data['comment']
-            #reporter = 'test' #//XXX
             reporter = request.META.get("REMOTE_USER")
+            if not reporter:
+                reporter = 'test'
 
             whitelist = WhitelistIP.objects.get(id=id)
             whitelist.address = address

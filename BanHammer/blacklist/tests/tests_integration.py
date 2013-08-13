@@ -130,12 +130,6 @@ class BlacklistTestCase(WebTest):
 class OffenderTestCase(WebTest):
     def test_index_empty(self):
         index = self.app.get('/offenders')
-        assert '<h1>Offenders</h1>' in index
-        assert 'Address' in index
-        assert 'CIDR' in index
-        assert 'Attack Score' in index
-        assert 'Last Event' in index
-        assert 'Created' in index
         assert 'No offenders.' in index
         index_suggestion = self.app.get('/offenders/show_suggested')
         assert '<h1>Offenders</h1>' in index_suggestion
@@ -338,11 +332,26 @@ class SettingsTestCase(WebTest):
     def test_index(self):
         index = self.app.get('/settings')
 
-        assert 'Enable email notifications' in index
+        assert 'Thresholds for notifications of offenders (scores separated by whitespaces)' in index
+
         assert 'Expeditor address for email notifications' in index
         assert 'Recipient address for email notifications' in index
-        assert 'Enable IRC notifications' in index
-        assert 'Threshold for notifications of offenders' in index
+        assert 'Email notifications for new events' in index
+        assert 'Email notifications when deleting an event' in index
+        assert 'Email notifications for new blacklists' in index
+        assert 'Email notifications when deleting a blacklist' in index
+        assert 'Email notifications for new ip whitelists' in index
+        assert 'Email notifications when deleting an ip whitelist' in index
+        assert 'Email notifications when deleting an offender' in index
+        
+        assert 'IRC notifications for new events' in index
+        assert 'IRC notifications when deleting an event' in index
+        assert 'IRC notifications for new blacklists' in index
+        assert 'IRC notifications when deleting a blacklist' in index
+        assert 'IRC notifications for new ip whitelists' in index
+        assert 'IRC notifications when deleting an ip whitelist' in index
+        assert 'IRC notifications when deleting an offender' in index
+        
         assert 'Factor for <strong>severity</strong> field in events' in index
         assert 'Factor for <strong>different types of past events</strong>' in index
         assert 'Factor for number of times the offender has been already <strong>blocked network-wide (BGP blackholing)</strong>' in index
@@ -357,11 +366,27 @@ class SettingsTestCase(WebTest):
         form = index.form
         
         form['zlb_redirection_url'] = 'http://www.example.com'
-        form['notifications_email_enable'] = 'off'
+        
         form['notifications_email_address_from'] = 'from@example.com'
         form['notifications_email_address_to'] = 'to@example.com'
-        form['notifications_irc_enable'] = 'off'
-        form['blacklist_unknown_threshold'] = '10'
+        form['notifications_email_new_event_enable'] = False
+        form['notifications_email_events_threshold'] = '30 60 90'
+        form['notifications_email_delete_event_enable'] = False
+        form['notifications_email_new_blacklist_enable'] = False
+        form['notifications_email_delete_blacklist_enable'] = False
+        form['notifications_email_new_ip_whitelist_enable'] = False
+        form['notifications_email_delete_ip_whitelist_enable'] = False
+        form['notifications_email_delete_offender_enable'] = False
+        
+        form['notifications_irc_new_event_enable'] = False
+        form['notifications_irc_events_threshold'] = '30 60 90'
+        form['notifications_irc_delete_event_enable'] = False
+        form['notifications_irc_new_blacklist_enable'] = False
+        form['notifications_irc_delete_blacklist_enable'] = False
+        form['notifications_irc_new_ip_whitelist_enable'] = False
+        form['notifications_irc_delete_ip_whitelist_enable'] = False
+        form['notifications_irc_delete_offender_enable'] = False
+        
         form['score_factor_severity'] = '11'
         form['score_factor_event_types'] = '12'
         form['score_factor_times_bgp_blocked'] = '13'
@@ -376,11 +401,27 @@ class SettingsTestCase(WebTest):
         index = self.app.get('/settings')
         
         assert 'name="zlb_redirection_url" value="http://www.example.com"' in index
-        assert '<input checked="checked" type="checkbox" name="notifications_email_enable" id="id_notifications_email_enable" />' in index
+        
         assert 'name="notifications_email_address_from" value="from@example.com"' in index
         assert 'name="notifications_email_address_to" value="to@example.com"' in index
-        assert '<input checked="checked" type="checkbox" name="notifications_irc_enable" id="id_notifications_irc_enable" />' in index
-        assert 'name="blacklist_unknown_threshold" value="10"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_new_event_enable"' in index
+        assert 'name="notifications_email_events_threshold" value="30 60 90"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_delete_event_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_new_blacklist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_delete_blacklist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_new_ip_whitelist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_delete_ip_whitelist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_email_delete_offender_enable"' in index
+
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_new_event_enable"' in index
+        assert 'name="notifications_irc_events_threshold" value="30 60 90"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_delete_event_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_new_blacklist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_delete_blacklist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_new_ip_whitelist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_delete_ip_whitelist_enable"' in index
+        assert not 'checked="checked" type="checkbox" name="notifications_irc_delete_offender_enable"' in index
+
         assert 'name="score_factor_severity" value="11"' in index
         assert 'name="score_factor_event_types" value="12"' in index
         assert 'name="score_factor_times_bgp_blocked" value="13"' in index

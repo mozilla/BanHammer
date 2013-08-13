@@ -23,6 +23,14 @@ class BaseForm(forms.Form):
             'has to be an integer.',
             'Invalid integer'
         )
+        
+    @classmethod
+    def validator_integer_whitespace(cls):
+        return RegexValidator(
+            r'^([0-9]+(\s)?)+$',
+            'has to be a list of integers separated by whitespaces',
+            'Invalid integer list'
+        )
     
     @classmethod
     def validator_whitelist_target(cls, value):
@@ -115,7 +123,21 @@ class ComplaintZLBForm(ComplaintBGPBlockForm):
         widget=forms.CheckboxSelectMultiple)
 
 class SettingsForm(BaseForm):
-    checkbox_fields = ['notifications_email_enable', 'notifications_irc_enable']
+    checkbox_fields = [
+        'notifications_email_new_event_enable',
+        'notifications_email_delete_event_enable',
+        'notifications_email_new_blacklist_enable',
+        'notifications_email_delete_blacklist_enable',
+        'notifications_email_new_ip_whitelist_enable',
+        'notifications_email_delete_ip_whitelist_enable',
+        'notifications_email_delete_offender_enable',
+        'notifications_irc_new_event_enable',
+        'notifications_irc_delete_event_enable',
+        'notifications_irc_new_blacklist_enable',
+        'notifications_irc_delete_blacklist_enable',
+        'notifications_irc_new_ip_whitelist_enable',
+        'notifications_irc_delete_ip_whitelist_enable',
+        'notifications_irc_delete_offender_enable',]
 
     # Misc
     zlb_redirection_url = forms.CharField(
@@ -123,10 +145,7 @@ class SettingsForm(BaseForm):
         max_length=255,
     )
 
-    # Notifications
-    notifications_email_enable = forms.CharField(
-        widget=forms.CheckboxInput(),
-    )
+    # Email Notifications
     notifications_email_address_from = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
@@ -137,17 +156,76 @@ class SettingsForm(BaseForm):
         max_length=255,
         validators=[BaseForm.validator_email()],
     )
-    notifications_irc_enable = forms.CharField(
+    notifications_email_new_event_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_events_threshold = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BaseForm.validator_integer_whitespace()],
+    )
+    notifications_email_delete_event_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_new_blacklist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_delete_blacklist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_new_ip_whitelist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_delete_ip_whitelist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_email_delete_offender_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+
+    # IRC notifications
+    notifications_irc_new_event_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_events_threshold = forms.CharField(
+        widget=forms.TextInput(),
+        max_length=255,
+        validators=[BaseForm.validator_integer_whitespace()],
+    )
+    notifications_irc_delete_event_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_new_blacklist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_delete_blacklist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_new_ip_whitelist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_delete_ip_whitelist_enable = forms.CharField(
+        widget=forms.CheckboxInput(),
+        max_length=255,
+    )
+    notifications_irc_delete_offender_enable = forms.CharField(
         widget=forms.CheckboxInput(),
         max_length=255,
     )
 
     # Score
-    blacklist_unknown_threshold = forms.CharField(
-        widget=forms.TextInput(),
-        max_length=255,
-        validators=[BaseForm.validator_integer()],
-    )
     score_factor_severity = forms.CharField(
         widget=forms.TextInput(),
         max_length=255,
