@@ -29,7 +29,7 @@ class Offender(models.Model):
     suggestion = models.BooleanField()
     created_date = models.DateTimeField(auto_now_add=True)
     updated_date = models.DateTimeField(auto_now=True)
-    score = models.BigIntegerField()
+    score = models.BigIntegerField(default=0)
 
     @classmethod
     def compute_attackscore(cls, score_indicators, score_factors):
