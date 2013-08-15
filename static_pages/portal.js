@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    $("#email").text("blabla");
+    $("#email").text("abuse+bh");
     $("#email").text($("#email").text()+"@");
-    $("#email").text($("#email").text()+"mozilla.com");
+    $("#email").text($("#email").text()+"mozilla.org");
 } );

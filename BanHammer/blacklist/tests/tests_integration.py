@@ -333,7 +333,7 @@ class SettingsTestCase(WebTest):
         index = self.app.get('/settings')
 
         assert 'Redirection URL for ZLB Redirect blacklists' in index
-        assert 'Duration of blocking an offender attacking while on a redirection blacklist' in index
+        assert 'Duration (in secs) of blocking an offender attacking while on a redirection blacklist' in index
         assert 'Blocking URL where to redirect an offender attacking while on a redirection blacklist' in index
 
         assert 'Thresholds for notifications of offenders (scores separated by whitespaces)' in index
