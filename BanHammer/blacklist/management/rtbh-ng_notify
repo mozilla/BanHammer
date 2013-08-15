@@ -1,0 +1,4 @@
+#!/bin/bash
+#Small script to use with the rtbh-ng modules
+PORT=6669
+echo -en "$*\r\n" | nc localhost $PORT
