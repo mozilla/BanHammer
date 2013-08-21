@@ -85,7 +85,7 @@ def email_delete_event_data(event_d, reporter):
         event_d['attackerAddress'],
     )
 
-    data['message'] += email_event_event(event_d)
+    data['message'] = email_event_event(event_d)
     
     data['message'] += "Powered by RTBH-ng"
     
