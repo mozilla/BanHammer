@@ -20,130 +20,133 @@ def update_zlb(id):
     zlb_m.save()
     logging.info('zlb: %s' % zlb_m.name)
 
-    zlb = models.ZLB.objects.get(id=id)
-    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
-    
-    # Empty the db
-    models.ZLBProtection.objects.all().delete()
-    models.ZLBRule.objects.all().delete()
-    models.ZLBVirtualServerRule.objects.all().delete()
-    models.ZLBVirtualServerProtection.objects.all().delete()
-    models.ZLBVirtualServer.objects.all().delete()
-    
-    logging.info('Updating Protection Classes')
-    z.connect('Catalog.Protection')
-    protectionnames = list(z.conn.getProtectionNames())
-    allowed_addresses_list = list(z.conn.getAllowedAddresses(protectionnames))
-    banned_addresses_list = list(z.conn.getBannedAddresses(protectionnames))
-    debug_list = list(z.conn.getDebug(protectionnames))
-    enabled_list = list(z.conn.getEnabled(protectionnames))
-    note_list = list(z.conn.getNote(protectionnames))
-    testing_list = list(z.conn.getTesting(protectionnames))
-    
-    for rule_index in range(len(protectionnames)):
-        allowed_addresses = []
-        for addr in allowed_addresses_list[rule_index]:
-            allowed_addresses.append(str(addr))
-        allowed_addresses = ', '.join(allowed_addresses)
-            
-        banned_addresses = []
-        for addr in banned_addresses_list[rule_index]:
-            banned_addresses.append(str(addr))
-        banned_addresses = ', '.join(banned_addresses)
+    if not settings.TESTING_ENV:
+        zlb = models.ZLB.objects.get(id=id)
+        z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
         
-        pr = models.ZLBProtection(
-            zlb_id=zlb.id,
-            name=protectionnames[rule_index],
-            allowed_addresses=allowed_addresses,
-            banned_addresses=banned_addresses,
-            debug=debug_list[rule_index],
-            enabled=enabled_list[rule_index],
-            note=note_list[rule_index],
-            testing=testing_list[rule_index],
-        )
-        pr.save()
-
-    logging.info('Updating TrafficScript Rules')
-    z.connect('Catalog.Rule')    
-    rulenames = list(z.conn.getRuleNames())
-    ruledetails = list(z.conn.getRuleDetails(rulenames))
-
-    for rule_index in range(len(rulenames)):
-        rule = models.ZLBRule(
-            zlb_id=zlb.id,
-            name=rulenames[rule_index],
-            rule_text=ruledetails[rule_index].rule_text,
-            rule_notes=ruledetails[rule_index].rule_notes,
-        )
-        rule.save()
-    
-    logging.info('Updating Virtual Servers')
-    z.connect('VirtualServer')
-    logging.info("Virtual Servers - SOAP")
-    virtualservernames = list(z.conn.getVirtualServerNames())
-    enabled_list = list(z.conn.getEnabled(virtualservernames))
-    basicinfo_list = list(z.conn.getBasicInfo(virtualservernames))
-    rules_list = list(z.conn.getRules(virtualservernames))
-    protection_list = list(z.conn.getProtection(virtualservernames))
-    
-    logging.info("Virtual Servers - DB")
-    for vs_index in range(len(virtualservernames)):
-        vs_name = virtualservernames[vs_index]
-        vs = models.ZLBVirtualServer(
-            zlb_id=zlb.id,
-            name=vs_name,
-            enabled=enabled_list[vs_index],
-            port=basicinfo_list[vs_index].port,
-            protocol=basicinfo_list[vs_index].protocol,
-            default_pool=basicinfo_list[vs_index].default_pool,
-        )
-        vs.save()
-
-        for rule in rules_list[vs_index]:
-            rule_o = models.ZLBRule.objects.get(name=rule.name, zlb_id=zlb.id)
-            vs_rule = models.ZLBVirtualServerRule(
-                zlb_id=zlb.id,
-                virtualserver=vs,
-                rule=rule_o,
-                enabled=rule.enabled,
-                run_frequency=str(rule.run_frequency),
-            )
-            vs_rule.save()
-    
-        protection = protection_list[vs_index]
-        if protection:
-            pr_o = models.ZLBProtection.objects.get(name=protection, zlb_id=zlb.id)
-            vs_pr = models.ZLBVirtualServerProtection(
-                zlb_id=zlb.id,
-                virtualserver=vs,
-                protection=pr_o,
-            )
-            vs_pr.save()
+        # Empty the db
+        models.ZLBProtection.objects.all().delete()
+        models.ZLBRule.objects.all().delete()
+        models.ZLBVirtualServerRule.objects.all().delete()
+        models.ZLBVirtualServerProtection.objects.all().delete()
+        models.ZLBVirtualServer.objects.all().delete()
+        
+        logging.info('Updating Protection Classes')
+        z.connect('Catalog.Protection')
+        protectionnames = list(z.conn.getProtectionNames())
+        allowed_addresses_list = list(z.conn.getAllowedAddresses(protectionnames))
+        banned_addresses_list = list(z.conn.getBannedAddresses(protectionnames))
+        debug_list = list(z.conn.getDebug(protectionnames))
+        enabled_list = list(z.conn.getEnabled(protectionnames))
+        note_list = list(z.conn.getNote(protectionnames))
+        testing_list = list(z.conn.getTesting(protectionnames))
+        
+        for rule_index in range(len(protectionnames)):
+            allowed_addresses = []
+            for addr in allowed_addresses_list[rule_index]:
+                allowed_addresses.append(str(addr))
+            allowed_addresses = ', '.join(allowed_addresses)
+                
+            banned_addresses = []
+            for addr in banned_addresses_list[rule_index]:
+                banned_addresses.append(str(addr))
+            banned_addresses = ', '.join(banned_addresses)
             
-            if protection != 'banned-'+vs_name:
-                try:
-                    pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
-                    pref.other_protection = True
-                    pref.save()
-                except:
-                    pref = models.ZLBVirtualServerPref(
-                        zlb=zlb,
-                        vs_name=vs_name,
-                        confirm=False,
-                        favorite=False,
-                        other_protection=True,
-                    )
-                    pref.save()
-            else:
-                try:
-                    pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
-                    pref.other_protection = False
-                    pref.save()
-                except:
-                    pass
+            pr = models.ZLBProtection(
+                zlb_id=zlb.id,
+                name=protectionnames[rule_index],
+                allowed_addresses=allowed_addresses,
+                banned_addresses=banned_addresses,
+                debug=debug_list[rule_index],
+                enabled=enabled_list[rule_index],
+                note=note_list[rule_index],
+                testing=testing_list[rule_index],
+            )
+            pr.save()
     
-    zlb_m.updating = False
-    zlb_m.save()
+        logging.info('Updating TrafficScript Rules')
+        z.connect('Catalog.Rule')    
+        rulenames = list(z.conn.getRuleNames())
+        ruledetails = list(z.conn.getRuleDetails(rulenames))
+    
+        for rule_index in range(len(rulenames)):
+            rule = models.ZLBRule(
+                zlb_id=zlb.id,
+                name=rulenames[rule_index],
+                rule_text=ruledetails[rule_index].rule_text,
+                rule_notes=ruledetails[rule_index].rule_notes,
+            )
+            rule.save()
+        
+        logging.info('Updating Virtual Servers')
+        z.connect('VirtualServer')
+        logging.info("Virtual Servers - SOAP")
+        virtualservernames = list(z.conn.getVirtualServerNames())
+        enabled_list = list(z.conn.getEnabled(virtualservernames))
+        basicinfo_list = list(z.conn.getBasicInfo(virtualservernames))
+        rules_list = list(z.conn.getRules(virtualservernames))
+        protection_list = list(z.conn.getProtection(virtualservernames))
+        
+        logging.info("Virtual Servers - DB")
+        for vs_index in range(len(virtualservernames)):
+            vs_name = virtualservernames[vs_index]
+            vs = models.ZLBVirtualServer(
+                zlb_id=zlb.id,
+                name=vs_name,
+                enabled=enabled_list[vs_index],
+                port=basicinfo_list[vs_index].port,
+                protocol=basicinfo_list[vs_index].protocol,
+                default_pool=basicinfo_list[vs_index].default_pool,
+            )
+            vs.save()
+    
+            for rule in rules_list[vs_index]:
+                rule_o = models.ZLBRule.objects.get(name=rule.name, zlb_id=zlb.id)
+                vs_rule = models.ZLBVirtualServerRule(
+                    zlb_id=zlb.id,
+                    virtualserver=vs,
+                    rule=rule_o,
+                    enabled=rule.enabled,
+                    run_frequency=str(rule.run_frequency),
+                )
+                vs_rule.save()
+        
+            protection = protection_list[vs_index]
+            if protection:
+                pr_o = models.ZLBProtection.objects.get(name=protection, zlb_id=zlb.id)
+                vs_pr = models.ZLBVirtualServerProtection(
+                    zlb_id=zlb.id,
+                    virtualserver=vs,
+                    protection=pr_o,
+                )
+                vs_pr.save()
+                
+                if protection != 'banned-'+vs_name:
+                    try:
+                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                        pref.other_protection = True
+                        pref.save()
+                    except:
+                        pref = models.ZLBVirtualServerPref(
+                            zlb=zlb,
+                            vs_name=vs_name,
+                            confirm=False,
+                            favorite=False,
+                            other_protection=True,
+                        )
+                        pref.save()
+                else:
+                    try:
+                        pref = models.ZLBVirtualServerPref.objects.get(zlb_id=zlb.id, vs_name=vs_name)
+                        pref.other_protection = False
+                        pref.save()
+                    except:
+                        pass
+        
+        zlb_m.updating = False
+        zlb_m.save()
+    else:
+        logging.warning('Testing mode, zlb not updated')
 
 def _create_and_attach_protection(z, virtual_server_name, networks, class_name):
     z.connect('Catalog.Protection')
@@ -182,52 +185,59 @@ def _zlb_find_networks_blacklist(type, virtual_server_name, zlb_id):
 def update_protection(zlb_id, virtual_server_name):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    (networks, _, _) = _zlb_find_networks_blacklist('zlb_block', virtual_server_name, zlb_id)
-    logging.info("networks: %s" % str(networks))
-    
-    class_name = 'banned-%s' % virtual_server_name
-    zlb = models.ZLB.objects.get(id=zlb_id)
-    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
-    z.connect('VirtualServer')
-    
-    # A virtual server can only have one protection class
-    class_name_current = z.conn.getProtection([virtual_server_name])[0]
-    if class_name_current:
-        z.connect('Catalog.Protection')
-        # Detach the current rule
-        note = z.conn.getNote([class_name_current])[0]
-        note += "\nDetached from %s on %s by BanHammer-ng" % (virtual_server_name,
-                                                              str(datetime.datetime.now()))
-        z.conn.setNote([class_name_current], [note])
+    if not settings.TESTING_ENV:
+        (networks, _, _) = _zlb_find_networks_blacklist('zlb_block', virtual_server_name, zlb_id)
+        logging.info("networks: %s" % str(networks))
+        
+        class_name = 'banned-%s' % virtual_server_name
+        zlb = models.ZLB.objects.get(id=zlb_id)
+        z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
         z.connect('VirtualServer')
-        z.conn.setProtection([virtual_server_name], [''])
-        _create_and_attach_protection(z, virtual_server_name, networks, class_name)
-    else:
+        
+        # A virtual server can only have one protection class
+        class_name_current = z.conn.getProtection([virtual_server_name])[0]
+        if class_name_current:
+            z.connect('Catalog.Protection')
+            # Detach the current rule
+            note = z.conn.getNote([class_name_current])[0]
+            note += "\nDetached from %s on %s by BanHammer-ng" % (virtual_server_name,
+                                                                  str(datetime.datetime.now()))
+            z.conn.setNote([class_name_current], [note])
+            z.connect('VirtualServer')
+            z.conn.setProtection([virtual_server_name], [''])
             _create_and_attach_protection(z, virtual_server_name, networks, class_name)
+        else:
+                _create_and_attach_protection(z, virtual_server_name, networks, class_name)
+    else:
+        logging.warning("Testing mode, protection class not updated")
 
 @task(name="BanHammer.blacklist.tasks.update_protection_delete")
 def update_protection_delete(zlb_id, virtual_server_name, offender=None, offender_ip=None, offender_cidr=None):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    if offender:
-        networks = ["%s/%s" % (offender.address, offender.cidr)]
-    else:
-        networks = ["%s/%s" % (offender_ip, offender_cidr)]
-    logging.info("networks: %s" % str(networks))
     
-    class_name = 'banned-%s' % virtual_server_name
-    zlb = models.ZLB.objects.get(id=zlb_id)
-    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
-    z.connect('VirtualServer')
-    
-    # A virtual server can only have one protection class
-    class_name_current = z.conn.getProtection([virtual_server_name])[0]
-    z.connect('Catalog.Protection')
-    try:
-        z.conn.removeBannedAddresses([class_name_current], [networks])
-    except:
-        logging.error("%s on %s protection class was already removed" % ((str(networks),
+    if not settings.TESTING_ENV:
+        if offender:
+            networks = ["%s/%s" % (offender.address, offender.cidr)]
+        else:
+            networks = ["%s/%s" % (offender_ip, offender_cidr)]
+        logging.info("networks: %s" % str(networks))
+        
+        class_name = 'banned-%s' % virtual_server_name
+        zlb = models.ZLB.objects.get(id=zlb_id)
+        z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
+        z.connect('VirtualServer')
+        
+        # A virtual server can only have one protection class
+        class_name_current = z.conn.getProtection([virtual_server_name])[0]
+        z.connect('Catalog.Protection')
+        try:
+            z.conn.removeBannedAddresses([class_name_current], [networks])
+        except:
+            logging.error("%s on %s protection class was already removed" % ((str(networks),
                                                                           class_name_current,)))
+    else:
+        logging.warning("Testing mode, protection class not deleted")
 
 def _get_rule_content(networks, secrets, blocking):
     url_redirection = models.Config.objects.get(key='zlb_redirection_url')
@@ -277,41 +287,47 @@ def _get_rule_content(networks, secrets, blocking):
 def update_rule(zlb_id, virtual_server_name, blocking_net=None):
     logging.info("zlb_id: %s" % zlb_id)
     logging.info("virtual_server_name: %s" % virtual_server_name)
-    (networks, secrets, blocking) = _zlb_find_networks_blacklist('zlb_redirect', virtual_server_name, zlb_id)
-    logging.info("networks: %s" % str(networks))
-    
-    logging.info("blocking: %s" % str(blocking))
-    
-    rule_name = 'banhammer-redirected-%s' % virtual_server_name
-    zlb = models.ZLB.objects.get(id=zlb_id)
-    z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
-    
-    rule = _get_rule_content(networks, secrets, blocking)
-    logging.info(rule)
-    
-    z.connect('Catalog.Rule')
-    try:
-        z.conn.addRule([rule_name], [rule])
-    except:
-        # The rule already exists
-        z.conn.setRuleText([rule_name], [rule])
-    z.conn.setRuleNotes([rule_name], ["Managed by BanHammer-ng, do not edit it."])
-    
-    z.connect('VirtualServer')
-    z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]]) 
+    if not settings.TESTING_ENV:
+        (networks, secrets, blocking) = _zlb_find_networks_blacklist('zlb_redirect', virtual_server_name, zlb_id)
+        logging.info("networks: %s" % str(networks))
+        
+        logging.info("blocking: %s" % str(blocking))
+        
+        rule_name = 'banhammer-redirected-%s' % virtual_server_name
+        zlb = models.ZLB.objects.get(id=zlb_id)
+        z = zeus.ZLB(zlb.hostname, zlb.login, zlb.password)
+        
+        rule = _get_rule_content(networks, secrets, blocking)
+        logging.info(rule)
+        
+        z.connect('Catalog.Rule')
+        try:
+            z.conn.addRule([rule_name], [rule])
+        except:
+            # The rule already exists
+            z.conn.setRuleText([rule_name], [rule])
+        z.conn.setRuleNotes([rule_name], ["Managed by BanHammer-ng, do not edit it."])
+        
+        z.connect('VirtualServer')
+        z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]]) 
+    else:
+        logging.warning("Testing mode, rule not updated")
 
 @task(name="BanHammer.blacklist.tasks.delete_offender")
 def delete_offender(offender_ip, offender_cidr, protections_vs, redirections_vs):
     logging.info("offender: %s/%s" % (offender_ip, offender_cidr))
     logging.info("protection_vs: %s" % str(protections_vs))
     logging.info("redirections_vs: %s" % str(redirections_vs))
-    logging.info("Updating protection classes")
-    for (zlb_id, virtual_server_name) in protections_vs:
-        update_protection_delete(
-            zlb_id, virtual_server_name, offender_ip=offender_ip, offender_cidr=offender_cidr)
-    logging.info("Updating TrafficScript rules")
-    for (zlb_id, virtual_server_name) in redirections_vs:
-        update_rule(zlb_id, virtual_server_name)
+    if not settings.TESTING_ENV:
+        logging.info("Updating protection classes")
+        for (zlb_id, virtual_server_name) in protections_vs:
+            update_protection_delete(
+                zlb_id, virtual_server_name, offender_ip=offender_ip, offender_cidr=offender_cidr)
+        logging.info("Updating TrafficScript rules")
+        for (zlb_id, virtual_server_name) in redirections_vs:
+            update_rule(zlb_id, virtual_server_name)
+    else:
+        logging.warning("Testing mode, offender not deleted")
 
 @task(name="BanHammer.blacklist.tasks.notification_new_event")
 def notification_new_event(offender_d, event_d, score_factors_d, attackscore_history_d):

@@ -105,3 +105,6 @@ MANAGEMENT_FOLDER = "/somedir/BanHammer/BanHammer/blacklist/management"
 WSDL = MANAGEMENT_FOLDER+'/wsdl'
 
 SALT = "secret"
+
+# If False, will disable interactions with ZLBs
+TESTING_ENV = False

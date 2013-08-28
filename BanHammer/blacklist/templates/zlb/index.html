@@ -61,7 +61,9 @@
 			    </a>
 			</th>
 			<th></th>
-			<th></th>
+			{% if not testing_env %}
+				<th></th>
+			{% endif %}
 			<th></th>
 			<th></th>
 		</tr>
@@ -94,11 +96,13 @@
 			    		Updating...
 			    	{% endif %}
 			    </td>
-			    <td class="center">
-			    	<a href="/zlb/{{ z.id }}/update">
-			    		<i class="icon-refresh"></i>
-			    	</a>
-			    </td>
+			    {% if not testing_env %}
+				    <td class="center">
+				    	<a href="/zlb/{{ z.id }}/update">
+				    		<i class="icon-refresh"></i>
+				    	</a>
+				    </td>
+			    {% endif %}
 			    <td class="center">
 			    	<a href="/zlb/{{z.id}}/edit">
 			    		<i class="icon-pencil"></i>

@@ -10,6 +10,7 @@ from ..models import ZLBRule, ZLBProtection, Offender, ZLBVirtualServerPref
 from ..forms import ZLBForm
 from BanHammer.blacklist.management import zeus
 import BanHammer.blacklist.tasks as tasks
+from BanHammer import settings
 
 @anonymous_csrf
 @never_cache
@@ -41,6 +42,8 @@ def index(request, zlb=None, action=None):
     if action == 'update':
         data['zlb'] = zlb
         data['action'] = 'update'
+
+    data['testing_env'] = settings.TESTING_ENV
 
     return render_to_response(
         'zlb/index.html',
@@ -141,7 +144,8 @@ def show(request, id):
         'zlb/show.html',
         {'zlb': zlb,
          'prefs': prefs,
-         'vs': vs,},
+         'vs': vs,
+         'testing_env': settings.TESTING_ENV,},
         context_instance = RequestContext(request)
     )
 

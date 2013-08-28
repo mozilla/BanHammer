@@ -24,17 +24,19 @@
 					Find TrafficScript Rules applied
 				</a>
 			</div>
-			<div class="span4 center">
-				{% if zlb.need_update() %}
-				<a href="/zlb/{{ zlb.id }}/update" class="btn btn-warning">
-					Need Update (last update: {{ zlb.updated_date }})
-				</a>
-				{% else %}
-				<a href="/zlb/{{ zlb.id }}/update" class="btn">
-					Update (last update: {{ zlb.updated_date }})
-				</a>
-				{% endif %}
-			</div>
+			{% if not testing_env %}
+				<div class="span4 center">
+					{% if zlb.need_update() %}
+					<a href="/zlb/{{ zlb.id }}/update" class="btn btn-warning">
+						Need Update (last update: {{ zlb.updated_date }})
+					</a>
+					{% else %}
+					<a href="/zlb/{{ zlb.id }}/update" class="btn">
+						Update (last update: {{ zlb.updated_date }})
+					</a>
+					{% endif %}
+				</div>
+			{% endif %}
 		</div>
 		<br>
 	    <div class="row">
