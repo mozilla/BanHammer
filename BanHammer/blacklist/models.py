@@ -298,7 +298,7 @@ class ZLBVirtualServer(models.Model):
 class ZLBVirtualServerPref(models.Model):
     zlb = models.ForeignKey(ZLB)
     vs_name = models.CharField(max_length=255)
-    confirm = models.BooleanField()
+    confirm = models.TextField(null=True)
     favorite = models.BooleanField()
     other_protection = models.BooleanField()
 

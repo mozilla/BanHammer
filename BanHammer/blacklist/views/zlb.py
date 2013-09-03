@@ -7,7 +7,7 @@ from session_csrf import anonymous_csrf
 
 from ..models import ZLB, ZLBVirtualServer, ZLBVirtualServerRule, ZLBVirtualServerProtection
 from ..models import ZLBRule, ZLBProtection, Offender, ZLBVirtualServerPref
-from ..forms import ZLBForm
+from ..forms import ZLBForm, VirtualServerConfirm
 from BanHammer.blacklist.management import zeus
 import BanHammer.blacklist.tasks as tasks
 from BanHammer import settings
@@ -209,6 +209,29 @@ def index_rules(request, zlb_id):
 @never_cache
 @anonymous_csrf
 def virtual_server(request, zlb_id, vs_id):
+    if request.method == 'POST':
+        form = VirtualServerConfirm(request.POST)
+        if form.is_valid():
+            confirm = form.cleaned_data['confirm']
+            vs = ZLBVirtualServer.objects.get(id=vs_id)
+            pref = ZLBVirtualServerPref.objects.filter(zlb_id=zlb_id,vs_name=vs.name)
+            if pref.count() == 0:
+                p = ZLBVirtualServerPref(
+                    zlb_id=zlb_id,
+                    vs_name=vs.name,
+                    favorite=False,
+                    confirm=confirm,
+                )
+                p.save()
+            else:
+                pref = pref[0]
+                pref.confirm = confirm
+                pref.save()
+            
+            return HttpResponseRedirect('/zlb/%s/virtual_server/%s' % (zlb_id, vs_id))
+    else:
+        form = VirtualServerConfirm()
+
     zlb = ZLB.objects.get(id=zlb_id)
     virtual_server = ZLBVirtualServer.objects.get(id=vs_id)
     prefs = ZLBVirtualServerPref.objects.filter(zlb=zlb,vs_name=virtual_server.name)
@@ -224,7 +247,8 @@ def virtual_server(request, zlb_id, vs_id):
          'virtual_server': virtual_server,
          'prefs': prefs,
          'rules': rules,
-         'protections': protections},
+         'protections': protections,
+         'form': form,},
         context_instance = RequestContext(request)
     )
 
@@ -243,7 +267,6 @@ def virtual_server_favorite(request, zlb_id, vs_id):
             zlb_id=zlb_id,
             vs_name=vs.name,
             favorite=True,
-            confirm=False,
         )
         p.save()
     else:
@@ -261,27 +284,9 @@ def virtual_server_unfavorite(request, zlb_id, vs_id):
     return HttpResponseRedirect('/zlb/%s/virtual_server/%s' % (zlb_id, vs_id))
 
 @anonymous_csrf
-def virtual_server_confirm(request, zlb_id, vs_id):
-    vs = ZLBVirtualServer.objects.get(id=vs_id)
-    pref = ZLBVirtualServerPref.objects.filter(zlb_id=zlb_id,vs_name=vs.name)
-    if pref.count() == 0:
-        p = ZLBVirtualServerPref(
-            zlb_id=zlb_id,
-            vs_name=vs.name,
-            favorite=False,
-            confirm=True,
-        )
-        p.save()
-    else:
-        pref = pref[0]
-        pref.confirm = True
-        pref.save()
-    return HttpResponseRedirect('/zlb/%s/virtual_server/%s' % (zlb_id, vs_id))
-
-@anonymous_csrf
 def virtual_server_unconfirm(request, zlb_id, vs_id):
     vs = ZLBVirtualServer.objects.get(id=vs_id)
     pref = ZLBVirtualServerPref.objects.get(zlb_id=zlb_id,vs_name=vs.name)
-    pref.confirm = False
+    pref.confirm = ''
     pref.save()
     return HttpResponseRedirect('/zlb/%s/virtual_server/%s' % (zlb_id, vs_id))

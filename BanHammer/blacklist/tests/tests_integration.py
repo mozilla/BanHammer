@@ -598,13 +598,17 @@ class VirtualServerTestCase(WebTest):
     def test_bookmark(self):
         index = self.app.get('/zlb/1')
         show = index.click('Virtual Server 1')
-        assert 'Bookmarked: False'
-        show.click('Bookmark')
-        assert 'Bookmarked: True'
+        assert 'Bookmarked: False' in show
+        bookmark = show.click('Bookmark').follow()
+        print bookmark
+        assert 'Bookmarked: True' in bookmark
 
     def test_confirm(self):
         index = self.app.get('/zlb/1')
         show = index.click('Virtual Server 1')
-        assert 'Need confirmation: False'
-        show.click('Bookmark')
-        assert 'Need confirmation: True'
+        assert 'Need confirmation: False' in show
+        form = show.form
+        form['confirm'] = 'test text'
+        confirm = form.submit().follow()
+        assert 'test text' in confirm
+        assert 'Need confirmation: True' in confirm

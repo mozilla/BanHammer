@@ -412,3 +412,8 @@ class PortalForm(BaseForm):
         widget=forms.HiddenInput(),
         max_length=255,
     )
+
+class VirtualServerConfirm(BaseForm):
+    confirm = forms.CharField(
+        widget=forms.Textarea(),
+    )

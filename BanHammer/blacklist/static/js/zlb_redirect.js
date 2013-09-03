@@ -48,7 +48,7 @@ $('#virtualservers tbody tr').live('click', function () {
 			if ($(this).hasClass('other_protection'))
 				confirmation = confirm('This virtual server has a non-banhammer protection class. Do you really want to disable this class on this virtual server?')
 			if ($(this).hasClass('confirmation'))
-				confirmation = confirm('Do you really want to select this Virtual Server?')
+				confirmation = confirm($('#flag'+$(this).attr('id')).text())
 			else
 				confirmation = true
 			if (confirmation) {

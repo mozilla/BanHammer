@@ -39,19 +39,30 @@
     					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/unconfirm" class="btn">
 							<i class="icon-flag"></i>
 							Delete confirmation requirement
-						</a>
+						</a><br><br>
+						<div>{{ prefs[0].confirm }}</div>
 					{% else %}
-						<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/confirm" class="btn">
+						<a onclick="$('#confirm_form').toggle()" class="btn">
 							<i class="icon-flag"></i>
 							Require confirmation
 						</a>
 					{% endif %}
 				{% else %}
-					<a href="/zlb/{{ zlb.id }}/virtual_server/{{ virtual_server.id }}/confirm" class="btn">
+					<a onclick="$('#confirm_form').toggle()" class="btn">
 						<i class="icon-flag"></i>
 						Require confirmation
 					</a>
     			{% endif %}
+    			<div class="hide" id="confirm_form">
+	    				<form class="form-horizontal" action="" method="post" name="confirm">
+    					{{ csrf() }}
+	    				Message: <br>
+	    				{{ form.confirm }}
+	    				{{ form.confirm.errors }}
+	    				<br>
+	    				<button type="submit" class="btn">Submit</button>
+    				</form>
+    			</div>
 			</div>
 		</div>
 		<br>

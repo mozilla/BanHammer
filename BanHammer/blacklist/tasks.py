@@ -130,7 +130,6 @@ def update_zlb(id):
                         pref = models.ZLBVirtualServerPref(
                             zlb=zlb,
                             vs_name=vs_name,
-                            confirm=False,
                             favorite=False,
                             other_protection=True,
                         )
@@ -309,7 +308,18 @@ def update_rule(zlb_id, virtual_server_name, blocking_net=None):
         z.conn.setRuleNotes([rule_name], ["Managed by BanHammer-ng, do not edit it."])
         
         z.connect('VirtualServer')
-        z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]]) 
+        # Save all the rules currenlty applied
+        rules = z.conn.getRules([virtual_server_name])[0]
+        # detach all the rules from this virtual server
+        for r in list(rules):
+            z.conn.removeRules([virtual_server_name], [[r.name]])
+        # attach the new rule
+        z.conn.addRules([virtual_server_name], [[{'enabled': 1, 'name': rule_name, 'run_frequency': 'run_every'}]])
+        # reattach other rules (remove the banhammer rule if in list)
+        for r in list(rules):
+            logging.info(r)
+            if r.name != rule_name:
+                z.conn.addRules([virtual_server_name], [[{'enabled': int(r.enabled), 'name': r.name, 'run_frequency': r.run_frequency}]])
     else:
         logging.warning("Testing mode, rule not updated")
 

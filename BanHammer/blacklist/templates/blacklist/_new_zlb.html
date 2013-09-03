@@ -130,10 +130,12 @@
 	    				{% endif %}
 	    			</td>
 	    			<td class="center">
-	    				<span class="hide">hide</span>
-	    				{% if prefs[i.name] and prefs[i.name].confirm %}
+	  					{% if prefs[i.name] and prefs[i.name].confirm %}
+		    				<span class="hide" id="flag{{ i.id }}">{{ prefs[i.name].confirm }}</span>
 	    					<i class="icon-flag"></i>
-	    				{% endif %}
+	    				{% else %}
+	    					<span class="hide">hide</span>
+    					{% endif %}
 	    			</td>
 	    			<td>
 	    				<a href="/zlb/{{ i.zlb_id }}/virtual_server/{{ i.id}}"
